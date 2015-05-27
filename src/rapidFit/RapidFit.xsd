@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+			xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+            jxb:version="2.1">
+	<xs:annotation>
+		<xs:appinfo>
+			<jxb:globalBindings>
+                <jxb:javaType
+                name="double"
+                xmlType="xs:double"
+                parseMethod="javax.xml.bind.DatatypeConverter.parseDouble"
+                printMethod="javax.xml.bind.DatatypeConverter.printDouble" />
+			</jxb:globalBindings>
+		</xs:appinfo>	
+	</xs:annotation>
+
+	<xs:element name="RapidFit" type="RapidFitType" />
+
+	<xs:complexType name="RapidFitType">
+		<xs:sequence>
+			<xs:element name="ParameterSet" type="ParameterSetType" />
+			<xs:element name="Minimiser" type="MinimiserType" />
+			<xs:element name="FitFunction" type="FitFunctionType" />
+			<xs:element name="NumberRepeats" type="xs:integer"/>
+			<xs:element name="CommonPhaseSpace" type="CommonPhaseSpaceType" minOccurs="0"/>
+			<xs:element name="CommonPDF" type="PDFOperatorType" minOccurs="0"/>
+			<xs:element name="Precalculator" type="PrecalculatorType" minOccurs ="0"/>
+			<xs:element name="Seed" type="xs:integer" minOccurs="0"/>
+			<xs:element name="ToFit" type="ToFitType" maxOccurs="unbounded"/>
+			<xs:element name="Output" type="OutputType"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ParameterSetType">
+		<xs:sequence>
+			<xs:element name="PhysicsParameter" type="PhysicsParameterType"
+				maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="MinimiserType">
+		<xs:sequence>
+			<xs:element name="MinimiserName" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="NSigma" type="xs:integer" minOccurs="0" />
+			<xs:element name="MaxSteps" type="xs:integer" minOccurs="0" />
+			<xs:element name="GradTolerance" type="xs:double"
+				minOccurs="0" />
+			<xs:element name="ConfigureMinimiser" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="Quality" type="xs:integer" minOccurs="0" />
+			<xs:element name="MultiMini" type="xs:boolean" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="FitFunctionType">
+		<xs:sequence>
+			<xs:element name="FunctionName" type="xs:string"
+				minOccurs="0" /> <!-- minimum = 0 for old style -->
+			<xs:element name="UseGSLNumericalIntegration" type="xs:boolean"
+				minOccurs="0" />
+			<xs:element name="FixedIntegrationPoints" type="xs:integer"
+				minOccurs="0" />
+			<xs:element name="WeightName" type="xs:string" minOccurs="0" />
+			<xs:element name="AlphaName" type="xs:string" minOccurs="0" />
+			<xs:element name="Trace" type="xs:string" minOccurs="0" />
+			<xs:element name="Strategy" type="xs:string" minOccurs="0" />
+			<xs:element name="Threads" type="xs:integer" minOccurs="0" />
+			<xs:element name="SetIntegratorTest" type="xs:boolean"
+				minOccurs="0" />
+			<xs:element name="NormaliseWeights" type="xs:boolean"
+				minOccurs="0" />
+			<xs:element name="SingleNormaliseWeights" type="xs:boolean"
+				minOccurs="0" />
+			<xs:element name="OffSetNLL" type="xs:boolean" minOccurs="0" />
+			<xs:element name="RequiredParameterOrder" type="xs:string"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="CommonPhaseSpaceType">
+		<xs:sequence>
+			<xs:element name="PhaseSpaceBoundary" type="PhaseSpaceBoundaryType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="PhaseSpaceBoundaryType">
+		<xs:sequence>
+			<xs:element name="Observable" type="ObservableType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ObservableType">
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string"/>
+			<xs:element name="Minimum" type="xs:double"/>
+			<xs:element name="Maximum" type="xs:double"/>
+			<xs:element name="Value" type="xs:double"/>
+			<xs:element name="Unit" type="xs:string"/>
+			<xs:element name="TF1" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="PrecalculatorType">
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string"/>
+			<xs:element name="WeightName" type="xs:string"/>
+			<xs:element name="Config" type="xs:integer"/>
+			<xs:element name="OutputFile" type="xs:string"/>
+			<xs:element name="UseAlpha" type="xs:boolean" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="PhysicsParameterType">
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string" />
+			<xs:element name="Value" type="xs:double" />
+			<xs:element name="Minimum" type="xs:double" minOccurs="0" />
+			<xs:element name="Maximum" type="xs:double" minOccurs="0" />
+			<xs:element name="Type" type="ParamType"/>
+			<xs:element name="Unit" type="xs:string" />
+			<xs:element name="BlindString" type="xs:string" minOccurs="0" />
+			<xs:element name="BlindScale" type="xs:double" minOccurs="0" />
+			<xs:element name="StepSize" type="xs:double" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:simpleType name="ParamType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Fixed">
+				<xs:annotation>
+					<xs:appinfo>
+						<jxb:typesafeEnumMember name="Fixed"/>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="Free">
+				<xs:annotation>
+					<xs:appinfo>
+						<jxb:typesafeEnumMember name="Free"/>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:complexType name="ToFitType">
+		<xs:choice>
+			<xs:element name="ConstraintFunction" type="ConstraintFunctionType"/>
+			<xs:group ref="ActualFitGroup"/>
+		</xs:choice>
+	</xs:complexType>
+	
+	<xs:group name="ActualFitGroup">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element name="CommonPDF" type="xs:boolean"/>
+				<xs:element name="ProdPDF" type="PDFOperatorType"/>
+				<xs:element name="NormalisedSumPDF" type="PDFOperatorType"/>
+				<xs:element name="PDF" type="PDFType"/>
+			</xs:choice>
+			<xs:element name="DataSet" type="DataSetType"/>
+		</xs:sequence>
+	</xs:group>
+	
+	<xs:complexType name="DataSetType">
+		<xs:sequence>
+			<xs:element name="Source" type="xs:string"/>
+			<xs:element name="CutString" type="xs:string" minOccurs="0"/>
+			<xs:element name="FileName" type="xs:string"/>
+			<xs:element name="NTuplePath" type="xs:string" minOccurs="0" />
+			<xs:element name="NumberEvents" type="xs:integer" minOccurs="0" />
+			<xs:element name="PDFConfigurator" type="PDFConfiguratorType" minOccurs="0"/>
+			<xs:element name="StartingEntry" type="xs:integer" minOccurs="0"/>
+			<xs:element name="PhaseSpaceBoundary" type="PhaseSpaceBoundaryType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="PDFConfiguratorType">
+		<xs:sequence>
+			<xs:element name="ParameterSubstitution" type="xs:string" minOccurs="0"/>
+			<xs:element name="AppendParameterNames" type="xs:string" minOccurs="0"/>
+			<xs:element name="ConfigurationParameter" type="xs:string" minOccurs="0"/>
+			<xs:element name="AppendAllOthers" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="PDFOperatorType">
+		<xs:choice minOccurs="2" maxOccurs="2">
+			<xs:element name="ProdPDF" type="PDFOperatorType"/>
+			<xs:element name="NormalisedSumPDF" type="PDFOperatorType"/>
+			<xs:element name="PDF" type="PDFType"/>
+		</xs:choice>
+	</xs:complexType>
+	
+	<xs:complexType name="PDFType">
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string"/>
+				<xs:element name="Label" type="xs:string" minOccurs="0"/>
+				<xs:element name="ObservableName" type="xs:string" minOccurs="0"/>
+				<xs:element name="ParameterName" type="xs:string" minOccurs="0"/>
+				<xs:element name="AppendAllOthers" type="xs:string" minOccurs="0"/>
+				<xs:element name="FractionName" type="xs:string" minOccurs="0"/>
+				<xs:element name="ParameterSubstitution" type="xs:string" minOccurs="0"/>
+				<xs:element name="AppendParameterNames" type="xs:string" minOccurs="0"/>
+				<xs:element name="ConfigurationParameter" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ExternalConstraintType">
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string"/>
+			<xs:element name="Value" type="xs:double"/>
+			<xs:element name="Error" type="xs:double"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ExternalConstMatrixType">
+		<xs:sequence>
+			<xs:element name="Names" type="xs:string"/>
+			<xs:element name="Values" type="xs:string"/>
+			<xs:element name="Errors" type="xs:string"/>
+			<xs:element name="Correlations" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ConstraintFunctionType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="ExternalConstraint" type="ExternalConstraintType"/>
+			<xs:element name="ExternalConstMatrix" type="ExternalConstMatrixType"/>
+		</xs:choice>
+	</xs:complexType>
+	
+	<xs:complexType name="OutputType">
+		<xs:sequence>
+			<xs:element name="ContourPlot" type="ContourPlotType" minOccurs="0"/>
+			<xs:element name="Projection" type="PlotType" minOccurs="0"/>
+			<xs:element name="ComponentProjection" type="PlotType" minOccurs="0"/>
+			<xs:element name="DoPullPlots" minOccurs="0"/>
+			<xs:element name="Scan" type="ParamType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="PlotType">
+		<xs:all>
+			<xs:element name="DataBins" type="xs:integer" minOccurs="0"/>
+			<xs:element name="PDFPoints" type="xs:integer" minOccurs="0"/>
+			<xs:element name="LogY" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="LogX" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Name" type="xs:string"/>
+			<xs:element name="WidthKey" type="xs:string" minOccurs="0"/>
+			<xs:element name="ColorKey" type="xs:string" minOccurs="0"/>
+			<xs:element name="StyleKey" type="xs:string" minOccurs="0"/>
+			<xs:element name="Title" type="xs:string"/>
+			<xs:element name="CompNames" type="xs:string" minOccurs="0"/>
+			<xs:element name="ComponentNames" type="xs:string" minOccurs="0"/>
+			<xs:element name="CombinationNames" type="xs:string" minOccurs="0"/>
+			<xs:element name="Xmax" type="xs:double" minOccurs="0"/>
+			<xs:element name="Xmin" type="xs:double" minOccurs="0"/>
+			<xs:element name="Ymax" type="xs:double" minOccurs="0"/>
+			<xs:element name="Ymin" type="xs:double" minOccurs="0"/>
+			<xs:element name="XTitle" type="xs:string" minOccurs="0"/>
+			<xs:element name="YTitle" type="xs:string" minOccurs="0"/>
+			<xs:element name="TrustNumerical" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="CalcChi2" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="DrawPull" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="LimitPulls" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="AddLHCb" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="AddRightLHCb" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="LegendTextSize" type="xs:double" minOccurs="0"/>
+			<xs:element name="TopRightLegend" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="TopLeftLegend" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="BottomRightLegend" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="BottomLeftLegend" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="NoLegend" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="UseSpline" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Threads" type="xs:integer" minOccurs="0"/>
+			<xs:element name="FixedIntegrationPoints" type="xs:integer" minOccurs="0"/>
+			<xs:element name="UseGSLNumericalIntegration" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="PlotAllCombinations" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="DefaultDiscreteValue" type="xs:double" minOccurs="0"/>
+			<xs:element name="XaxisTitleScale" type="xs:double" minOccurs="0"/>
+			<xs:element name="XaxisLabelScale" type="xs:double" minOccurs="0"/>
+			<xs:element name="YaxisTitleScale" type="xs:double" minOccurs="0"/>
+			<xs:element name="YaxisLabelScale" type="xs:double" minOccurs="0"/>
+			<xs:element name="OnlyUseCombination" type="xs:integer" minOccurs="0"/>
+			<xs:element name="OnlyUseComponent" type="xs:integer" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+	
+	<!-- contour plot options -->
+	<xs:complexType name="ContourPlotType">
+		<xs:all>
+			<xs:element name="XParameter" type="xs:string"/>
+			<xs:element name="YParameter" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+</xs:schema>
