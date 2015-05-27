@@ -24,7 +24,7 @@ public class GroupedDataTableModel<T> extends DataTableModel<T> {
 	}
 	
 	public Object getValueAt(int row, int col) {
-		T entry = 
+		return null;
 	}
 	
 	public void setValueAt(Object value, int row, int col){

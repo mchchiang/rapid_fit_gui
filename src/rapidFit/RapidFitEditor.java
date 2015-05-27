@@ -33,7 +33,10 @@ public class RapidFitEditor extends JFrame {
 		
 		//read xml
 		reader = new XMLReader();
-		root = reader.readFile("trial2.xml", "src/rapidFit/RapidFit.xsd");
+		root = reader.readFile("/Users/MichaelChiang/Dropbox/"
+				+ "Edinburgh/Courses/Year 2/Summer_Project/rapid_fit_gui/trial2.xml", 
+				"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
+				+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
 		
 		/*
 		 * Instantiate a new object for any of the major classes that are null
