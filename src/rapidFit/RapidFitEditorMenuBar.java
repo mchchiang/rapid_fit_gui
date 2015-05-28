@@ -47,7 +47,9 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				XMLWriter writer = new XMLWriter();
-				writer.writeFile(editor.root, file.getAbsolutePath(), "src/rapidFit/RapidFit.xsd");
+				writer.writeFile(editor.root, file.getAbsolutePath(), "/Users/MichaelChiang/Dropbox/Edinburgh"
+						+ "/Courses/Year 2/Summer_Project/"
+						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
 			}
 		} else if (e.getSource() == mnuAbout){
 			

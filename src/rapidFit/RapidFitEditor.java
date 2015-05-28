@@ -20,6 +20,7 @@ public class RapidFitEditor extends JFrame {
 	private ParameterSetPanel paramSetPanel;
 	private CommonPropertiesPanel commonPhaseSpacePanel;
 	private FittingPanel fitPanel;
+	private ToFitPanel toFitPanel;
 	
 	protected RapidFitType root;
 	private Container content = getContentPane();
@@ -68,12 +69,13 @@ public class RapidFitEditor extends JFrame {
 					root.getCommonPhaseSpace().getPhaseSpaceBoundary(),
 					root.getCommonPDF());
 		
+		toFitPanel = new ToFitPanel(root.getToFit());
 		
 		tabs = new JTabbedPane();
 		tabs.addTab("Parameter Set", paramSetPanel);
 		tabs.addTab("Fitting Options", fitPanel);
 		tabs.addTab("Common Properties", commonPhaseSpacePanel);
-		
+		tabs.addTab("To Fit", toFitPanel);
 		
 		content = getContentPane();
 		content.add(tabs, BorderLayout.CENTER);

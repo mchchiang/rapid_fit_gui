@@ -225,10 +225,12 @@
 	</xs:complexType>
 	
 	<xs:complexType name="ConstraintFunctionType">
-		<xs:choice maxOccurs="unbounded">
-			<xs:element name="ExternalConstraint" type="ExternalConstraintType"/>
-			<xs:element name="ExternalConstMatrix" type="ExternalConstMatrixType"/>
-		</xs:choice>
+		<xs:sequence>
+			<xs:element name="ExternalConstraint" type="ExternalConstraintType" 
+				minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ExternalConstMatrix" type="ExternalConstMatrixType"
+				minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
 	</xs:complexType>
 	
 	<xs:complexType name="OutputType">
