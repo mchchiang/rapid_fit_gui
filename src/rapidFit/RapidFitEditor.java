@@ -24,6 +24,7 @@ public class RapidFitEditor extends JFrame {
 	private FittingPanel fitPanel;
 	private FitConstraintPanel fitConstraintPanel;
 	private FitDataSetPanel fitDataSetPanel;
+	private OutputPanel outputPanel;
 	
 	protected RapidFitType root;
 	private Container content = getContentPane();
@@ -86,6 +87,7 @@ public class RapidFitEditor extends JFrame {
 		}
 		fitConstraintPanel = new FitConstraintPanel(toFits, constraints);
 		fitDataSetPanel = new FitDataSetPanel(actualFits);
+		outputPanel = new OutputPanel();
 		
 		tabs = new JTabbedPane();
 		tabs.addTab("Parameter Set", paramSetPanel);
@@ -93,6 +95,7 @@ public class RapidFitEditor extends JFrame {
 		tabs.addTab("Common Properties", commonPhaseSpacePanel);
 		tabs.addTab("Fit Constraints", fitConstraintPanel);
 		tabs.addTab("Data Sets", fitDataSetPanel);
+		tabs.addTab("Output Options", outputPanel);
 		
 		content = getContentPane();
 		content.add(tabs, BorderLayout.CENTER);

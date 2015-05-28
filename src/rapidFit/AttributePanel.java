@@ -21,6 +21,8 @@ public class AttributePanel<T> extends JPanel {
 		
 		this.setLayout(new BorderLayout());
 		this.add(scrollPane, BorderLayout.CENTER);
+		//this.setLayout(new GridLayout(1,1));
+		//this.add(scrollPane);
 		Border border = BorderFactory.createTitledBorder("<html><h3>" + name + "</html></h3>");
 		Border margin = BorderFactory.createEmptyBorder(10,10,10,10);
 		

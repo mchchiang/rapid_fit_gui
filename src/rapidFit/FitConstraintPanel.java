@@ -79,7 +79,7 @@ public class FitConstraintPanel extends JPanel implements ActionListener{
 		
 		Border border = BorderFactory.createTitledBorder(
 				"<html><h3>External Constraints</html></h3>");
-		Border margin = BorderFactory.createEmptyBorder(10,10,10,10);
+		Border margin = BorderFactory.createEmptyBorder(0,10,10,0);
 		constraintPanel.setBorder(new CompoundBorder(margin, border));
 		
 		constMatrixPanel = new JPanel();
