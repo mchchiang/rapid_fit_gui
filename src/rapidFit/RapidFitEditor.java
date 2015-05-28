@@ -1,5 +1,7 @@
 package rapidFit;
 
+import java.util.*;
+import java.util.List;
 import java.awt.*;
 import java.math.BigInteger;
 
@@ -20,7 +22,8 @@ public class RapidFitEditor extends JFrame {
 	private ParameterSetPanel paramSetPanel;
 	private CommonPropertiesPanel commonPhaseSpacePanel;
 	private FittingPanel fitPanel;
-	private ToFitPanel toFitPanel;
+	private FitConstraintPanel fitConstraintPanel;
+	private FitDataSetPanel fitDataSetPanel;
 	
 	protected RapidFitType root;
 	private Container content = getContentPane();
@@ -69,13 +72,27 @@ public class RapidFitEditor extends JFrame {
 					root.getCommonPhaseSpace().getPhaseSpaceBoundary(),
 					root.getCommonPDF());
 		
-		toFitPanel = new ToFitPanel(root.getToFit());
+		//separate actual fit and fit constraints
+		List<ToFitType> toFits = root.getToFit();
+		ArrayList<ToFitType> constraints = new ArrayList<ToFitType>();
+		ArrayList<ToFitType> actualFits = new ArrayList<ToFitType>();
+		for (ToFitType fit : toFits){
+			//is actual fit
+			if (fit.getConstraintFunction() != null){
+				constraints.add(fit);
+			} else {
+				actualFits.add(fit);
+			}
+		}
+		fitConstraintPanel = new FitConstraintPanel(toFits, constraints);
+		fitDataSetPanel = new FitDataSetPanel(actualFits);
 		
 		tabs = new JTabbedPane();
 		tabs.addTab("Parameter Set", paramSetPanel);
 		tabs.addTab("Fitting Options", fitPanel);
 		tabs.addTab("Common Properties", commonPhaseSpacePanel);
-		tabs.addTab("To Fit", toFitPanel);
+		tabs.addTab("Fit Constraints", fitConstraintPanel);
+		tabs.addTab("Data Sets", fitDataSetPanel);
 		
 		content = getContentPane();
 		content.add(tabs, BorderLayout.CENTER);

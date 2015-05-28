@@ -6,14 +6,12 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
+import javax.swing.border.*;
 
 import rapidFit.rpfit.*;
 
-public class ToFitPanel extends JPanel implements ActionListener{
-	
-	private ArrayList<ToFitType> actualFits;
+@SuppressWarnings("serial")
+public class FitConstraintPanel extends JPanel implements ActionListener{
 	
 	private JPanel constMatrixControlPanel;
 	private JPanel constraintControlPanel;
@@ -30,30 +28,15 @@ public class ToFitPanel extends JPanel implements ActionListener{
 	private JButton btnAddConstMatrix;
 	private JButton btnRemoveConstMatrix;
 	
-	public ToFitPanel(List<ToFitType> toFits){
-		
-		actualFits = new ArrayList<ToFitType>();
-		
+	public FitConstraintPanel(List<ToFitType> toFitRoot, List<ToFitType> constraints){
 		ToFitType constraintFit = new ToFitType();
 		ConstraintFunctionType constraint = new ConstraintFunctionType();
 		
-		//separate the constraint functions and the actual fits
-		Iterator<ToFitType> it = toFits.iterator();
-		
-		while (it.hasNext()){
-			ToFitType fit = it.next();
-			//is constraint function
-			if (fit.getConstraintFunction() != null){
-				//merge all external constraint into one group
-				constraint.getExternalConstraint().addAll(
-						fit.getConstraintFunction().getExternalConstraint());
-				constraint.getExternalConstMatrix().addAll(
-						fit.getConstraintFunction().getExternalConstMatrix());
-				//remove constraint for combining them into single constraint
-				it.remove();
-			} else {
-				actualFits.add(fit);
-			}
+		for (ToFitType fit : constraints){
+			constraint.getExternalConstraint().addAll(
+					fit.getConstraintFunction().getExternalConstraint());
+			constraint.getExternalConstMatrix().addAll(
+					fit.getConstraintFunction().getExternalConstMatrix());
 		}
 		
 		/*
@@ -61,7 +44,7 @@ public class ToFitPanel extends JPanel implements ActionListener{
 		 * single constraint function
 		 */
 		constraintFit.setConstraintFunction(constraint);
-		toFits.add(constraintFit);
+		toFitRoot.add(constraintFit);
 		
 		constraintTablePanel = new DataPanel<ExternalConstraintType>(
 				ExternalConstraintType.class, 
@@ -109,7 +92,7 @@ public class ToFitPanel extends JPanel implements ActionListener{
 		constMatrixPanel.setBorder(new CompoundBorder(margin, border));
 		
 		mainConstraintPanel = new JPanel();
-		mainConstraintPanel.setLayout(new GridLayout(2,1));
+		mainConstraintPanel.setLayout(new GridLayout(1,2));
 		mainConstraintPanel.add(constraintPanel);
 		mainConstraintPanel.add(constMatrixPanel);
 		

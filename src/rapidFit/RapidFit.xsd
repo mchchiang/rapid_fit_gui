@@ -154,7 +154,10 @@
 	<xs:group name="ActualFitGroup">
 		<xs:sequence>
 			<xs:choice>
-				<xs:element name="CommonPDF" type="xs:boolean"/>
+				<xs:sequence>
+					<xs:element name="CommonPDF" type="xs:boolean"/>
+					<xs:element name="PDFConfigurator" type="PDFConfiguratorType" minOccurs="0"/>
+				</xs:sequence>
 				<xs:element name="ProdPDF" type="PDFOperatorType"/>
 				<xs:element name="NormalisedSumPDF" type="PDFOperatorType"/>
 				<xs:element name="PDF" type="PDFType"/>
@@ -170,9 +173,11 @@
 			<xs:element name="FileName" type="xs:string"/>
 			<xs:element name="NTuplePath" type="xs:string" minOccurs="0" />
 			<xs:element name="NumberEvents" type="xs:integer" minOccurs="0" />
-			<xs:element name="PDFConfigurator" type="PDFConfiguratorType" minOccurs="0"/>
 			<xs:element name="StartingEntry" type="xs:integer" minOccurs="0"/>
-			<xs:element name="PhaseSpaceBoundary" type="PhaseSpaceBoundaryType"/>
+			<xs:choice>
+				<xs:element name="CommonPhaseSpace" type="PhaseSpaceBoundaryType"/>
+				<xs:element name="PhaseSpaceBoundary" type="PhaseSpaceBoundaryType"/>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	
