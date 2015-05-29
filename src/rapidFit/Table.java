@@ -126,7 +126,18 @@ public class Table extends JTable{
 	public void setSelectAllForKeyEvent(boolean isSelectAllForKeyEvent){
 		this.isSelectAllForKeyEvent = isSelectAllForKeyEvent;
 	}
-
+	
+	//for initialising cells so that the full name is shown
+ 	public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+ 		int extraspacing = 10;
+ 		Component component = super.prepareRenderer(renderer, row, column);
+ 		int rendererWidth = component.getPreferredSize().width;
+ 		TableColumn tableColumn = getColumnModel().getColumn(column);
+ 		tableColumn.setPreferredWidth(Math.max(rendererWidth +
+ 				getIntercellSpacing().width + extraspacing, 
+ 				tableColumn.getPreferredWidth()));
+ 		return component;
+ 	} 
 //
 //  Static, convenience methods
 //

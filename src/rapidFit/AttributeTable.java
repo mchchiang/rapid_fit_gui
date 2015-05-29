@@ -60,18 +60,5 @@ public class AttributeTable extends Table {
      @Override
      public Class<?> getColumnClass(int column) {
          return editingClass != null ? editingClass : super.getColumnClass(column);
-     }
-     
-   //for initialising cells so that the full name is shown
- 	public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
- 		int extraspacing = 10;
- 		Component component = super.prepareRenderer(renderer, row, column);
- 		int rendererWidth = component.getPreferredSize().width;
- 		TableColumn tableColumn = getColumnModel().getColumn(column);
- 		tableColumn.setPreferredWidth(Math.max(rendererWidth +
- 				getIntercellSpacing().width + extraspacing, 
- 				tableColumn.getPreferredWidth()));
- 		return component;
- 	} 
-	
+     }	
 }

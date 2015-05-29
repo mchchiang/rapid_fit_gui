@@ -1,6 +1,5 @@
 package rapidFit;
 
-import java.util.List;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,14 +8,10 @@ import javax.swing.*;
 
 import rapidFit.rpfit.*;
 
+@SuppressWarnings("serial")
 public class FitDataSetPanel extends JPanel implements ActionListener {
 	
-	private HashMap<String, ToFitType> dataSetMap;
-	private int dataSetCount = 1;
 	private int currentDataSetIndex = -1;
-	
-	private JList<String> dataSetList; 
-	private DefaultListModel<String> listModel;
 	
 	private JScrollPane dataSetScrollPane;
 	
@@ -29,26 +24,19 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 	
 	private DataSetPanel dataSetPanel;
 	
+	private DataList<ToFitType> dataSetList;
+	private DataListModel<ToFitType> listModel;
+	
+	
 	public FitDataSetPanel(ArrayList<ToFitType> dataSets){
-		
-		//get all the data sets (i.e. filter the constraint functions)
-		dataSetMap = new HashMap<String, ToFitType>();
-		for (ToFitType dataSet : dataSets){
-			dataSetMap.put("Data_Set_" + dataSetCount, dataSet);
-			dataSetCount++;
-		}
 		
 		dataSetPanel = new DataSetPanel();
 		
-		listModel = new DefaultListModel<String>();
-		dataSetList = new JList<String>(listModel);
-		
-		//add data set to list
-		for (String dataSet : dataSetMap.keySet()){
-			listModel.addElement(dataSet);
-		}
-		
 		final FitDataSetPanel thisPanel = this;
+		
+		listModel = new DataListModel<ToFitType>(
+				ToFitType.class, dataSets);
+		dataSetList = new DataList<ToFitType>(listModel, "Data_Set", true);
 		
 		//click on list to switch between data sets
 		dataSetList.addMouseListener(new MouseAdapter(){
@@ -60,8 +48,7 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 							thisPanel.remove(dataSetPanel);
 							currentDataSetIndex = index;
 							dataSetPanel = new DataSetPanel(
-									dataSetMap.get(dataSetList.
-											getModel().getElementAt(index)));
+									dataSetList.getModel().getElementAt(index));
 							thisPanel.add(dataSetPanel, BorderLayout.CENTER);
 							thisPanel.validate();
 						} catch (Exception ex){
@@ -75,8 +62,7 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 		});
 		
 		dataSetScrollPane = new JScrollPane(dataSetList);
-		
-		
+			
 		btnAddDataSet = new JButton("Add");
 		btnAddDataSet.addActionListener(this);
 		btnRemoveDataSet = new JButton("Remove");
@@ -103,7 +89,9 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		if (e.getSource() == btnRemoveDataSet){
+			listModel.removeRows(dataSetList.getSelectedIndices());
+		}
 		
 	}
 }
