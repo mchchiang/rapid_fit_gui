@@ -137,5 +137,7 @@ public class DataListModel<T> extends AbstractTableModel {
 		data.remove(row);
 		fireTableDataChanged();
 	}
+	
+	public void remove(){}
 
 }
