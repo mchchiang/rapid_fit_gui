@@ -53,8 +53,9 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		pdfTreeRoot = root;
-		pdfs = new HashMap<String, PDFType>();
+		
 		//create a pdf mapping between actual object and its name
+		pdfs = new HashMap<String, PDFType>();
 		for (PDFType pdf : listOfPDFs){
 			pdfs.put(pdf.getName(), pdf);
 		}
@@ -118,19 +119,27 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		
 		pdfExpressionScrollPane = new JScrollPane(txtPDFExpression);
 		
-		btnAdd = new JButton("<html><div style=\"text-align: center;\"><b>+</b></html>");
+		//create the add button
+		btnAdd = new JButton(
+				"<html><div style=\"text-align: center;\"><b>+</b></html>");
 		btnAdd.addActionListener(this);
 		btnAdd.setPreferredSize(opBtnDimension);
 		
-		btnMultiply = new JButton("<html><div style=\"text-align: center;\"><b>x</b></html>");
+		//create the multiply button
+		btnMultiply = new JButton(
+				"<html><div style=\"text-align: center;\"><b>x</b></html>");
 		btnMultiply.addActionListener(this);
 		btnMultiply.setPreferredSize(opBtnDimension);
 		
-		btnLeftBracket = new JButton("<html><div style=\"text-align: center;\"><b>(</b></html>");
+		//create the left bracket button
+		btnLeftBracket = new JButton(
+				"<html><div style=\"text-align: center;\"><b>(</b></html>");
 		btnLeftBracket.addActionListener(this);
 		btnLeftBracket.setPreferredSize(opBtnDimension);
 		
-		btnRightBracket = new JButton("<html><div style=\"text-align: center;\"><b>)</b></html>");
+		//create the right bracket button
+		btnRightBracket = new JButton(
+				"<html><div style=\"text-align: center;\"><b>)</b></html>");
 		btnRightBracket.addActionListener(this);
 		btnRightBracket.setPreferredSize(opBtnDimension);
 		
@@ -204,6 +213,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 			
 			new PDFEditor(pdf).setVisible(true);
 			
+			//update the name of the edited pdf
 			listModel.setElementAt(pdf.getName(), listModel.size()-1);
 			
 		} else if (e.getSource() == btnRemovePDF &&

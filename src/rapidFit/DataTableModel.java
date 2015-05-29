@@ -7,12 +7,12 @@ import java.util.*;
 
 @SuppressWarnings("serial")
 public class DataTableModel<T> extends AbstractTableModel {
-	protected Class<T> dataClass;
-	protected List<T> data = null;
+	private Class<T> dataClass;
+	private List<T> data = null;
 	
-	protected ArrayList<String> columnNames = new ArrayList<String>();
-	protected ArrayList<Method> getMethods = new ArrayList<Method>();
-	protected ArrayList<Method> setMethods = new ArrayList<Method>();
+	private ArrayList<String> columnNames = new ArrayList<String>();
+	private ArrayList<Method> getMethods = new ArrayList<Method>();
+	private ArrayList<Method> setMethods = new ArrayList<Method>();
 	
 	//need Class<T> to determine the actual class of the generic type (irritating problem!)
 	public DataTableModel (Class<T> type, List<T> data, ArrayList<String> ignoreAttributes){
@@ -35,6 +35,8 @@ public class DataTableModel<T> extends AbstractTableModel {
 					//add set method
 					setMethods.add(dataClass.getMethod(
 							"set" + m.getName().substring(3), m.getReturnType()));
+					
+				//for boolean data types (jaxb by default makes the method name is<AttributeName>)
 				} else if (m.getName().startsWith("is") && !(ignoreAttributes != null &&
 						ignoreAttributes.contains(m.getName().substring(3)))){
 					//add get method
