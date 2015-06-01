@@ -15,13 +15,17 @@ public class DataListModel<T> extends AbstractListModel<T> {
 		this.dataClass = type;
 	}
 	
+	public void addRow(int row, T entry){
+		data.add(row, entry);
+		fireIntervalAdded(this, row, row);
+	}
+	
 	public void addRow(int row){
 		try{
-			data.add(row+1, dataClass.newInstance());
+			addRow(row, dataClass.newInstance());
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		fireIntervalAdded(this, row+1, row+1);
 	}
 	
 	public void addRow(){

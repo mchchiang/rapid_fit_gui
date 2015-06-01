@@ -15,6 +15,7 @@ public class DataList<T> extends JList<T> {
 	private int attrCount = 1;
 	private IdentityHashMap<T, String> nameMap = null;
 	private boolean useTagName = false;
+	private String tagName;
 	
 	private class DataListRenderer extends DefaultListCellRenderer{
 		public Component getListCellRendererComponent(JList<?> list,
@@ -56,6 +57,7 @@ public class DataList<T> extends JList<T> {
 			}
 		} else {
 			useTagName = true;
+			tagName = name;
 			nameMap = new IdentityHashMap<T, String>();
 			for (T entry : model.getData()){
 				nameMap.put(entry, name + "_" + attrCount);
@@ -68,5 +70,32 @@ public class DataList<T> extends JList<T> {
 	public void setDefaultOptions(){
 		setCellRenderer(new DataListRenderer());
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	}
+	
+	public void setTagName(T entry, String name){
+		if (useTagName){
+			nameMap.put(entry, name);
+		}
+		setCellRenderer(new DataListRenderer());
+	}
+	
+	public void setTagName(T entry){
+		if (useTagName){
+			nameMap.put(entry, tagName + "_" + attrCount);
+			attrCount++;
+		}
+		setCellRenderer(new DataListRenderer());
+	}
+	
+	public String getTagName(T entry){
+		if (useTagName){
+			return nameMap.get(entry);
+		} else {
+			return "NO TAG NAME";
+		}
+	}
+	
+	public void updateRenderer(){
+		setCellRenderer(new DataListRenderer());
 	}
 }

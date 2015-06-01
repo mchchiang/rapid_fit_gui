@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 			xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+			xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+			jxb:extensionBindingPrefixes="xjc"
             jxb:version="2.1">
 	<xs:annotation>
 		<xs:appinfo>
@@ -10,6 +12,7 @@
                 xmlType="xs:double"
                 parseMethod="javax.xml.bind.DatatypeConverter.parseDouble"
                 printMethod="javax.xml.bind.DatatypeConverter.printDouble" />
+                <xjc:serializable uid="1"/>
 			</jxb:globalBindings>
 		</xs:appinfo>	
 	</xs:annotation>

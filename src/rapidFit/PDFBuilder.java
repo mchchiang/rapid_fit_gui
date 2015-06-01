@@ -2,17 +2,19 @@ package rapidFit;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.Serializable;
 import java.util.*;
 
 import javax.swing.*;
+import javax.xml.bind.JAXBElement;
 
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
 public class PDFBuilder extends JDialog implements ActionListener {
 	
-	private JList<String> pdfList;
-	private DefaultListModel<String> listModel;
+	private JList<String> pdfOldList;
+	private DefaultListModel<String> oldListModel;
 	
 	private JButton btnAddPDF;
 	private JButton btnRemovePDF;
@@ -45,6 +47,8 @@ public class PDFBuilder extends JDialog implements ActionListener {
 	private HashMap<String, PDFType> pdfs;
 	private PDFOperatorType pdfTreeRoot;
 
+	private DataList<PDFType> pdfList;
+	private DataListModel<PDFType> listModel;
 	
 	public PDFBuilder (ArrayList<PDFType> listOfPDFs, PDFOperatorType root, String expr){
 		setTitle("PDF Builder");
@@ -54,6 +58,9 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		
 		pdfTreeRoot = root;
 		
+		listModel = new DataListModel<PDFType>(PDFType.class, listOfPDFs);
+		pdfList = new DataList<PDFType>(listModel, "Name", false);
+		
 		//create a pdf mapping between actual object and its name
 		pdfs = new HashMap<String, PDFType>();
 		for (PDFType pdf : listOfPDFs){
@@ -62,13 +69,13 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		
 		pdfExpression = expr;
 		
-		listModel = new DefaultListModel<String>();
-		pdfList = new JList<String>(listModel);
-		pdfList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		oldListModel = new DefaultListModel<String>();
+		pdfOldList = new JList<String>(oldListModel);
+		pdfOldList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		//add pdf to list
 		for (String pdfName : pdfs.keySet()){
-			listModel.addElement(pdfName);
+			oldListModel.addElement(pdfName);
 		}
 		
 		pdfList.addMouseListener(new MouseAdapter(){
@@ -79,7 +86,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 					try{
 						txtPDFExpression.getDocument().insertString(
 								txtPDFExpression.getCaretPosition(), 
-								" \"" + pdfList.getModel().getElementAt(index) + "\" ", null);
+								" \"" + listModel.getElementAt(index).getName() + "\" ", null);
 					} catch (Exception ex){
 						ex.printStackTrace();
 					}
@@ -204,36 +211,41 @@ public class PDFBuilder extends JDialog implements ActionListener {
 			
 		} else if (e.getSource() == btnAddPDF){
 			newPDFCount++;
+			int index = pdfList.getSelectedIndex();
 			
-			PDFType pdf = new PDFType();
-			pdf.setName("PDF_" + newPDFCount);
-			pdfs.put("PDF_" + newPDFCount, pdf);
-			listModel.addElement("PDF_" + newPDFCount);
+			if (index == -1){
+				index += listModel.getSize();
+			} else {
+				index++;
+			}
+			
+			listModel.addRow(index);
+			listModel.getElementAt(index).setName("PDF_" + newPDFCount);
+			pdfList.setSelectedIndex(index);
+			
+			new PDFEditor(listModel.getElementAt(index)).setVisible(true);
+			
 			exprStyle.updatePDFNames(getPDFNames());
 			
-			new PDFEditor(pdf).setVisible(true);
-			
-			//update the name of the edited pdf
-			listModel.setElementAt(pdf.getName(), listModel.size()-1);
-			
 		} else if (e.getSource() == btnRemovePDF &&
-				pdfs.get(pdfList.getSelectedValue()) != null){
+				pdfs.get(pdfOldList.getSelectedValue()) != null){
 			//remove the pdf from pdf expression
-			String pdfName = pdfList.getSelectedValue();
+			String pdfName = pdfOldList.getSelectedValue();
 			txtPDFExpression.setText(txtPDFExpression.getText().replaceAll(
 					"\"" + pdfName + "\"", ""));
 			pdfs.remove(pdfName);
-			listModel.removeElementAt(pdfList.getSelectedIndex());
+			oldListModel.removeElementAt(pdfOldList.getSelectedIndex());
 			exprStyle.updatePDFNames(getPDFNames());
 			
 		} else if (e.getSource() == btnEditPDF && 
-				pdfs.get(pdfList.getSelectedValue()) != null){
-				new PDFEditor(pdfs.get(pdfList.getSelectedValue())).setVisible(true);
+				pdfList.getSelectedIndex() != -1){
+				new PDFEditor(listModel.getElementAt(
+						pdfList.getSelectedIndex())).setVisible(true);
 			
 		} else if (e.getSource() == btnBuildPDF){
 			//update the pdf tree root with the new pdf
 			pdfTreeRoot.getProdPDFOrNormalisedSumPDFOrPDF().add(
-					PDFParser.convertToXML(txtPDFExpression.getText(), pdfs));
+					(JAXBElement<? extends Serializable>) PDFParser.convertToXML(txtPDFExpression.getText(), pdfs));
 			pdfTreeRoot.getProdPDFOrNormalisedSumPDFOrPDF().remove(0);
 			
 			dispose();

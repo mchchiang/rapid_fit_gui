@@ -34,11 +34,17 @@ public class DataSetPanel extends JPanel implements ActionListener{
 	private String pdfExpression;
 	private JButton btnEditPDF;
 	private JPanel pdfPanel;
+	private JPanel pdfOptionPanel;
 	private ArrayList<PDFType> listOfPDFs;
+	private AttributePanel<PDFConfiguratorType> pdfConfigPanel;
 	
 	private JScrollPane expressionScrollPane;
 	
 	private JLabel lblUseCommonPhaseSpace;
+	private JLabel lblUseCommonPDF;
+	
+	private JLabel lblDataSetName;
+	private JTextField txtDataSetName;
 	
 	public DataSetPanel(){
 		JLabel lblNoData = new JLabel("There is no data set selected.");
@@ -46,6 +52,15 @@ public class DataSetPanel extends JPanel implements ActionListener{
 	}
 	
 	public DataSetPanel (ToFitType fit){
+		//for new data set 
+		if (fit.getDataSet() == null){
+			fit.setDataSet(new DataSetType());
+			//by default uses common phase space and common pdf
+			fit.setCommonPDF(true);
+			fit.setPDFConfigurator(new PDFConfiguratorType());
+			fit.getDataSet().setCommonPhaseSpace(new PhaseSpaceBoundaryType());
+		}
+		
 		dataSet = fit.getDataSet();
 		
 		ArrayList<String> ignoreAttr = new ArrayList<String>();
@@ -96,19 +111,31 @@ public class DataSetPanel extends JPanel implements ActionListener{
 				"<html><h3>Phase Space</h3></html>"));
 		
 		//check if common pdf is used
+		lblUseCommonPDF = new JLabel("Use Common PDF");
+		
 		cbCommonPDF = new JCheckBox();
 		cbCommonPDF.setSelected(false);
 		
+		pdfOptionPanel = new JPanel();
+		pdfOptionPanel.add(lblUseCommonPDF);
+		pdfOptionPanel.add(cbCommonPDF);
+		
 		pdfPanel = new JPanel();
 		pdfPanel.setLayout(new BorderLayout());
-		pdfPanel.add(cbCommonPDF, BorderLayout.NORTH);
+		pdfPanel.add(pdfOptionPanel, BorderLayout.SOUTH);
 		pdfPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>PDF</h3></html>"));
+
 		
 		//if it is a common pdf
 		if (fit.isCommonPDF() != null && fit.isCommonPDF()){
 			cbCommonPDF.setSelected(true);
-			
+			pdfConfigPanel = new AttributePanel<PDFConfiguratorType>(
+					PDFConfiguratorType.class, fit.getPDFConfigurator(),
+					"PDF Configurator", null);	
+			pdfConfigPanel.setBorder(BorderFactory.createTitledBorder(
+					"PDF Configurator"));
+			pdfPanel.add(pdfConfigPanel, BorderLayout.CENTER);
 		} else {
 			ObjectFactory of = new ObjectFactory();
 			JAXBElement<?> pdfTag;
@@ -147,8 +174,8 @@ public class DataSetPanel extends JPanel implements ActionListener{
 			btnEditPDF = new JButton("Edit PDF");
 			btnEditPDF.addActionListener(this);
 			
+			pdfOptionPanel.add(btnEditPDF);
 			pdfPanel.add(expressionScrollPane, BorderLayout.CENTER);
-			pdfPanel.add(btnEditPDF, BorderLayout.EAST);
 		}
 		
 		//set layout for the components
@@ -183,10 +210,9 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		c.gridx = 0;
 		c.gridy = 2;
 		c.weightx = 1.0;
-		c.weighty = 0.1;
+		c.weighty = 0.3;
 		add(pdfPanel, c);
 		
-		setBorder(BorderFactory.createTitledBorder("<html><h3>Data Set</h3></html>"));
 	}
 	
 	public void switchPhaseSpacePanel(){
@@ -227,6 +253,19 @@ public class DataSetPanel extends JPanel implements ActionListener{
 					cbCommonPhaseSpace.setSelected(true);
 				}
 			}
+			
+		} else if (e.getSource() == btnAddObservable){
+			phaseSpaceDataPanel.addRow();
+			
+		} else if (e.getSource() == btnRemoveObservable){
+			phaseSpaceDataPanel.removeSelectedRows();
+			
+		} else if (e.getSource() == btnEditPDF){
+			PDFBuilder pdfBuilder = new PDFBuilder(
+					listOfPDFs,(PDFOperatorType) pdfRoot, pdfExpression);
+			pdfBuilder.setVisible(true);
+			
+			
 		}
 	}
 }

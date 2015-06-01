@@ -601,7 +601,7 @@
         </ConstraintFunction>
     </ToFit>
     <ToFit>
-        <CommonPDF>True</CommonPDF>
+        <CommonPDF>true</CommonPDF>
         <PDFConfigurator>
             <ConfigurationParameter>TimeAcceptanceFile:2013-3fbAnalysis/Bs_HltPropertimeAcceptance_Data_2011_40bins_Hlt1DiMuon_Hlt2DiMuonDetached_Reweighted.txt</ConfigurationParameter>
             <AppendParameterNames>F_s:delta_s:Csp:990</AppendParameterNames>
@@ -623,7 +623,7 @@
         </DataSet>
     </ToFit>
     <ToFit>
-        <CommonPDF>True</CommonPDF>
+        <CommonPDF>true</CommonPDF>
         <PDFConfigurator>
             <ConfigurationParameter>TimeAcceptanceFile:2013-3fbAnalysis/Bs_HltPropertimeAcceptance_Data_2011_40bins_Hlt1DiMuon_Hlt2DiMuonDetached_Reweighted.txt</ConfigurationParameter>
             <AppendParameterNames>F_s:delta_s:Csp:1016</AppendParameterNames>

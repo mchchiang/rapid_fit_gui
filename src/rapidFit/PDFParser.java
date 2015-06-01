@@ -1,5 +1,6 @@
 package rapidFit;
 
+import java.io.Serializable;
 import java.util.*;
 
 import javax.xml.bind.*;
@@ -160,8 +161,8 @@ public class PDFParser {
 			if (token.getName().equals(new QName("","PDF"))){
 				stack.add(token);
 			} else {
-				((PDFOperatorType)token.getValue()).getProdPDFOrNormalisedSumPDFOrPDF().add(stack.pop());
-				((PDFOperatorType)token.getValue()).getProdPDFOrNormalisedSumPDFOrPDF().add(stack.pop());
+				((PDFOperatorType)token.getValue()).getProdPDFOrNormalisedSumPDFOrPDF().add((JAXBElement<? extends Serializable>) stack.pop());
+				((PDFOperatorType)token.getValue()).getProdPDFOrNormalisedSumPDFOrPDF().add((JAXBElement<? extends Serializable>) stack.pop());
 				
 				//push result stack
 				stack.push(token);

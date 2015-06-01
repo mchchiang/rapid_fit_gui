@@ -77,16 +77,22 @@ public class RapidFitEditor extends JFrame {
 		List<ToFitType> toFits = root.getToFit();
 		ArrayList<ToFitType> constraints = new ArrayList<ToFitType>();
 		ArrayList<ToFitType> actualFits = new ArrayList<ToFitType>();
-		for (ToFitType fit : toFits){
+		
+		Iterator<ToFitType> it = toFits.iterator();
+		
+		while(it.hasNext()){
+			ToFitType fit = it.next();
 			//is actual fit
 			if (fit.getConstraintFunction() != null){
-				constraints.add(fit);
+				constraints.add(fit);	
+				it.remove();
 			} else {
 				actualFits.add(fit);
 			}
 		}
+
 		fitConstraintPanel = new FitConstraintPanel(toFits, constraints);
-		fitDataSetPanel = new FitDataSetPanel(actualFits);
+		fitDataSetPanel = new FitDataSetPanel(toFits, actualFits);
 		outputPanel = new OutputPanel();
 		
 		tabs = new JTabbedPane();

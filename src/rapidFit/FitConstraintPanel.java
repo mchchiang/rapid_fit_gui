@@ -1,7 +1,6 @@
 package rapidFit;
 
 import java.util.List;
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 

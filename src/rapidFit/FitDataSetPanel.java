@@ -1,11 +1,15 @@
 package rapidFit;
 
+import java.io.*;
+import java.math.BigInteger;
 import java.util.*;
+import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
+import cloning.*;
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
@@ -23,14 +27,17 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 	private JButton btnDuplicateDataSet;
 	
 	private DataSetPanel dataSetPanel;
+	private DataSetPanel emptyDataSetPanel;
 	
 	private DataList<ToFitType> dataSetList;
 	private DataListModel<ToFitType> listModel;
 	
+	private List<ToFitType> toFitRoot;
 	
-	public FitDataSetPanel(ArrayList<ToFitType> dataSets){
-		
+	public FitDataSetPanel(List<ToFitType> root, ArrayList<ToFitType> dataSets){
 		dataSetPanel = new DataSetPanel();
+		
+		toFitRoot = root;
 		
 		final FitDataSetPanel thisPanel = this;
 		
@@ -48,7 +55,11 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 							thisPanel.remove(dataSetPanel);
 							currentDataSetIndex = index;
 							dataSetPanel = new DataSetPanel(
-									dataSetList.getModel().getElementAt(index));
+									listModel.getElementAt(index));
+
+							dataSetPanel.setBorder(BorderFactory.createTitledBorder(
+									"<html><h3>" + dataSetList.getTagName(
+											listModel.getElementAt(index)) + "</h3></html>"));
 							thisPanel.add(dataSetPanel, BorderLayout.CENTER);
 							thisPanel.validate();
 						} catch (Exception ex){
@@ -90,8 +101,111 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnRemoveDataSet){
-			listModel.removeRows(dataSetList.getSelectedIndices());
+			for (int index : dataSetList.getSelectedIndices()){
+				if (index == currentDataSetIndex){
+					this.remove(dataSetPanel);
+					dataSetPanel = new DataSetPanel();
+					this.add(dataSetPanel, BorderLayout.CENTER);
+					this.validate();
+				}
+				toFitRoot.remove(listModel.getElementAt(index));
+				listModel.removeRow(index);
+			}
+			currentDataSetIndex = -1;
+		} else if (e.getSource() == btnAddDataSet){
+			int index = dataSetList.getSelectedIndex();
+			
+			if (index == -1){
+				index += listModel.getSize();
+			} else {
+				index++;
+			}
+			
+			listModel.addRow(index);
+			toFitRoot.add(listModel.getElementAt(index));
+			
+			dataSetList.setSelectedIndex(index);
+			dataSetList.setTagName(listModel.getElementAt(index));
+			
+			this.remove(dataSetPanel);
+			
+			currentDataSetIndex = index;
+			
+			dataSetPanel = new DataSetPanel(
+					listModel.getElementAt(index));
+			dataSetPanel.setBorder(BorderFactory.createTitledBorder(
+					"<html><h3>" + dataSetList.getTagName(
+							listModel.getElementAt(index)) + "</h3></html>"));
+			
+			this.add(dataSetPanel, BorderLayout.CENTER);
+			this.validate();
+			
+		} else if (e.getSource() == btnDuplicateDataSet){
+			//deep copy the data set
+			/**
+		     * Returns a copy of the object, or null if the object cannot
+		     * be serialized.
+		     */
+			
+			int index = dataSetList.getSelectedIndex();
+			if (index != -1){
+				//remove the current data set from display
+				this.remove(dataSetPanel);
+				
+				//deep copy the data set
+				ToFitType original = listModel.getElementAt(index);
+				ToFitType copy = copyDataSet(original);
+				
+				index++;
+				
+				//add copied data set to the list
+				listModel.addRow(index, copy);
+				
+				//add data to ToFit root
+				toFitRoot.add(copy);
+				
+				//change the data panel to display the new data set
+				dataSetPanel = new DataSetPanel(copy);
+				
+				dataSetList.setSelectedIndex(index);
+				currentDataSetIndex = index;
+				dataSetList.setTagName(listModel.getElementAt(index), 
+						dataSetList.getTagName(listModel.getElementAt(index-1)) + "_copy");
+
+				dataSetPanel.setBorder(BorderFactory.createTitledBorder(
+						"<html><h3>" + dataSetList.getTagName(
+								listModel.getElementAt(index)) + "</h3></html>"));
+				this.add(dataSetPanel, BorderLayout.CENTER);
+				this.validate();
+			} else {
+				Toolkit.getDefaultToolkit().beep();
+			}		
 		}
 		
+	}
+	
+	private ToFitType copyDataSet(ToFitType original){
+		ToFitType copy = null;
+        try {
+            // Write the object out to a byte array
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(original);
+            out.flush();
+            out.close();
+
+            // Make an input stream from the byte array and read
+            // a copy of the object back in.
+            ObjectInputStream in = new ObjectInputStream(
+                new ByteArrayInputStream(bos.toByteArray()));
+            copy = (ToFitType) in.readObject();
+        }
+        catch(IOException err) {
+            err.printStackTrace();
+        }
+        catch(ClassNotFoundException cnfe) {
+            cnfe.printStackTrace();
+        }
+		return copy;
 	}
 }
