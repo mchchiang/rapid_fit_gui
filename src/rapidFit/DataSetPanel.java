@@ -5,15 +5,15 @@ import javax.xml.bind.*;
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.Serializable;
 
 import javax.swing.*;
-import javax.swing.border.*;
 
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
 public class DataSetPanel extends JPanel implements ActionListener{
-	
+	private ToFitType fit;
 	private DataSetType dataSet;
 	
 	private AttributePanel<DataSetType> details;
@@ -51,7 +51,9 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		add(lblNoData);
 	}
 	
-	public DataSetPanel (ToFitType fit){
+	public DataSetPanel (ToFitType toFit){
+		fit = toFit;
+		
 		//for new data set 
 		if (fit.getDataSet() == null){
 			fit.setDataSet(new DataSetType());
@@ -89,6 +91,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		phaseSpaceOptionPanel.add(btnAddObservable);
 		phaseSpaceOptionPanel.add(btnRemoveObservable);
 		
+		//display observables in phase space panel
 		//using common phase space
 		if (dataSet.getCommonPhaseSpace() != null){
 			cbCommonPhaseSpace.setSelected(true);
@@ -114,6 +117,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		lblUseCommonPDF = new JLabel("Use Common PDF");
 		
 		cbCommonPDF = new JCheckBox();
+		cbCommonPDF.addActionListener(this);
 		cbCommonPDF.setSelected(false);
 		
 		pdfOptionPanel = new JPanel();
@@ -136,9 +140,10 @@ public class DataSetPanel extends JPanel implements ActionListener{
 			pdfConfigPanel.setBorder(BorderFactory.createTitledBorder(
 					"PDF Configurator"));
 			pdfPanel.add(pdfConfigPanel, BorderLayout.CENTER);
+			
 		} else {
 			ObjectFactory of = new ObjectFactory();
-			JAXBElement<?> pdfTag;
+			JAXBElement<? extends Serializable> pdfTag;
 			if (fit.getNormalisedSumPDF() != null){
 				//pdfRoot = fit.getNormalisedSumPDF();
 				pdfTag = of.createPDFOperatorTypeNormalisedSumPDF(
@@ -149,7 +154,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 						fit.getProdPDF());
 			} else {
 				//pdfRoot = fit.getPDF();
-				pdfTag = of.createPDFOperatorTypePDF(
+				pdfTag =  of.createPDFOperatorTypePDF(
 						fit.getPDF());
 			}
 			
@@ -215,31 +220,71 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		
 	}
 	
-	public void switchPhaseSpacePanel(){
-		if (cbCommonPhaseSpace.isSelected()){
-			PhaseSpaceBoundaryType space = new PhaseSpaceBoundaryType();
-			
-			dataSet.setPhaseSpaceBoundary(null);
-		} else {
-			
+	public void switchToIndividualPhaseSpace(){
+		PhaseSpaceBoundaryType space = new PhaseSpaceBoundaryType();
+		space.getObservable().addAll(
+				dataSet.getCommonPhaseSpace().getObservable());
+		dataSet.setCommonPhaseSpace(null);
+		dataSet.setPhaseSpaceBoundary(space);
+	}
+	
+	public void switchToCommonPhaseSpace(){
+		PhaseSpaceBoundaryType space = new PhaseSpaceBoundaryType();
+		space.getObservable().addAll(
+				dataSet.getPhaseSpaceBoundary().getObservable());
+		dataSet.setCommonPhaseSpace(space);
+		dataSet.setPhaseSpaceBoundary(null);
+	}
+	
+	public void switchToCommonPDF(){
+		//remove the pdf expression and the edit button
+		pdfOptionPanel.remove(btnEditPDF);
+		pdfPanel.remove(expressionScrollPane);
+		
+		//remove the pdf
+		if (fit.getPDF() != null){
+			fit.setPDF(null);
+		} else if (fit.getNormalisedSumPDF() != null){
+			fit.setNormalisedSumPDF(null);
+		} else if (fit.getProdPDF() != null){
+			fit.setProdPDF(null);
 		}
+		
+		PDFConfiguratorType pdfConfig = new PDFConfiguratorType();
+		
+		fit.setCommonPDF(true);
+		fit.setPDFConfigurator(pdfConfig);
+		
+		//add the pdf config panel
+		pdfConfigPanel = new AttributePanel<PDFConfiguratorType>(
+				PDFConfiguratorType.class, fit.getPDFConfigurator(),
+				"PDF Configurator", null);	
+		pdfConfigPanel.setBorder(BorderFactory.createTitledBorder(
+				"PDF Configurator"));
+		pdfPanel.add(pdfConfigPanel, BorderLayout.CENTER);
+		
+		//refresh panel display
+		pdfPanel.validate();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//clicked on switching phase space checkbox
 		if (e.getSource() == cbCommonPhaseSpace){
 			int result = JOptionPane.NO_OPTION;
 			if (cbCommonPhaseSpace.isSelected()){
 				result = JOptionPane.showOptionDialog(this, 
 						"Are you sure you want to switch common phase space?\n"
 						+ "All observables in this table will be treated\n"
-						+ "as amendments to the common phase space.", 
+						+ "as additional observables to the common phase space.", 
 						"Phase Space Switch Confirmation", 
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 						new String [] {"Yes", "No"}, "No");
 				if (result == JOptionPane.NO_OPTION || 
 					result == JOptionPane.CLOSED_OPTION){
 					cbCommonPhaseSpace.setSelected(false);
+				} else {
+					switchToCommonPhaseSpace();
 				}
 			} else {
 				result = JOptionPane.showOptionDialog(this, 
@@ -251,9 +296,40 @@ public class DataSetPanel extends JPanel implements ActionListener{
 				if (result == JOptionPane.NO_OPTION || 
 						result == JOptionPane.CLOSED_OPTION){
 					cbCommonPhaseSpace.setSelected(true);
+				} else {
+					switchToIndividualPhaseSpace();
 				}
 			}
 			
+			//clicked on switching pdf checkbox
+		} else if (e.getSource() == cbCommonPDF){
+			int result = JOptionPane.NO_OPTION;
+			if (cbCommonPDF.isSelected()){
+				result = JOptionPane.showOptionDialog(this, 
+						"Are you sure you want to use the common PDF?\n" + 
+						"The PDF data will be lost.", 
+								"PDF Switch Confirmation", 
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+								new String [] {"Yes", "No"}, "No");
+				if (result == JOptionPane.NO_OPTION || 
+						result == JOptionPane.CLOSED_OPTION){
+					cbCommonPDF.setSelected(false);
+				} else {
+					switchToCommonPDF();
+				}
+			} else {
+				result = JOptionPane.showOptionDialog(this, 
+						"Are you sure you want to use a separate PDF?\n", 
+						"PDF Switch Confirmation", 
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+								new String [] {"Yes", "No"}, "No");
+				if (result == JOptionPane.NO_OPTION || 
+						result == JOptionPane.CLOSED_OPTION){
+					cbCommonPDF.setSelected(true);
+				} else {
+					
+				}
+			}
 		} else if (e.getSource() == btnAddObservable){
 			phaseSpaceDataPanel.addRow();
 			

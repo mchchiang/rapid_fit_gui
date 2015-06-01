@@ -1,10 +1,6 @@
 package rapidFit;
 
-import java.awt.Component;
-
-import javax.swing.DefaultCellEditor;
-import javax.swing.JComboBox;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.table.*;
 
 @SuppressWarnings("serial")

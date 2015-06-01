@@ -1,7 +1,6 @@
 package rapidFit;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.List;
 import java.awt.*;
@@ -9,7 +8,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import cloning.*;
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
@@ -27,7 +25,6 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 	private JButton btnDuplicateDataSet;
 	
 	private DataSetPanel dataSetPanel;
-	private DataSetPanel emptyDataSetPanel;
 	
 	private DataList<ToFitType> dataSetList;
 	private DataListModel<ToFitType> listModel;
@@ -154,7 +151,7 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 				
 				//deep copy the data set
 				ToFitType original = listModel.getElementAt(index);
-				ToFitType copy = copyDataSet(original);
+				ToFitType copy = (ToFitType) Cloner.deepClone(original);
 				
 				index++;
 				

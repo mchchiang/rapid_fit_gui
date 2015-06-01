@@ -12,7 +12,7 @@ public class PDFParser {
 	
 	//both normalised sum and multiply are left associative
 	
-	//map storing the operators and their precedence
+	//an operator class for storing their tag names (QName), symbol, and precedence
 	private static class Operator{
 		private String symbol;
 		private int precedence;
@@ -80,7 +80,7 @@ public class PDFParser {
 	}
 	
 	
-	public static JAXBElement<?> convertToXML(String expr, HashMap<String, PDFType> pdfMap){
+	public static JAXBElement<? extends Serializable> convertToXML(String expr, HashMap<String, PDFType> pdfMap){
 		return buildPDFTree(RPNStringToJAXB(infixToXML(expr, pdfMap), pdfMap));
 	}
 	
@@ -136,13 +136,16 @@ public class PDFParser {
 	}
 	
 	//convert from string tokens to JAXBElements (equiv. to xml tags)
-	private static ArrayList<JAXBElement<?>> RPNStringToJAXB(ArrayList<String> input, HashMap<String, PDFType> pdfMap){
+	@SuppressWarnings("unchecked")
+	private static ArrayList<JAXBElement<? extends Serializable>> RPNStringToJAXB(
+			ArrayList<String> input, HashMap<String, PDFType> pdfMap){
 		ObjectFactory of = new ObjectFactory();
-		ArrayList<JAXBElement<?>> output = new ArrayList<JAXBElement<?>>();
+		ArrayList<JAXBElement<? extends Serializable>> output = 
+				new ArrayList<JAXBElement<? extends Serializable>>();
 		for (String token : input){
 			if (isOperator(token)){
 				try{
-					output.add((JAXBElement<?>) ObjectFactory.class.getDeclaredMethod
+					output.add((JAXBElement<? extends Serializable>) ObjectFactory.class.getDeclaredMethod
 					("createPDFOperatorType" + getOperatorQName(token), PDFOperatorType.class).invoke
 					(of, new PDFOperatorType()));
 				} catch (Exception e){
@@ -155,14 +158,18 @@ public class PDFParser {
 		return output;
 	}
 	
-	private static JAXBElement<?> buildPDFTree(ArrayList<JAXBElement<?>> input){
-		Stack<JAXBElement<?>> stack = new Stack<JAXBElement<?>>();
-		for (JAXBElement<?> token : input){
+	private static JAXBElement<? extends Serializable> buildPDFTree(
+			ArrayList<JAXBElement<? extends Serializable>> input){
+		Stack<JAXBElement<? extends Serializable>> stack = 
+				new Stack<JAXBElement<? extends Serializable>>();
+		for (JAXBElement<? extends Serializable> token : input){
 			if (token.getName().equals(new QName("","PDF"))){
 				stack.add(token);
 			} else {
-				((PDFOperatorType)token.getValue()).getProdPDFOrNormalisedSumPDFOrPDF().add((JAXBElement<? extends Serializable>) stack.pop());
-				((PDFOperatorType)token.getValue()).getProdPDFOrNormalisedSumPDFOrPDF().add((JAXBElement<? extends Serializable>) stack.pop());
+				((PDFOperatorType)token.getValue()).getProdPDFOrNormalisedSumPDFOrPDF().add(
+						(JAXBElement<? extends Serializable>) stack.pop());
+				((PDFOperatorType)token.getValue()).getProdPDFOrNormalisedSumPDFOrPDF().add(
+						(JAXBElement<? extends Serializable>) stack.pop());
 				
 				//push result stack
 				stack.push(token);
@@ -174,13 +181,15 @@ public class PDFParser {
 	//=================================================================================================
 	
 	//convert a XML PDF tree into a regular mathematical expression
-	public static String convertToExpression(JAXBElement<?> pdfRoot){
+	public static String convertToExpression(JAXBElement<? extends Serializable> pdfRoot){
 		return RPNToInfix(JAXBToRPNString(unpackPDFTree(pdfRoot)));
 	}
 	
 	//unpack a PDF tree to RPN form using recursion
-	private static ArrayList<JAXBElement<?>> unpackPDFTree(JAXBElement<?> input){
-		ArrayList<JAXBElement<?>> output = new ArrayList<JAXBElement<?>>();
+	private static ArrayList<JAXBElement<? extends Serializable>> unpackPDFTree(
+			JAXBElement<? extends Serializable> input){
+		ArrayList<JAXBElement<? extends Serializable>> output = 
+				new ArrayList<JAXBElement<? extends Serializable>>();
 		unpackPDF(output, input);
 		return output;
 	}
@@ -189,7 +198,8 @@ public class PDFParser {
 	 * recursively going to all branches of the tree structure to construct a RPN
 	 * expression of the resulting PDF
 	 */
-	private static void unpackPDF(ArrayList<JAXBElement<?>> output, JAXBElement<?> input){
+	private static void unpackPDF(ArrayList<JAXBElement<? extends Serializable>> output,
+			JAXBElement<? extends Serializable> input){
 		if (input.getName().equals(new QName("","PDF"))){
 			output.add(input);
 		} else {
@@ -202,7 +212,7 @@ public class PDFParser {
 	}
 	
 	//convert the JAXBElement in the RPN expression into string tokens
-	private static String [] JAXBToRPNString(ArrayList<JAXBElement<?>> input){
+	private static String [] JAXBToRPNString(ArrayList<JAXBElement<? extends Serializable>> input){
 		String [] output = new String [input.size()];
 		for (int i = 0; i < input.size(); i++){
 			if (input.get(i).getName().equals(new QName("","PDF"))){
@@ -257,14 +267,14 @@ public class PDFParser {
 	}
 	
 	//get a list of actual PDFs in the XML PDF tree using recursion
-	public static ArrayList<PDFType> getListOfPDFs(JAXBElement<?> pdfTree){
+	public static ArrayList<PDFType> getListOfPDFs(JAXBElement<? extends Serializable> pdfTree){
 		ArrayList<PDFType> listOfPDFs = new ArrayList<PDFType>();
 		getPDFs(listOfPDFs, pdfTree);
 		return listOfPDFs;
 	}
 	
 	//using recursion to get pdfs from all branches of the pdf tree
-	private static void getPDFs(ArrayList<PDFType> pdfList, JAXBElement<?> input){
+	private static void getPDFs(ArrayList<PDFType> pdfList, JAXBElement<? extends Serializable> input){
 		if (input.getName().equals(new QName("","PDF"))){
 			pdfList.add((PDFType) input.getValue());
 		} else {
@@ -275,8 +285,8 @@ public class PDFParser {
 		}
 	}
 	
-	/*private static void printList(ArrayList<JAXBElement<?>> list){
-		for (JAXBElement<?> e : list){
+	/*private static void printList(ArrayList<JAXBElement<? extends Serializable>> list){
+		for (JAXBElement<? extends Serializable> e : list){
 			System.out.println(e.getName());
 		}
 		System.out.println();
