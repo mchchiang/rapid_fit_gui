@@ -39,7 +39,7 @@ public class RapidFitEditor extends JFrame {
 		//read xml
 		reader = new XMLReader();
 		root = reader.readFile("/Users/MichaelChiang/Dropbox/"
-				+ "Edinburgh/Courses/Year 2/Summer_Project/rapid_fit_gui/trial2.xml", 
+				+ "Edinburgh/Courses/Year 2/Summer_Project/rapid_fit_gui/trial2.out.xml", 
 				"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
 				+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
 		

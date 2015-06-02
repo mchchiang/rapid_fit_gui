@@ -96,9 +96,13 @@
 	<xs:complexType name="ObservableType">
 		<xs:sequence>
 			<xs:element name="Name" type="xs:string"/>
-			<xs:element name="Minimum" type="xs:double"/>
-			<xs:element name="Maximum" type="xs:double"/>
-			<xs:element name="Value" type="xs:double"/>
+			<xs:choice>
+				<xs:sequence>
+					<xs:element name="Minimum" type="xs:double"/>
+					<xs:element name="Maximum" type="xs:double"/>
+				</xs:sequence>
+					<xs:element name="Value" type="xs:string"/>
+			</xs:choice>
 			<xs:element name="Unit" type="xs:string"/>
 			<xs:element name="TF1" type="xs:string" minOccurs="0"/>
 		</xs:sequence>
