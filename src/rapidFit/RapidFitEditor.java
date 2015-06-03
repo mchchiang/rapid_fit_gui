@@ -25,6 +25,7 @@ public class RapidFitEditor extends JFrame {
 	private FitConstraintPanel fitConstraintPanel;
 	private FitDataSetPanel fitDataSetPanel;
 	private OutputPanel outputPanel;
+	private PDFTreePanel pdfTreePanel;
 	
 	protected RapidFitType root;
 	private Container content = getContentPane();
@@ -52,11 +53,10 @@ public class RapidFitEditor extends JFrame {
 		if (root.getMinimiser() == null) root.setMinimiser(new MinimiserType());
 		if (root.getNumberRepeats() == null) root.setNumberRepeats(BigInteger.valueOf(1));
 		if (root.getCommonPDF() == null) {
-			root.setCommonPDF(new PDFOperatorType());
+			root.setCommonPDF(new PDFExpressionType());
 			PDFType pdf = new PDFType();
 			pdf.setName("null");
-			root.getCommonPDF().getProdPDFOrNormalisedSumPDFOrPDF().add(
-					of.createPDFOperatorTypePDF(pdf));
+			root.getCommonPDF().setPDF(pdf);
 		}
 		if (root.getCommonPhaseSpace() == null){
 			root.setCommonPhaseSpace(new CommonPhaseSpaceType());
@@ -94,6 +94,7 @@ public class RapidFitEditor extends JFrame {
 		fitConstraintPanel = new FitConstraintPanel(toFits, constraints);
 		fitDataSetPanel = new FitDataSetPanel(toFits, actualFits);
 		outputPanel = new OutputPanel();
+		pdfTreePanel = new PDFTreePanel(root.getCommonPDF());
 		
 		tabs = new JTabbedPane();
 		tabs.addTab("Parameter Set", paramSetPanel);
@@ -102,6 +103,7 @@ public class RapidFitEditor extends JFrame {
 		tabs.addTab("Fit Constraints", fitConstraintPanel);
 		tabs.addTab("Data Sets", fitDataSetPanel);
 		tabs.addTab("Output Options", outputPanel);
+		//tabs.addTab("PDF tree", pdfTreePanel);
 		
 		content = getContentPane();
 		content.add(tabs, BorderLayout.CENTER);

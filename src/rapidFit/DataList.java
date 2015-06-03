@@ -18,11 +18,8 @@ public class DataList<T> extends JList<T> {
 	private String tagName;
 	
 	private class DataListRenderer extends DefaultListCellRenderer{
-		public Component getListCellRendererComponent(JList<?> list,
-				Object value,
-				int index,
-				boolean isSelected,
-				boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList<?> list, 
+				Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			if (!useTagName){
 				try {
@@ -40,7 +37,7 @@ public class DataList<T> extends JList<T> {
 	public DataList(DataListModel<T> model, Method getter){
 		super(model);
 		this.getMethod = getter;
-		
+		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setCellRenderer(new DataListRenderer());
 	}
 	
@@ -64,6 +61,7 @@ public class DataList<T> extends JList<T> {
 				attrCount++;
 			}
 		}
+		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setCellRenderer(new DataListRenderer());
 	}
 	

@@ -22,7 +22,7 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 	private DataPanel<ObservableType> dataPanel;
 	
 	//variable for common PDF
-	private PDFOperatorType commonPDFTreeRoot;
+	private PDFExpressionType commonPDFTreeRoot;
 	private String pdfExpression;
 	private JButton btnEditPDF;
 	private JPanel pdfPanel;
@@ -32,7 +32,7 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 	
 	private ArrayList<PDFType> listOfPDFs;
 	
-	public CommonPropertiesPanel(PhaseSpaceBoundaryType phaseBound, PDFOperatorType comPDFTreeRoot){
+	public CommonPropertiesPanel(PhaseSpaceBoundaryType phaseBound, PDFExpressionType comPDFTreeRoot){
 		if (phaseBound != null){
 			phaseSpaceBoundary = phaseBound;
 		} else {
@@ -60,6 +60,10 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 				"<html><h3>Common Phase Space</h3></html>"));
 		
 		commonPDFTreeRoot = comPDFTreeRoot;
+		
+		
+		/*
+		commonPDFTreeRoot = comPDFTreeRoot;
 		pdfExpression = PDFParser.convertToExpression(
 				commonPDFTreeRoot.getProdPDFOrNormalisedSumPDFOrPDF().get(0));
 		
@@ -78,12 +82,12 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 		txtPDFExpression.setFocusable(false);
 		
 		expressionScrollPane = new JScrollPane(txtPDFExpression);
-		
+		*/
 		btnEditPDF = new JButton("Edit PDF");
 		btnEditPDF.addActionListener(this);
 		pdfPanel = new JPanel();
 		pdfPanel.setLayout(new BorderLayout());
-		pdfPanel.add(expressionScrollPane, BorderLayout.CENTER);
+	//	pdfPanel.add(expressionScrollPane, BorderLayout.CENTER);
 		pdfPanel.add(btnEditPDF, BorderLayout.EAST);
 		pdfPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Common PDF</h3></html>"));
@@ -101,14 +105,17 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 			dataPanel.removeSelectedRows();
 			
 		} else if (e.getSource() == btnEditPDF){
-			PDFBuilder pdfBuilder = new PDFBuilder(
+			
+			PDFBuilder pdfBuilder = new PDFBuilder(commonPDFTreeRoot);
+			pdfBuilder.setVisible(true);
+			/*OldPDFBuilder pdfBuilder = new OldPDFBuilder(
 					listOfPDFs, commonPDFTreeRoot, pdfExpression);
 			pdfBuilder.setVisible(true);
 			
 			//update expression to the latest one
 			pdfExpression = PDFParser.convertToExpression(
 					commonPDFTreeRoot.getProdPDFOrNormalisedSumPDFOrPDF().get(0));
-			txtPDFExpression.setText(pdfExpression);
+			txtPDFExpression.setText(pdfExpression);*/
 		}
 	}
 }

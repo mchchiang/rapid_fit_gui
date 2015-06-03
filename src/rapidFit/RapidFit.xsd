@@ -26,7 +26,7 @@
 			<xs:element name="FitFunction" type="FitFunctionType" />
 			<xs:element name="NumberRepeats" type="xs:integer"/>
 			<xs:element name="CommonPhaseSpace" type="CommonPhaseSpaceType" minOccurs="0"/>
-			<xs:element name="CommonPDF" type="PDFOperatorType" minOccurs="0"/>
+			<xs:element name="CommonPDF" type="PDFExpressionType" minOccurs="0"/>
 			<xs:element name="Precalculator" type="PrecalculatorType" minOccurs ="0"/>
 			<xs:element name="Seed" type="xs:integer" minOccurs="0"/>
 			<xs:element name="ToFit" type="ToFitType" maxOccurs="unbounded"/>
@@ -201,6 +201,30 @@
 		<xs:choice minOccurs="2" maxOccurs="2">
 			<xs:element name="ProdPDF" type="PDFOperatorType"/>
 			<xs:element name="NormalisedSumPDF" type="PDFOperatorType"/>
+			<xs:element name="PDF" type="PDFType"/>
+		</xs:choice>
+	</xs:complexType>
+	
+	<xs:complexType name="PDFExpressionType">
+		<xs:choice>
+			<xs:element name="ProdPDF" type="ProdPDFType"/>
+			<xs:element name="NormalisedSumPDF" type="SumPDFType"/>
+			<xs:element name="PDF" type="PDFType"/>
+		</xs:choice>
+	</xs:complexType>
+	
+	<xs:complexType name="ProdPDFType">
+		<xs:choice minOccurs="2" maxOccurs="2">
+			<xs:element name="ProdPDF" type="ProdPDFType"/>
+			<xs:element name="NormalisedSumPDF" type="SumPDFType"/>
+			<xs:element name="PDF" type="PDFType"/>
+		</xs:choice>
+	</xs:complexType>
+	
+	<xs:complexType name="SumPDFType">
+		<xs:choice minOccurs="2" maxOccurs="2">
+			<xs:element name="ProdPDF" type="ProdPDFType"/>
+			<xs:element name="NormalisedSumPDF" type="SumPDFType"/>
 			<xs:element name="PDF" type="PDFType"/>
 		</xs:choice>
 	</xs:complexType>

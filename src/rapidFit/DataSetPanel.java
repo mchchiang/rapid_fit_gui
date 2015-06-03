@@ -112,7 +112,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		
 		phaseSpacePanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Phase Space</h3></html>"));
-		
+		/*
 		//check if common pdf is used
 		lblUseCommonPDF = new JLabel("Use Common PDF");
 		
@@ -181,7 +181,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 			
 			pdfOptionPanel.add(btnEditPDF);
 			pdfPanel.add(expressionScrollPane, BorderLayout.CENTER);
-		}
+		}*/
 		
 		//set layout for the components
 		setLayout(new GridBagLayout());
@@ -216,7 +216,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		c.gridy = 2;
 		c.weightx = 1.0;
 		c.weighty = 0.3;
-		add(pdfPanel, c);
+		//add(pdfPanel, c);
 		
 	}
 	
@@ -337,7 +337,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 			phaseSpaceDataPanel.removeSelectedRows();
 			
 		} else if (e.getSource() == btnEditPDF){
-			PDFBuilder pdfBuilder = new PDFBuilder(
+			OldPDFBuilder pdfBuilder = new OldPDFBuilder(
 					listOfPDFs,(PDFOperatorType) pdfRoot, pdfExpression);
 			pdfBuilder.setVisible(true);
 			

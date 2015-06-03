@@ -1,36 +1,29 @@
 package rapidFit;
 
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.Serializable;
-import java.util.*;
 
 import javax.swing.*;
-import javax.xml.bind.JAXBElement;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 import rapidFit.rpfit.*;
 
-@SuppressWarnings("serial")
 public class PDFBuilder extends JDialog implements ActionListener {
 	
-	private JList<String> pdfOldList;
-	private DefaultListModel<String> oldListModel;
+	private PDFExpressionType pdfRoot;
 	
 	private JButton btnAddPDF;
 	private JButton btnRemovePDF;
 	private JButton btnEditPDF;
 	private JButton btnBuildPDF;
 	
-	private JButton btnLeftBracket;
-	private JButton btnRightBracket;
-	private JButton btnAdd;
-	private JButton btnMultiply;
-	private Dimension opBtnDimension = new Dimension(55,35);
-	
-	private JTextPane txtPDFExpression;
+	private JButton btnReplaceWithPDF;
+	private JButton btnReplaceWithSum;
+	private JButton btnReplaceWithProd;
 	
 	private JScrollPane listOfPDFScrollPane;
-	private JScrollPane pdfExpressionScrollPane;
+	private JScrollPane pdfTreeScrollPane;
 	
 	private JPanel listOfPDFPanel;
 	private JPanel pdfOptionPanel;
@@ -38,55 +31,62 @@ public class PDFBuilder extends JDialog implements ActionListener {
 	private JPanel pdfBuilderPanel;
 	private JPanel pdfBuilderOptionPanel;
 	
-	private String pdfExpression;
+	private JTree pdfTree;
+	private PDFTreeModel treeModel;
 	
-	private ExpressionStyledDocument exprStyle;
-	
-	private int newPDFCount = 0;
-	
-	private HashMap<String, PDFType> pdfs;
-	private PDFOperatorType pdfTreeRoot;
-
 	private DataList<PDFType> pdfList;
 	private DataListModel<PDFType> listModel;
 	
-	public PDFBuilder (ArrayList<PDFType> listOfPDFs, PDFOperatorType root, String expr){
+	private int newPDFCount = 0;
+	private ArrayList<PDFType> listOfPDFs;
+	
+	private class PDFTreeCellRenderer extends DefaultTreeCellRenderer{
+		@Override
+		public Component getTreeCellRendererComponent(JTree tree, Object value, 
+				boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+			String name = "";
+		    if (value instanceof SumPDFType){
+		    	name = "<html><b>Sum PDF</b></html>";
+		    } else if (value instanceof ProdPDFType){
+		    	name = "<html><b>Product PDF</b></html>";
+		    } else if (value instanceof PDFType){
+		    	name = ((PDFType) value).getName();
+		    }
+		    
+		    return super.getTreeCellRendererComponent(
+		    		tree, name, sel, expanded, leaf, row, hasFocus);
+		}
+	}
+	
+	public PDFBuilder (PDFExpressionType root){
 		setTitle("PDF Builder");
 		setModal(true);
 		setResizable(true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
-		pdfTreeRoot = root;
+		pdfRoot = root;
+		
+		//find all pdfs
+		listOfPDFs = new ArrayList<PDFType>();
+		if (root.getPDF() != null){
+			getPDFs(listOfPDFs, root.getPDF());
+		} else if (root.getNormalisedSumPDF() != null){
+			getPDFs(listOfPDFs, root.getNormalisedSumPDF());
+		} else if (root.getProdPDF() != null){
+			getPDFs(listOfPDFs, root.getProdPDF());
+		}
+		
 		
 		listModel = new DataListModel<PDFType>(PDFType.class, listOfPDFs);
 		pdfList = new DataList<PDFType>(listModel, "Name", false);
-		
-		//create a pdf mapping between actual object and its name
-		pdfs = new HashMap<String, PDFType>();
-		for (PDFType pdf : listOfPDFs){
-			pdfs.put(pdf.getName(), pdf);
-		}
-		
-		pdfExpression = expr;
-		
-		oldListModel = new DefaultListModel<String>();
-		pdfOldList = new JList<String>(oldListModel);
-		pdfOldList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
-		//add pdf to list
-		for (String pdfName : pdfs.keySet()){
-			oldListModel.addElement(pdfName);
-		}
 		
 		pdfList.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
 				if (e.getClickCount() == 2){
 					int index = pdfList.locationToIndex(e.getPoint());
-					
 					try{
-						txtPDFExpression.getDocument().insertString(
-								txtPDFExpression.getCaretPosition(), 
-								" \"" + listModel.getElementAt(index).getName() + "\" ", null);
+						
+						//do something
 					} catch (Exception ex){
 						ex.printStackTrace();
 					}
@@ -115,101 +115,62 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		listOfPDFPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Available PDFs</h3></html>"));
 		
-		//get a list of pdf names
-		exprStyle = new ExpressionStyledDocument(getPDFNames());
 		
-		txtPDFExpression = new JTextPane(exprStyle);
-		txtPDFExpression.setText(pdfExpression);
-		txtPDFExpression.setEditable(true);
-		txtPDFExpression.setFocusable(true);
-		txtPDFExpression.setPreferredSize(new Dimension(300,200));
+		//create the pdf tree
+		treeModel = new PDFTreeModel(pdfRoot);
+		pdfTree = new JTree(treeModel);
+		pdfTree.setCellRenderer(new PDFTreeCellRenderer());
+		pdfTree.setEditable(false);
 		
-		pdfExpressionScrollPane = new JScrollPane(txtPDFExpression);
+		for (int i = 0; i < pdfTree.getRowCount(); i++) {
+			pdfTree.expandRow(i);
+		}
 		
-		//create the add button
-		btnAdd = new JButton(
-				"<html><div style=\"text-align: center;\"><b>+</b></html>");
-		btnAdd.addActionListener(this);
-		btnAdd.setPreferredSize(opBtnDimension);
+		pdfTreeScrollPane = new JScrollPane(pdfTree);
 		
-		//create the multiply button
-		btnMultiply = new JButton(
-				"<html><div style=\"text-align: center;\"><b>x</b></html>");
-		btnMultiply.addActionListener(this);
-		btnMultiply.setPreferredSize(opBtnDimension);
-		
-		//create the left bracket button
-		btnLeftBracket = new JButton(
-				"<html><div style=\"text-align: center;\"><b>(</b></html>");
-		btnLeftBracket.addActionListener(this);
-		btnLeftBracket.setPreferredSize(opBtnDimension);
-		
-		//create the right bracket button
-		btnRightBracket = new JButton(
-				"<html><div style=\"text-align: center;\"><b>)</b></html>");
-		btnRightBracket.addActionListener(this);
-		btnRightBracket.setPreferredSize(opBtnDimension);
-		
-		btnBuildPDF = new JButton("Update PDF");
-		btnBuildPDF.setMaximumSize(new Dimension(50,100));
-		btnBuildPDF.addActionListener(this);
+		btnReplaceWithPDF = new JButton("Replace with Selected PDF");
+		btnReplaceWithPDF.addActionListener(this);
+		btnReplaceWithSum = new JButton("Replace with Sum");
+		btnReplaceWithSum.addActionListener(this);
+		btnReplaceWithProd = new JButton("Replace with Product");
+		btnReplaceWithProd.addActionListener(this);
 		
 		pdfBuilderOptionPanel = new JPanel();
-		pdfBuilderOptionPanel.add(btnLeftBracket);
-		pdfBuilderOptionPanel.add(btnRightBracket);
-		pdfBuilderOptionPanel.add(btnAdd);
-		pdfBuilderOptionPanel.add(btnMultiply);
+		pdfBuilderOptionPanel.setLayout(new GridLayout(3,0));
+		pdfBuilderOptionPanel.add(btnReplaceWithPDF);
+		pdfBuilderOptionPanel.add(btnReplaceWithSum);
+		pdfBuilderOptionPanel.add(btnReplaceWithProd);
 		
 		pdfBuilderPanel = new JPanel();
 		pdfBuilderPanel.setLayout(new BorderLayout());
 		pdfBuilderPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>PDF Expression</h3></html>"));
-		pdfBuilderPanel.add(pdfExpressionScrollPane, BorderLayout.CENTER);
+		pdfBuilderPanel.add(pdfTreeScrollPane, BorderLayout.CENTER);
 		pdfBuilderPanel.add(pdfBuilderOptionPanel, BorderLayout.SOUTH);
 		
 		Container content = this.getContentPane();
 		content.add(listOfPDFPanel, BorderLayout.WEST);
 		content.add(pdfBuilderPanel, BorderLayout.CENTER);
-		content.add(btnBuildPDF, BorderLayout.SOUTH);
+		//content.add(btnBuildPDF, BorderLayout.SOUTH);
 		pack();
-		
 	}
-
+	
+	//recursive method for finding all the pdfs
+	public void getPDFs(ArrayList<PDFType> list, Object parent){
+		if (parent instanceof SumPDFType){
+			getPDFs(list, ((SumPDFType) parent).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
+			getPDFs(list, ((SumPDFType) parent).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
+		} else if (parent instanceof ProdPDFType){
+			getPDFs(list, ((ProdPDFType) parent).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
+			getPDFs(list, ((ProdPDFType) parent).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
+		} else if (parent instanceof PDFType){
+			list.add((PDFType) parent);
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnAdd){
-			try{
-				txtPDFExpression.getDocument().insertString(
-						txtPDFExpression.getCaretPosition(), " + ", null);
-			} catch (Exception ex){
-				ex.printStackTrace();
-			}
-			
-		} else if (e.getSource() == btnMultiply){
-			try{
-				txtPDFExpression.getDocument().insertString(
-						txtPDFExpression.getCaretPosition(), " * ", null);
-			} catch (Exception ex){
-				ex.printStackTrace();
-			}
-			
-		} else if (e.getSource() == btnLeftBracket){
-			try{
-				txtPDFExpression.getDocument().insertString(
-						txtPDFExpression.getCaretPosition(), " ( ", null);
-			} catch (Exception ex){
-				ex.printStackTrace();
-			}
-			
-		} else if (e.getSource() == btnRightBracket){
-			try{
-				txtPDFExpression.getDocument().insertString(
-						txtPDFExpression.getCaretPosition(), " ) ", null);
-			} catch (Exception ex){
-				ex.printStackTrace();
-			}
-			
-		} else if (e.getSource() == btnAddPDF){
+		if (e.getSource() == btnAddPDF){
 			newPDFCount++;
 			int index = pdfList.getSelectedIndex();
 			
@@ -225,36 +186,32 @@ public class PDFBuilder extends JDialog implements ActionListener {
 			
 			new PDFEditor(listModel.getElementAt(index)).setVisible(true);
 			
-			exprStyle.updatePDFNames(getPDFNames());
 			
 		} else if (e.getSource() == btnRemovePDF &&
-				pdfs.get(pdfOldList.getSelectedValue()) != null){
-			//remove the pdf from pdf expression
-			String pdfName = pdfOldList.getSelectedValue();
-			txtPDFExpression.setText(txtPDFExpression.getText().replaceAll(
-					"\"" + pdfName + "\"", ""));
-			pdfs.remove(pdfName);
-			oldListModel.removeElementAt(pdfOldList.getSelectedIndex());
-			exprStyle.updatePDFNames(getPDFNames());
-			
+				pdfList.getSelectedIndex() != -1){
+
+
 		} else if (e.getSource() == btnEditPDF && 
 				pdfList.getSelectedIndex() != -1){
-				new PDFEditor(listModel.getElementAt(
-						pdfList.getSelectedIndex())).setVisible(true);
-			
-		} else if (e.getSource() == btnBuildPDF){
-			//update the pdf tree root with the new pdf
-			pdfTreeRoot.getProdPDFOrNormalisedSumPDFOrPDF().add(
-					(JAXBElement<? extends Serializable>) PDFParser.convertToXML(txtPDFExpression.getText(), pdfs));
-			pdfTreeRoot.getProdPDFOrNormalisedSumPDFOrPDF().remove(0);
-			
-			dispose();
+			new PDFEditor(listModel.getElementAt(
+					pdfList.getSelectedIndex())).setVisible(true);
+
+		} else if (e.getSource() == btnReplaceWithPDF){
+			if (pdfList.getSelectedIndex() != -1 &&
+					pdfTree.getSelectionPath() != null){
+				((PDFTreeModel) pdfTree.getModel()).replace(
+						pdfTree.getSelectionPath(), 
+						pdfList.getSelectedValue());
+			}
+		} else if (e.getSource() == btnReplaceWithSum){
+			if (pdfTree.getSelectionPath() != null){
+				HashMap<String, PDFType> pdfMap = new HashMap<String, PDFType>();
+				for (PDFType pdf : listOfPDFs){
+					pdfMap.put(pdf.getName(), pdf);
+				}
+				new PDFSumDialog(pdfMap, pdfTree).setVisible(true);;
+			}
 		}
-	}	
-	
-	public ArrayList<String> getPDFNames(){
-		ArrayList<String> pdfNames = new ArrayList<String>();
-		pdfNames.addAll(pdfs.keySet());
-		return pdfNames;
 	}
+	
 }

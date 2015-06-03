@@ -14,21 +14,24 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for PhaseSpaceBoundaryType complex type.
+ * <p>Java class for SumPDFType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="PhaseSpaceBoundaryType">
+ * &lt;complexType name="SumPDFType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="Observable" type="{}ObservableType" maxOccurs="unbounded"/>
- *       &lt;/sequence>
+ *       &lt;choice maxOccurs="2" minOccurs="2">
+ *         &lt;element name="ProdPDF" type="{}ProdPDFType"/>
+ *         &lt;element name="NormalisedSumPDF" type="{}SumPDFType"/>
+ *         &lt;element name="PDF" type="{}PDFType"/>
+ *       &lt;/choice>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -37,44 +40,49 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PhaseSpaceBoundaryType", propOrder = {
-    "observable"
+@XmlType(name = "SumPDFType", propOrder = {
+    "prodPDFOrNormalisedSumPDFOrPDF"
 })
-public class PhaseSpaceBoundaryType
-    implements Serializable
+public class SumPDFType implements Serializable
 {
 
     private final static long serialVersionUID = 1L;
-    @XmlElement(name = "Observable", required = true)
-    protected List<ObservableType> observable;
+    @XmlElements({
+        @XmlElement(name = "ProdPDF", type = ProdPDFType.class),
+        @XmlElement(name = "NormalisedSumPDF", type = SumPDFType.class),
+        @XmlElement(name = "PDF", type = PDFType.class)
+    })
+    protected List<Serializable> prodPDFOrNormalisedSumPDFOrPDF;
 
     /**
-     * Gets the value of the observable property.
+     * Gets the value of the prodPDFOrNormalisedSumPDFOrPDF property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the observable property.
+     * This is why there is not a <CODE>set</CODE> method for the prodPDFOrNormalisedSumPDFOrPDF property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getObservable().add(newItem);
+     *    getProdPDFOrNormalisedSumPDFOrPDF().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link ObservableType }
+     * {@link ProdPDFType }
+     * {@link SumPDFType }
+     * {@link PDFType }
      * 
      * 
      */
-    public List<ObservableType> getObservable() {
-        if (observable == null) {
-            observable = new ArrayList<ObservableType>();
+    public List<Serializable> getProdPDFOrNormalisedSumPDFOrPDF() {
+        if (prodPDFOrNormalisedSumPDFOrPDF == null) {
+            prodPDFOrNormalisedSumPDFOrPDF = new ArrayList<Serializable>();
         }
-        return this.observable;
+        return this.prodPDFOrNormalisedSumPDFOrPDF;
     }
 
 }
