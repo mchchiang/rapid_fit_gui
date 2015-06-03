@@ -17,6 +17,11 @@ public class DataList<T> extends JList<T> {
 	private boolean useTagName = false;
 	private String tagName;
 	
+	/*
+	 * overriding the cell renderer to display a meaningful name of the object
+	 * (i.e. a particular attribute of the object or a tag name) instead of the
+	 * object memory reference (from toString() method) 
+	 */
 	private class DataListRenderer extends DefaultListCellRenderer{
 		public Component getListCellRendererComponent(JList<?> list, 
 				Object value, int index, boolean isSelected, boolean cellHasFocus) {

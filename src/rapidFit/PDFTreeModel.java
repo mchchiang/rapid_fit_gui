@@ -55,8 +55,21 @@ public class PDFTreeModel implements TreeModel {
 		Object oldNode = path.getLastPathComponent();
 		if (path.getParentPath() == null){
 			displayRoot = newNode;
-			fireTreeStructureChanged(this, path.getPath(),
-					new int [] {0}, new Object [] {newNode});
+			if (newNode instanceof SumPDFType){
+				pdfRoot.setNormalisedSumPDF((SumPDFType) newNode);
+				pdfRoot.setProdPDF(null);
+				pdfRoot.setPDF(null);
+			} else if (newNode instanceof ProdPDFType){
+				pdfRoot.setNormalisedSumPDF(null);
+				pdfRoot.setProdPDF((ProdPDFType) newNode);
+				pdfRoot.setPDF(null);
+			} else if (newNode instanceof PDFType){
+				pdfRoot.setNormalisedSumPDF(null);
+				pdfRoot.setProdPDF(null);
+				pdfRoot.setPDF((PDFType) newNode);
+			}
+			
+			fireTreeStructureChanged(this, path.getPath(), null, null);
 		} else {
 			Object parent = path.getParentPath().getLastPathComponent();
 			int index = 0;
@@ -180,11 +193,11 @@ public class PDFTreeModel implements TreeModel {
         }
     }
 	
-	/*protected void fireTreeStructureChanged(Object [] path){
+	protected void fireTreeStructureChanged(Object [] path){
 		TreeModelEvent event = new TreeModelEvent(this, path);
 		EventListener[] listeners = listenerList.getListeners(TreeModelListener.class);
 		for (int i = 0; i < listeners.length; i++){
 			((TreeModelListener) listeners[i]).treeStructureChanged(event);
 		}
-	}*/
+	}
 }

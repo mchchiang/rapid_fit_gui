@@ -2,6 +2,7 @@ package rapidFit;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 import java.util.*;
 
 import javax.swing.*;
@@ -17,11 +18,17 @@ public class PDFSumDialog extends JDialog implements ActionListener {
 	private JLabel lblSumPDF;
 	private JLabel lblAddOperator;
 	private JLabel lblInstruction;
+	
+	private JLabel lblFractionName;
+	private JComboBox<String> cbFractionName;
+	
 	private JPanel expressionPanel;
-	private JPanel instructionPanel;
+	private JPanel fractionNamePanel;
+	private JPanel mainPanel;
+	
 	private JButton btnConfirm;
 	
-	public PDFSumDialog(HashMap<String, PDFType> map, JTree tree){
+	public PDFSumDialog(List<PhysicsParameterType> params, HashMap<String, PDFType> map, JTree tree){
 		setTitle("PDF Sum Builder");
 		setModal(true);
 		setResizable(true);
@@ -44,25 +51,38 @@ public class PDFSumDialog extends JDialog implements ActionListener {
 		expressionPanel.add(lblAddOperator);
 		expressionPanel.add(cbOperand2);
 		
+		lblFractionName = new JLabel("<html><b>Fraction Name: </b></html>");
+		
+		//create a list of parameters name
+		String [] paramNames = new String [params.size()];
+		for (int i = 0; i < params.size(); i++){
+			paramNames[i] = params.get(i).getName();
+		}
+		cbFractionName = new JComboBox<String>(paramNames);
+		
+		fractionNamePanel = new JPanel();
+		fractionNamePanel.add(lblFractionName);
+		fractionNamePanel.add(cbFractionName);
+		
 		lblInstruction = new JLabel(
 				"<html>"
 				+ "<body>"
-				+ "<h3>Create a new PDF sum</h3>"
-				+ "<p>Select two PDFs to build the PDF sum:</p>"
+				+ "<p>&nbsp Select two PDFs to build the PDF sum:</p>"
 				+ "</body>"
 				+ "</html>");
 		
-		instructionPanel = new JPanel();
-		instructionPanel.setLayout(new BorderLayout());
-		instructionPanel.add(lblInstruction, BorderLayout.WEST);
-		instructionPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+		mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.add(lblInstruction, BorderLayout.NORTH);
+		mainPanel.add(expressionPanel, BorderLayout.CENTER);
+		mainPanel.add(fractionNamePanel, BorderLayout.SOUTH);
+		mainPanel.setBorder(BorderFactory.createTitledBorder("<html><h3>Create a new PDF sum</h3></html>"));
 		
 		btnConfirm = new JButton("Confirm");
 		btnConfirm.addActionListener(this);
 		
 		Container content = getContentPane();
-		content.add(instructionPanel, BorderLayout.NORTH);
-		content.add(expressionPanel, BorderLayout.CENTER);
+		content.add(mainPanel, BorderLayout.CENTER);
 		content.add(btnConfirm, BorderLayout.SOUTH);
 		pack();
 	}
@@ -74,6 +94,7 @@ public class PDFSumDialog extends JDialog implements ActionListener {
 			SumPDFType sum = new SumPDFType();
 			sum.getProdPDFOrNormalisedSumPDFOrPDF().add(pdfMap.get(cbOperand1.getSelectedItem()));
 			sum.getProdPDFOrNormalisedSumPDFOrPDF().add(pdfMap.get(cbOperand2.getSelectedItem()));
+			sum.setFractionName((String) cbFractionName.getSelectedItem());
 			((PDFTreeModel) pdfTree.getModel()).replace(pdfTree.getSelectionPath(), sum);
 			dispose();
 		}

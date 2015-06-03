@@ -222,11 +222,14 @@
 	</xs:complexType>
 	
 	<xs:complexType name="SumPDFType">
-		<xs:choice minOccurs="2" maxOccurs="2">
-			<xs:element name="ProdPDF" type="ProdPDFType"/>
-			<xs:element name="NormalisedSumPDF" type="SumPDFType"/>
-			<xs:element name="PDF" type="PDFType"/>
-		</xs:choice>
+		<xs:sequence>
+			<xs:element name="FractionName" type="xs:string" minOccurs="0"/>
+			<xs:choice minOccurs="2" maxOccurs="2">
+				<xs:element name="ProdPDF" type="ProdPDFType"/>
+				<xs:element name="NormalisedSumPDF" type="SumPDFType"/>
+				<xs:element name="PDF" type="PDFType"/>
+			</xs:choice>
+		</xs:sequence>
 	</xs:complexType>
 	
 	<xs:complexType name="PDFType">

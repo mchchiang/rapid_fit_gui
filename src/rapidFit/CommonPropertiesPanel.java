@@ -2,6 +2,7 @@ package rapidFit;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 import java.util.*;
 
 import javax.swing.*;
@@ -27,18 +28,24 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 	private JButton btnEditPDF;
 	private JPanel pdfPanel;
 	
+	private List<PhysicsParameterType> parameters;
+	
 	private JTextPane txtPDFExpression;
 	private JScrollPane expressionScrollPane;
 	
 	private ArrayList<PDFType> listOfPDFs;
 	
-	public CommonPropertiesPanel(PhaseSpaceBoundaryType phaseBound, PDFExpressionType comPDFTreeRoot){
+	public CommonPropertiesPanel(List<PhysicsParameterType> params, 
+			PhaseSpaceBoundaryType phaseBound, PDFExpressionType comPDFTreeRoot){
+		
 		if (phaseBound != null){
 			phaseSpaceBoundary = phaseBound;
 		} else {
 			ObjectFactory of = new ObjectFactory();
 			phaseSpaceBoundary = of.createPhaseSpaceBoundaryType();
 		}
+		
+		parameters = params;
 		
 		dataPanel = new DataPanel<ObservableType>
 		(ObservableType.class, phaseSpaceBoundary.getObservable(), null);
@@ -106,8 +113,9 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 			
 		} else if (e.getSource() == btnEditPDF){
 			
-			PDFBuilder pdfBuilder = new PDFBuilder(commonPDFTreeRoot);
+			PDFBuilder pdfBuilder = new PDFBuilder(parameters, commonPDFTreeRoot);
 			pdfBuilder.setVisible(true);
+			
 			/*OldPDFBuilder pdfBuilder = new OldPDFBuilder(
 					listOfPDFs, commonPDFTreeRoot, pdfExpression);
 			pdfBuilder.setVisible(true);

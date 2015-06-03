@@ -1,5 +1,6 @@
 package rapidFit;
 
+import java.util.List;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -40,13 +41,16 @@ public class PDFBuilder extends JDialog implements ActionListener {
 	private int newPDFCount = 0;
 	private ArrayList<PDFType> listOfPDFs;
 	
+	private List<PhysicsParameterType> parameters;
+	
 	private class PDFTreeCellRenderer extends DefaultTreeCellRenderer{
 		@Override
 		public Component getTreeCellRendererComponent(JTree tree, Object value, 
 				boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 			String name = "";
+			
 		    if (value instanceof SumPDFType){
-		    	name = "<html><b>Sum PDF</b></html>";
+		    	name = "<html><b>Sum PDF (" + ((SumPDFType) value).getFractionName()  + ") </b></html>";
 		    } else if (value instanceof ProdPDFType){
 		    	name = "<html><b>Product PDF</b></html>";
 		    } else if (value instanceof PDFType){
@@ -58,13 +62,17 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		}
 	}
 	
-	public PDFBuilder (PDFExpressionType root){
+	//pass in a deep copy of the pdf root
+	public PDFBuilder (List<PhysicsParameterType> params, PDFExpressionType root){
+		
+		//set window properties
 		setTitle("PDF Builder");
 		setModal(true);
 		setResizable(true);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
 		pdfRoot = root;
+		parameters = params;
 		
 		//find all pdfs
 		listOfPDFs = new ArrayList<PDFType>();
@@ -104,6 +112,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		btnEditPDF.addActionListener(this);
 		
 		pdfOptionPanel = new JPanel();
+		pdfOptionPanel.setLayout(new GridLayout(0,3));
 		pdfOptionPanel.add(btnAddPDF);
 		pdfOptionPanel.add(btnRemovePDF);
 		pdfOptionPanel.add(btnEditPDF);
@@ -136,7 +145,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		btnReplaceWithProd.addActionListener(this);
 		
 		pdfBuilderOptionPanel = new JPanel();
-		pdfBuilderOptionPanel.setLayout(new GridLayout(3,0));
+		pdfBuilderOptionPanel.setLayout(new GridLayout(0,3));
 		pdfBuilderOptionPanel.add(btnReplaceWithPDF);
 		pdfBuilderOptionPanel.add(btnReplaceWithSum);
 		pdfBuilderOptionPanel.add(btnReplaceWithProd);
@@ -148,10 +157,29 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		pdfBuilderPanel.add(pdfTreeScrollPane, BorderLayout.CENTER);
 		pdfBuilderPanel.add(pdfBuilderOptionPanel, BorderLayout.SOUTH);
 		
+		btnBuildPDF = new JButton("Save and Build PDF");
+		
 		Container content = this.getContentPane();
 		content.add(listOfPDFPanel, BorderLayout.WEST);
 		content.add(pdfBuilderPanel, BorderLayout.CENTER);
-		//content.add(btnBuildPDF, BorderLayout.SOUTH);
+		content.add(btnBuildPDF, BorderLayout.SOUTH);
+		
+		final PDFBuilder thisPanel = this;
+		thisPanel.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	int result = JOptionPane.showOptionDialog(thisPanel, 
+		    			"Are you sure to close this window without saving?\n "
+		    			+ "All edits on the PDFs will be lost.", "Really Closing?", 
+		    			JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+						new String [] {"Yes", "No"}, "No");
+		        if (result == JOptionPane.YES_OPTION){
+		        	dispose();
+		        } else {
+		        	setVisible(true);
+		        }
+		    }
+		});
 		pack();
 	}
 	
@@ -203,13 +231,23 @@ public class PDFBuilder extends JDialog implements ActionListener {
 						pdfTree.getSelectionPath(), 
 						pdfList.getSelectedValue());
 			}
+			
 		} else if (e.getSource() == btnReplaceWithSum){
 			if (pdfTree.getSelectionPath() != null){
 				HashMap<String, PDFType> pdfMap = new HashMap<String, PDFType>();
 				for (PDFType pdf : listOfPDFs){
 					pdfMap.put(pdf.getName(), pdf);
 				}
-				new PDFSumDialog(pdfMap, pdfTree).setVisible(true);;
+				new PDFSumDialog(parameters, pdfMap, pdfTree).setVisible(true);;
+			}
+			
+		} else if (e.getSource() == btnReplaceWithProd){
+			if (pdfTree.getSelectionPath() != null){
+				HashMap<String, PDFType> pdfMap = new HashMap<String, PDFType>();
+				for (PDFType pdf : listOfPDFs){
+					pdfMap.put(pdf.getName(), pdf);
+				}
+				new PDFProdDialog(pdfMap, pdfTree).setVisible(true);;
 			}
 		}
 	}

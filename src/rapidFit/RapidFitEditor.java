@@ -70,6 +70,7 @@ public class RapidFitEditor extends JFrame {
 				root.getMinimiser(), root.getPrecalculator());
 		
 		commonPhaseSpacePanel = new CommonPropertiesPanel(
+					root.getParameterSet().getPhysicsParameter(),
 					root.getCommonPhaseSpace().getPhaseSpaceBoundary(),
 					root.getCommonPDF());
 		
