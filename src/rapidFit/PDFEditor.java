@@ -30,7 +30,7 @@ public class PDFEditor extends JDialog implements ActionListener {
 	private List<ConfigParam> configs;
 	private PDFType pdf;
 	
-	protected static class ConfigParam {
+	private static class ConfigParam {
 		private String configParam;
 		public ConfigParam(){}
 		public ConfigParam(String config){
@@ -105,14 +105,18 @@ public class PDFEditor extends JDialog implements ActionListener {
 			 * need to retrieve all the new configs from
 			 * the table and save it to the pdf
 			 */
+			//clear old configurations
 			pdf.getConfigurationParameter().clear();
 			for (ConfigParam config : configs){
 				pdf.getConfigurationParameter().add(
 						config.getConfigurationParameter());
 			}
+			
 			dispose();
+			
 		} else if (e.getSource() == btnAddConfig){
 			configTablePanel.addRow();
+			
 		} else if (e.getSource() == btnRemoveConfig){
 			configTablePanel.removeSelectedRows();
 		}

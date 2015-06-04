@@ -59,7 +59,7 @@ public class OldPDFBuilder extends JDialog implements ActionListener {
 		pdfTreeRoot = root;
 		
 		listModel = new DataListModel<PDFType>(PDFType.class, listOfPDFs);
-		pdfList = new DataList<PDFType>(listModel, "Name", false);
+		//pdfList = new DataList<PDFType>(listModel, "Name", false);
 		
 		//create a pdf mapping between actual object and its name
 		pdfs = new HashMap<String, PDFType>();

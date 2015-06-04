@@ -337,10 +337,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 			phaseSpaceDataPanel.removeSelectedRows();
 			
 		} else if (e.getSource() == btnEditPDF){
-			OldPDFBuilder pdfBuilder = new OldPDFBuilder(
-					listOfPDFs,(PDFOperatorType) pdfRoot, pdfExpression);
-			pdfBuilder.setVisible(true);
-			
+					
 			
 		}
 	}

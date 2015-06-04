@@ -9,6 +9,7 @@ import javax.swing.*;
 
 import rapidFit.rpfit.*;
 
+@SuppressWarnings("serial")
 public class PDFSumDialog extends JDialog implements ActionListener {
 	
 	private HashMap<String, PDFType> pdfMap;

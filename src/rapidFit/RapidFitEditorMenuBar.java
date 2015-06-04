@@ -10,9 +10,16 @@ import java.io.File;
 public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	private JMenu mnuFile;
 	private JMenu mnuHelp;
+	//private JMenu mnuEdit;
+	
 	private JMenuItem mnuAbout;
+	
 	private JMenuItem mnuImport;
 	private JMenuItem mnuExport;
+	
+	/*private JMenuItem mnuUndo;
+	private JMenuItem mnuRedo;*/
+	
 	private JFileChooser fc = new JFileChooser();
 	private RapidFitEditor editor;
 	
@@ -27,12 +34,20 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		mnuFile.add(mnuImport);
 		mnuFile.add(mnuExport);
 		
+		/*mnuUndo = new JMenuItem("Undo");
+		mnuRedo = new JMenuItem("Redo");
+		
+		mnuEdit = new JMenu("Edit");
+		mnuEdit.add(mnuUndo);
+		mnuEdit.add(mnuRedo);*/
+		
 		mnuAbout = new JMenuItem("About");
 		mnuAbout.addActionListener(this);
 		mnuHelp = new JMenu("Help");
 		mnuHelp.add(mnuAbout);
 
 		this.add(mnuFile);
+		//this.add(mnuEdit);
 		this.add(mnuHelp);
 	}
 	

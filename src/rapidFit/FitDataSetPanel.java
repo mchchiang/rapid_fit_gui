@@ -31,6 +31,9 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 	
 	private List<ToFitType> toFitRoot;
 	
+	private IdentityHashMap<ToFitType, String> dataSetNameMap;
+	private int dataSetCount = 0;
+	
 	public FitDataSetPanel(List<ToFitType> root, ArrayList<ToFitType> dataSets){
 		dataSetPanel = new DataSetPanel();
 		
@@ -40,7 +43,16 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 		
 		listModel = new DataListModel<ToFitType>(
 				ToFitType.class, dataSets);
-		dataSetList = new DataList<ToFitType>(listModel, "Data_Set", true);
+		
+		//create a list of name tags for the data set
+		dataSetNameMap = new IdentityHashMap<ToFitType, String>();
+		
+		for (ToFitType dataSet : dataSets){
+			dataSetCount++;
+			dataSetNameMap.put(dataSet, "Data_Set_" + dataSetCount);
+		}
+		
+		dataSetList = new DataList<ToFitType>(listModel, dataSetNameMap);
 		
 		//click on list to switch between data sets
 		dataSetList.addMouseListener(new MouseAdapter(){
@@ -121,8 +133,10 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 			listModel.addRow(index);
 			toFitRoot.add(listModel.getElementAt(index));
 			
+			dataSetCount++;
+			
 			dataSetList.setSelectedIndex(index);
-			dataSetList.setTagName(listModel.getElementAt(index));
+			dataSetList.setTagName(listModel.getElementAt(index), "Data_Set_" + dataSetCount);
 			
 			this.remove(dataSetPanel);
 			
@@ -138,12 +152,7 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 			this.validate();
 			
 		} else if (e.getSource() == btnDuplicateDataSet){
-			//deep copy the data set
-			/**
-		     * Returns a copy of the object, or null if the object cannot
-		     * be serialized.
-		     */
-			
+			//deep copy the data set			
 			int index = dataSetList.getSelectedIndex();
 			if (index != -1){
 				//remove the current data set from display
