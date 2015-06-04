@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.tree.*;
 
 import rapidFit.rpfit.*;
 
@@ -35,37 +34,15 @@ public class PDFBuilder extends JDialog implements ActionListener {
 	private JPanel pdfBuilderOptionPanel;
 	
 	private PDFTree pdfTree;
-	//private JTree pdfTree;
+
 	private PDFTreeModel treeModel;
 	
 	private DataList<PDFType> pdfList;
 	private DataListModel<PDFType> listModel;
-	
-	private ArrayList<PDFType> listOfPDFs;
-	
+
 	private List<PhysicsParameterType> parameters;
 	
-	private IdentityHashMap<PDFType, String> pdfNameMap;
-	private HashMap<String, Integer> nameCount;
-	
-	private class PDFTreeCellRenderer extends DefaultTreeCellRenderer{
-		@Override
-		public Component getTreeCellRendererComponent(JTree tree, Object value, 
-				boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-			String name = "";
-			
-		    if (value instanceof SumPDFType){
-		    	name = "<html><b>Sum PDF (" + ((SumPDFType) value).getFractionName()  + ") </b></html>";
-		    } else if (value instanceof ProdPDFType){
-		    	name = "<html><b>Product PDF</b></html>";
-		    } else if (value instanceof PDFType){
-		    	name = ((PDFType) value).getName();
-		    }
-		    
-		    return super.getTreeCellRendererComponent(
-		    		tree, name, sel, expanded, leaf, row, hasFocus);
-		}
-	}
+	private PDFManager pdfManager;
 	
 	//pass in a deep copy of the pdf root
 	public PDFBuilder (List<PhysicsParameterType> params, PDFExpressionType root){
@@ -87,23 +64,12 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		copyOfPDFRoot = (PDFExpressionType) Cloner.deepClone(root);
 		
 		//create a list of tag names for the pdfs
-		pdfNameMap = new IdentityHashMap<PDFType, String>();
-		nameCount = new HashMap<String, Integer>();
-		
-		if (copyOfPDFRoot.getPDF() != null){
-			getPDFs(copyOfPDFRoot.getPDF());
-		} else if (copyOfPDFRoot.getNormalisedSumPDF() != null){
-			getPDFs(copyOfPDFRoot.getNormalisedSumPDF());
-		} else if (copyOfPDFRoot.getProdPDF() != null){
-			getPDFs(copyOfPDFRoot.getProdPDF());
-		}
+		pdfManager = new PDFManager(copyOfPDFRoot);
 		
 		//create a data list for displaying the available PDFs
-		List<PDFType> listOfPDFs = new ArrayList<PDFType>();
-		listOfPDFs.addAll(pdfNameMap.keySet());
-		listModel = new DataListModel<PDFType>(PDFType.class, listOfPDFs);
+		listModel = new DataListModel<PDFType>(PDFType.class, pdfManager.getListOfPDFs());
 		
-		pdfList = new DataList<PDFType>(listModel, pdfNameMap);
+		pdfList = new DataList<PDFType>(listModel, pdfManager.getPDFAsKeyMap());
 		
 		pdfList.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
@@ -149,7 +115,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		
 		//create the pdf tree
 		treeModel = new PDFTreeModel(copyOfPDFRoot);
-		pdfTree = new PDFTree(treeModel, pdfNameMap);
+		pdfTree = new PDFTree(treeModel, pdfManager.getPDFAsKeyMap());
 		
 		pdfTreeScrollPane = new JScrollPane(pdfTree);
 		
@@ -201,48 +167,6 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		pack();
 	}
 	
-	//recursive method for finding all the PDFs
-	public void getPDFs(Object node){
-		if (node instanceof SumPDFType){
-			getPDFs(((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
-			getPDFs(((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
-			
-		} else if (node instanceof ProdPDFType){
-			getPDFs(((ProdPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
-			getPDFs(((ProdPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
-			
-		} else if (node instanceof PDFType){
-			updatePDFName((PDFType) node);
-		}
-	}
-	
-	public void updatePDFName(PDFType pdf){
-		String name = pdf.getName();
-		/*
-		 * if the PDF has a name that is the same as another PDF,
-		 * put a index count after the name
-		 */
-		if (nameCount.containsKey(name)){
-			nameCount.put(name, nameCount.get(name)+1);
-			pdfNameMap.put(pdf, name + "_" + nameCount.get(name));
-			
-		} else {
-			nameCount.put(name, 0);
-			pdfNameMap.put(pdf, name);
-		}
-		
-		
-	}
-	
-	//get the name map with the tag name being the key
-	public HashMap<String, PDFType> getInverseNameMap(){
-		HashMap<String, PDFType> map = new HashMap<String, PDFType>();
-		for (PDFType pdf : pdfNameMap.keySet()){
-			map.put(pdfNameMap.get(pdf), pdf);
-		}
-		return map;
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
@@ -266,8 +190,8 @@ public class PDFBuilder extends JDialog implements ActionListener {
 			//set the name of the new PDF
 			PDFType pdf = listModel.getElementAt(index);
 			pdf.setName("PDF");
-			updatePDFName(pdf);
-			pdfTree.updateMap(pdfNameMap);
+			pdfManager.addPDF(pdf);
+			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
 			
 			//set the selected PDF in the list to be the new PDF
 			pdfList.setSelectedIndex(index);
@@ -275,31 +199,28 @@ public class PDFBuilder extends JDialog implements ActionListener {
 			//open the PDF editor to allow user to edit the new PDF
 			new PDFEditor(listModel.getElementAt(index)).setVisible(true);
 			
-			//only update pdf tag name if the pdf name has changed
-			if (!pdf.getName().equals("PDF")){
-				updatePDFName(pdf);
-				pdfTree.updateMap(pdfNameMap);
-			}
+			//update tag name for PDFs
+			pdfManager.updateTagName();
+			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
 		
 		//for removing a PDF
 		} else if (e.getSource() == btnRemovePDF &&
 				pdfList.getSelectedIndex() != -1){
 			
-			// remove the selected PDF from the list
+			//remove the selected PDF from the list
+			pdfManager.removePDF(pdfList.getSelectedValue());
 			listModel.removeRow(pdfList.getSelectedIndex());
 
 		//for editing a PDF
 		} else if (e.getSource() == btnEditPDF && 
 				pdfList.getSelectedIndex() != -1){
-			PDFType pdf = listModel.getElementAt(pdfList.getSelectedIndex());
-			String name = pdf.getName();
-			new PDFEditor(pdf).setVisible(true);
 			
-			//only update PDF tag name if the PDF name has changed
-			if (!pdf.getName().equals(name)){
-				updatePDFName(pdf);
-				pdfTree.updateMap(pdfNameMap);
-			}
+			new PDFEditor(listModel.getElementAt(
+					pdfList.getSelectedIndex())).setVisible(true);
+			
+			//update tag name for PDFs
+			pdfManager.updateTagName();
+			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
 		
 		/*
 		 * for replacing a selected PDF / composite PDF in the PDF tree 
@@ -319,7 +240,8 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		 */
 		} else if (e.getSource() == btnReplaceWithSum){
 			if (pdfTree.getSelectionPath() != null){
-				new PDFSumDialog(parameters, getInverseNameMap(), pdfTree).setVisible(true);
+				new PDFSumDialog(parameters, 
+						pdfManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
 			}
 			
 		/*
@@ -328,7 +250,8 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		 */	
 		} else if (e.getSource() == btnReplaceWithProd){
 			if (pdfTree.getSelectionPath() != null){
-				new PDFProdDialog(getInverseNameMap(), pdfTree).setVisible(true);
+				new PDFProdDialog(
+						pdfManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
 			}
 		}
 	}
