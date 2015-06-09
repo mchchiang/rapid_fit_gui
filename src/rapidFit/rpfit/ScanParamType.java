@@ -9,6 +9,7 @@
 package rapidFit.rpfit;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -18,25 +19,20 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
 /**
- * <p>Java class for ObservableType complex type.
+ * <p>Java class for ScanParamType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ObservableType">
+ * &lt;complexType name="ScanParamType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Name" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;choice>
- *           &lt;sequence>
- *             &lt;element name="Minimum" type="{http://www.w3.org/2001/XMLSchema}double"/>
- *             &lt;element name="Maximum" type="{http://www.w3.org/2001/XMLSchema}double"/>
- *           &lt;/sequence>
- *           &lt;element name="Value" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;/choice>
- *         &lt;element name="Unit" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="TF1" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="Name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="Minimum" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/>
+ *         &lt;element name="Maximum" type="{http://www.w3.org/2001/XMLSchema}double" minOccurs="0"/>
+ *         &lt;element name="Points" type="{http://www.w3.org/2001/XMLSchema}integer" minOccurs="0"/>
+ *         &lt;element name="Sigma" type="{http://www.w3.org/2001/XMLSchema}integer" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -46,20 +42,19 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ObservableType", propOrder = {
+@XmlType(name = "ScanParamType", propOrder = {
     "name",
     "minimum",
     "maximum",
-    "value",
-    "unit",
-    "tf1"
+    "points",
+    "sigma"
 })
-public class ObservableType
+public class ScanParamType
     implements Serializable
 {
 
     private final static long serialVersionUID = 1L;
-    @XmlElement(name = "Name", required = true)
+    @XmlElement(name = "Name")
     protected String name;
     @XmlElement(name = "Minimum", type = String.class)
     @XmlJavaTypeAdapter(Adapter1 .class)
@@ -69,12 +64,10 @@ public class ObservableType
     @XmlJavaTypeAdapter(Adapter1 .class)
     @XmlSchemaType(name = "double")
     protected Double maximum;
-    @XmlElement(name = "Value")
-    protected String value;
-    @XmlElement(name = "Unit", required = true)
-    protected String unit;
-    @XmlElement(name = "TF1")
-    protected String tf1;
+    @XmlElement(name = "Points")
+    protected BigInteger points;
+    @XmlElement(name = "Sigma")
+    protected BigInteger sigma;
 
     /**
      * Gets the value of the name property.
@@ -149,75 +142,51 @@ public class ObservableType
     }
 
     /**
-     * Gets the value of the value property.
+     * Gets the value of the points property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link BigInteger }
      *     
      */
-    public String getValue() {
-        return value;
+    public BigInteger getPoints() {
+        return points;
     }
 
     /**
-     * Sets the value of the value property.
+     * Sets the value of the points property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link BigInteger }
      *     
      */
-    public void setValue(String value) {
-        this.value = value;
+    public void setPoints(BigInteger value) {
+        this.points = value;
     }
 
     /**
-     * Gets the value of the unit property.
+     * Gets the value of the sigma property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link BigInteger }
      *     
      */
-    public String getUnit() {
-        return unit;
+    public BigInteger getSigma() {
+        return sigma;
     }
 
     /**
-     * Sets the value of the unit property.
+     * Sets the value of the sigma property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link BigInteger }
      *     
      */
-    public void setUnit(String value) {
-        this.unit = value;
-    }
-
-    /**
-     * Gets the value of the tf1 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getTF1() {
-        return tf1;
-    }
-
-    /**
-     * Sets the value of the tf1 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setTF1(String value) {
-        this.tf1 = value;
+    public void setSigma(BigInteger value) {
+        this.sigma = value;
     }
 
 }

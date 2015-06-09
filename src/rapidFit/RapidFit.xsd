@@ -274,15 +274,31 @@
 	
 	<xs:complexType name="OutputType">
 		<xs:sequence>
-			<xs:element name="ContourPlot" type="ContourPlotType" minOccurs="0"/>
-			<xs:element name="Projection" type="PlotType" minOccurs="0"/>
-			<xs:element name="ComponentProjection" type="PlotType" minOccurs="0"/>
+			<xs:element name="ComponentProjection" type="ComponentProjectionType" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="DoPullPlots" minOccurs="0"/>
-			<xs:element name="Scan" type="ParamType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Scan" type="ScanParamType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="TwoDScan" type="TwoDScanType" minOccurs="0" maxOccurs="unbounded"/>			
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="PlotType">
+	<xs:complexType name="ScanParamType">
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string" minOccurs="0"/>
+			<xs:element name="Minimum" type="xs:double" minOccurs="0"/>
+			<xs:element name="Maximum" type="xs:double" minOccurs="0"/>
+			<xs:element name="Points" type="xs:integer" minOccurs="0"/>
+			<xs:element name="Sigma" type="xs:integer" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="TwoDScanType">
+		<xs:sequence>
+			<xs:element name="X_Param" type="ScanParamType"/>
+			<xs:element name="Y_Param" type="ScanParamType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ComponentProjectionType">
 		<xs:all>
 			<xs:element name="DataBins" type="xs:integer" minOccurs="0"/>
 			<xs:element name="PDFPoints" type="xs:integer" minOccurs="0"/>
@@ -326,14 +342,6 @@
 			<xs:element name="YaxisLabelScale" type="xs:double" minOccurs="0"/>
 			<xs:element name="OnlyUseCombination" type="xs:integer" minOccurs="0"/>
 			<xs:element name="OnlyUseComponent" type="xs:integer" minOccurs="0"/>
-		</xs:all>
-	</xs:complexType>
-	
-	<!-- contour plot options -->
-	<xs:complexType name="ContourPlotType">
-		<xs:all>
-			<xs:element name="XParameter" type="xs:string"/>
-			<xs:element name="YParameter" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>
 </xs:schema>

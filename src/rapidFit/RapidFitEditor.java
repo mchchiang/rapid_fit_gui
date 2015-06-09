@@ -21,7 +21,8 @@ public class RapidFitEditor extends JFrame {
 	private FittingPanel fitPanel;
 	private FitConstraintPanel fitConstraintPanel;
 	private FitDataSetPanel fitDataSetPanel;
-	private OutputPanel outputPanel;
+	private OutputScanPanel outputScanPanel;
+	private DataListPanel<ComponentProjectionType> outputProjectionPanel;
 	
 	protected RapidFitType root;
 	
@@ -88,8 +89,13 @@ public class RapidFitEditor extends JFrame {
 		fitConstraintPanel = new FitConstraintPanel(constraintFit.getConstraintFunction());
 		fitDataSetPanel = new FitDataSetPanel(
 				root.getParameterSet().getPhysicsParameter(),
-				toFits, actualFits);
-		outputPanel = new OutputPanel();
+				toFits, actualFits, "Available Data Sets", "Data_Set");
+		outputScanPanel = new OutputScanPanel(root.getOutput());
+		
+		List<ComponentProjectionType> projectionList = root.getOutput().getComponentProjection();
+		outputProjectionPanel = new DataListPanel<ComponentProjectionType>(
+				ComponentProjectionType.class, projectionList , projectionList, 
+				"Available Projections", "Comp_Proj", "Projection Details");
 		
 		tabs = new JTabbedPane();
 		tabs.addTab("Parameter Set", paramSetPanel);
@@ -97,7 +103,8 @@ public class RapidFitEditor extends JFrame {
 		tabs.addTab("Common Properties", commonPhaseSpacePanel);
 		tabs.addTab("Fit Constraints", fitConstraintPanel);
 		tabs.addTab("Data Sets", fitDataSetPanel);
-		tabs.addTab("Output Options", outputPanel);
+		tabs.addTab("Output - Scan", outputScanPanel);
+		tabs.addTab("Output - Projection", outputProjectionPanel);
 		
 		
 		content.add(tabs, BorderLayout.CENTER);

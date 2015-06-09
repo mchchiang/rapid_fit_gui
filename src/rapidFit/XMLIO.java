@@ -162,10 +162,7 @@ public class XMLIO {
             // unmarshal a po instance document into a tree of Java content
             // objects composed of classes from the primer.po package.
             JAXBElement<?> jbe = (JAXBElement<?>) u.unmarshal( new FileInputStream(tempXMLFileURL));
-            System.out.println("OK");
             root = (RapidFitType) jbe.getValue();
-            
-            System.out.println((root == null));
             
         } catch( JAXBException je ) {
         	if (vec != null && vec.hasEvents()){

@@ -12,6 +12,8 @@ public class FittingPanel extends JPanel {
 	private AttributePanel<MinimiserType> minimiserPanel;
 	private AttributePanel<PrecalculatorType> preCalPanel;
 	
+	private JPanel otherAttrPanel;
+	
 	public FittingPanel(FitFunctionType fitFunction, 
 			MinimiserType minimiser, PrecalculatorType precal){
 		
@@ -23,6 +25,10 @@ public class FittingPanel extends JPanel {
 		
 		preCalPanel = new AttributePanel<PrecalculatorType>(
 				PrecalculatorType.class, precal, "Precalculator", null);
+		
+		
+		
+		otherAttrPanel = new JPanel();
 		
 		setLayout(new GridLayout(2,2));
 		add(fitFunctionPanel);

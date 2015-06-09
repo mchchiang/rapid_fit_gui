@@ -47,6 +47,7 @@ public class DataList<T> extends JList<T> {
 	
 	public void updateNameMap(IdentityHashMap<T, String> map){
 		nameMap = map;
+		setCellRenderer(new DataListRenderer());
 	}
 	
 }

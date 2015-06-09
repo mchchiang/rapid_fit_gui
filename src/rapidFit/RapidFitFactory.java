@@ -15,7 +15,7 @@ public class RapidFitFactory {
 		RapidFitType root = new RapidFitType();
 		root.setParameterSet(new ParameterSetType());
 		root.setPrecalculator(new PrecalculatorType());
-		root.setFitFunction(new FitFunctionType());
+		root.setFitFunction(new FitFunctionType());		
 		root.setMinimiser(new MinimiserType());
 		root.setNumberRepeats(BigInteger.valueOf(1));
 		root.setCommonPDF(new PDFExpressionType());
@@ -26,6 +26,10 @@ public class RapidFitFactory {
 		
 		root.setCommonPhaseSpace(new CommonPhaseSpaceType());
 		root.getCommonPhaseSpace().setPhaseSpaceBoundary(new PhaseSpaceBoundaryType());
+		
+		ToFitType constraint = new ToFitType();
+		constraint.setConstraintFunction(new ConstraintFunctionType());
+		root.getToFit().add(constraint);
 		
 		root.setOutput(new OutputType());
 		

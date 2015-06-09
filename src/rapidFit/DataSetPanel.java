@@ -1,18 +1,13 @@
 package rapidFit;
 
-import javax.xml.bind.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.Serializable;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
+import javax.swing.border.*;
+import javax.swing.event.*;
 
 import rapidFit.rpfit.*;
 

@@ -1,6 +1,7 @@
 package rapidFit;
 
 import javax.swing.*;
+import javax.swing.filechooser.*;
 
 import rapidFit.rpfit.RapidFitType;
 
@@ -23,6 +24,8 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	private RapidFitEditor editor;
 	
 	public RapidFitEditorMenuBar(RapidFitEditor e){
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("XML file", "xml");
+		fc.setFileFilter(filter);
 		editor = e;
 		mnuImport = new JMenuItem("Import XML");
 		mnuImport.addActionListener(this);
@@ -69,6 +72,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		
 		} else if (e.getSource() == mnuNew) {
 			editor.showFit(RapidFitFactory.createEmptyFit());
+			
 		} else if (e.getSource() == mnuAbout){
 			
 			JFrame helpFrame = new JFrame("About Rapid Fit Editor");
