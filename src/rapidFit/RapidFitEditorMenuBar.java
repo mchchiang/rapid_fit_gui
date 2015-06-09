@@ -2,6 +2,8 @@ package rapidFit;
 
 import javax.swing.*;
 
+import rapidFit.rpfit.RapidFitType;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -10,15 +12,12 @@ import java.io.File;
 public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	private JMenu mnuFile;
 	private JMenu mnuHelp;
-	//private JMenu mnuEdit;
 	
 	private JMenuItem mnuAbout;
 	
 	private JMenuItem mnuImport;
 	private JMenuItem mnuExport;
-	
-	/*private JMenuItem mnuUndo;
-	private JMenuItem mnuRedo;*/
+	private JMenuItem mnuNew;
 	
 	private JFileChooser fc = new JFileChooser();
 	private RapidFitEditor editor;
@@ -29,17 +28,13 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		mnuImport.addActionListener(this);
 		mnuExport = new JMenuItem("Export XML");
 		mnuExport.addActionListener(this);
+		mnuNew = new JMenuItem("New XML");
+		mnuNew.addActionListener(this);
 		
 		mnuFile = new JMenu("File");
 		mnuFile.add(mnuImport);
 		mnuFile.add(mnuExport);
-		
-		/*mnuUndo = new JMenuItem("Undo");
-		mnuRedo = new JMenuItem("Redo");
-		
-		mnuEdit = new JMenu("Edit");
-		mnuEdit.add(mnuUndo);
-		mnuEdit.add(mnuRedo);*/
+		mnuFile.add(mnuNew);
 		
 		mnuAbout = new JMenuItem("About");
 		mnuAbout.addActionListener(this);
@@ -47,7 +42,6 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		mnuHelp.add(mnuAbout);
 
 		this.add(mnuFile);
-		//this.add(mnuEdit);
 		this.add(mnuHelp);
 	}
 	
@@ -55,17 +49,26 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		if (e.getSource() == mnuImport) {
 			int returnVal = fc.showOpenDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				//File file = fc.getSelectedFile();
+				File file = fc.getSelectedFile();
+				
+				//read xml
+				RapidFitType root = RapidFitFactory.createFitFromFile(file.getAbsolutePath(), 
+						"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
+						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
+				editor.showFit(root);
 			}
+						
 		} else if (e.getSource() == mnuExport){
 			int returnVal = fc.showSaveDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
-				XMLWriter writer = new XMLWriter();
-				writer.writeFile(editor.root, file.getAbsolutePath(), "/Users/MichaelChiang/Dropbox/Edinburgh"
+				XMLIO.writeFile(editor.root, file.getAbsolutePath(), "/Users/MichaelChiang/Dropbox/Edinburgh"
 						+ "/Courses/Year 2/Summer_Project/"
 						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
 			}
+		
+		} else if (e.getSource() == mnuNew) {
+			editor.showFit(RapidFitFactory.createEmptyFit());
 		} else if (e.getSource() == mnuAbout){
 			
 			JFrame helpFrame = new JFrame("About Rapid Fit Editor");

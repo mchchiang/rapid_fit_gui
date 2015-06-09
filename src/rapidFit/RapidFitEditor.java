@@ -3,7 +3,6 @@ package rapidFit;
 import java.util.*;
 import java.util.List;
 import java.awt.*;
-import java.math.BigInteger;
 
 import javax.swing.*;
 
@@ -15,8 +14,6 @@ public class RapidFitEditor extends JFrame {
 	private int height = 500;
 	private RapidFitEditorMenuBar menuBar;
 	private JTabbedPane tabs;
-	private XMLReader reader;
-	private ObjectFactory of = new ObjectFactory();
 	
 	//all panels
 	private ParameterSetPanel paramSetPanel;
@@ -25,11 +22,10 @@ public class RapidFitEditor extends JFrame {
 	private FitConstraintPanel fitConstraintPanel;
 	private FitDataSetPanel fitDataSetPanel;
 	private OutputPanel outputPanel;
-	private PDFTreePanel pdfTreePanel;
 	
 	protected RapidFitType root;
-	private Container content = getContentPane();
 	
+	private JTextArea txtNoData;
 	
 	public RapidFitEditor (){
 		setTitle("Rapid Fit Editor");
@@ -37,65 +33,63 @@ public class RapidFitEditor extends JFrame {
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
-		//read xml
-		reader = new XMLReader();
-		root = reader.readFile("/Users/MichaelChiang/Dropbox/"
-				+ "Edinburgh/Courses/Year 2/Summer_Project/rapid_fit_gui/trial2.out.xml", 
-				"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
-				+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
+		txtNoData = new JTextArea("No data is loaded. Choose File/Import in the menu bar to import a RapidFit XML file or "
+				+ "choose File/New to create a new RapidFit XML file.");
+		txtNoData.setEditable(false);
+		txtNoData.setBackground(getBackground());
+		txtNoData.setLineWrap(true);
 		
-		/*
-		 * Instantiate a new object for any of the major classes that are null
-		 */
-		if (root.getParameterSet() == null) root.setParameterSet(new ParameterSetType());
-		if (root.getPrecalculator() == null) root.setPrecalculator(new PrecalculatorType());
-		if (root.getFitFunction() == null) root.setFitFunction(new FitFunctionType());
-		if (root.getMinimiser() == null) root.setMinimiser(new MinimiserType());
-		if (root.getNumberRepeats() == null) root.setNumberRepeats(BigInteger.valueOf(1));
-		if (root.getCommonPDF() == null) {
-			root.setCommonPDF(new PDFExpressionType());
-			PDFType pdf = new PDFType();
-			pdf.setName("null");
-			root.getCommonPDF().setPDF(pdf);
-		}
-		if (root.getCommonPhaseSpace() == null){
-			root.setCommonPhaseSpace(new CommonPhaseSpaceType());
-			root.getCommonPhaseSpace().setPhaseSpaceBoundary(new PhaseSpaceBoundaryType());
-		}
+		
+		Container content = getContentPane();
+		content.add(txtNoData, BorderLayout.CENTER);
+		
+		menuBar = new RapidFitEditorMenuBar(this);
+		this.setJMenuBar(menuBar);
+		setVisible(true);
+	}
+	
+	public void showFit(RapidFitType root){
+		//remove previously displayed contents
+		Container content = getContentPane();
+		content.removeAll();
+		
+		this.root = root;
 		
 		//create panels
 		paramSetPanel = new ParameterSetPanel(root.getParameterSet());
-		
+
 		fitPanel = new FittingPanel(root.getFitFunction(), 
 				root.getMinimiser(), root.getPrecalculator());
-		
+
 		commonPhaseSpacePanel = new CommonPropertiesPanel(
-					root.getParameterSet().getPhysicsParameter(),
-					root.getCommonPhaseSpace().getPhaseSpaceBoundary(),
-					root.getCommonPDF());
-		
+				root.getParameterSet().getPhysicsParameter(),
+				root.getCommonPhaseSpace().getPhaseSpaceBoundary(),
+				root.getCommonPDF());
+
 		//separate actual fit and fit constraints
 		List<ToFitType> toFits = root.getToFit();
-		ArrayList<ToFitType> constraints = new ArrayList<ToFitType>();
+		ToFitType constraintFit = null;
 		ArrayList<ToFitType> actualFits = new ArrayList<ToFitType>();
 		
-		Iterator<ToFitType> it = toFits.iterator();
-		
-		while(it.hasNext()){
-			ToFitType fit = it.next();
-			//is actual fit
-			if (fit.getConstraintFunction() != null){
-				constraints.add(fit);	
-				it.remove();
-			} else {
+		for (ToFitType fit : toFits){
+			if (fit.getConstraintFunction() == null){
 				actualFits.add(fit);
+				
+			/*
+			 * there should only be one constraint function. All constraint
+			 * functions are combined into a single constraint function in 
+			 * the factory
+			 */
+			} else {
+				constraintFit = fit;
 			}
 		}
 
-		fitConstraintPanel = new FitConstraintPanel(toFits, constraints);
-		fitDataSetPanel = new FitDataSetPanel(toFits, actualFits);
+		fitConstraintPanel = new FitConstraintPanel(constraintFit.getConstraintFunction());
+		fitDataSetPanel = new FitDataSetPanel(
+				root.getParameterSet().getPhysicsParameter(),
+				toFits, actualFits);
 		outputPanel = new OutputPanel();
-		pdfTreePanel = new PDFTreePanel(root.getCommonPDF());
 		
 		tabs = new JTabbedPane();
 		tabs.addTab("Parameter Set", paramSetPanel);
@@ -104,16 +98,13 @@ public class RapidFitEditor extends JFrame {
 		tabs.addTab("Fit Constraints", fitConstraintPanel);
 		tabs.addTab("Data Sets", fitDataSetPanel);
 		tabs.addTab("Output Options", outputPanel);
-		//tabs.addTab("PDF tree", pdfTreePanel);
 		
-		content = getContentPane();
+		
 		content.add(tabs, BorderLayout.CENTER);
-		
-		menuBar = new RapidFitEditorMenuBar(this);
-		this.setJMenuBar(menuBar);
 		pack();
+		validate();
 		setVisible(true);
-	}	
+	}
 	
 	public static void main (String [] args){
 		new RapidFitEditor();

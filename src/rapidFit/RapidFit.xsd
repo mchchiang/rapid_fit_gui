@@ -165,8 +165,8 @@
 					<xs:element name="CommonPDF" type="xs:boolean"/>
 					<xs:element name="PDFConfigurator" type="PDFConfiguratorType" minOccurs="0"/>
 				</xs:sequence>
-				<xs:element name="ProdPDF" type="PDFOperatorType"/>
-				<xs:element name="NormalisedSumPDF" type="PDFOperatorType"/>
+				<xs:element name="ProdPDF" type="ProdPDFType"/>
+				<xs:element name="NormalisedSumPDF" type="SumPDFType"/>
 				<xs:element name="PDF" type="PDFType"/>
 			</xs:choice>
 			<xs:element name="DataSet" type="DataSetType"/>

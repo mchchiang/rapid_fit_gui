@@ -9,7 +9,6 @@ import javax.swing.tree.*;
 import rapidFit.rpfit.*;
 
 public class PDFTreeModel implements TreeModel {
-	private DefaultTreeModel model;
 	private EventListenerList listenerList = new EventListenerList();
 	
 	private PDFExpressionType pdfRoot;
@@ -17,6 +16,10 @@ public class PDFTreeModel implements TreeModel {
 	
 	public PDFTreeModel (PDFExpressionType root){
 		pdfRoot = root;
+		setDisplayRoot();
+	}
+	
+	private void setDisplayRoot(){
 		if (pdfRoot.getNormalisedSumPDF() != null){
 			displayRoot = pdfRoot.getNormalisedSumPDF();
 		} else if (pdfRoot.getProdPDF() != null){
@@ -24,6 +27,11 @@ public class PDFTreeModel implements TreeModel {
 		} else if (pdfRoot.getPDF() != null){
 			displayRoot = pdfRoot.getPDF();
 		}
+	}
+	
+	public void updateEntireTree(){
+		setDisplayRoot();
+		fireTreeStructureChanged(this, new Object [] {displayRoot}, null, null);
 	}
 	
 	@Override
@@ -53,6 +61,8 @@ public class PDFTreeModel implements TreeModel {
 	
 	public void replace(TreePath path, Object newNode){
 		Object oldNode = path.getLastPathComponent();
+		
+		//if it is the root element (node has no parent)
 		if (path.getParentPath() == null){
 			displayRoot = newNode;
 			if (newNode instanceof SumPDFType){
@@ -70,6 +80,8 @@ public class PDFTreeModel implements TreeModel {
 			}
 			
 			fireTreeStructureChanged(this, path.getPath(), null, null);
+			
+		//if the node has a parent
 		} else {
 			Object parent = path.getParentPath().getLastPathComponent();
 			int index = 0;
@@ -128,38 +140,6 @@ public class PDFTreeModel implements TreeModel {
 	public void removeTreeModelListener(TreeModelListener l) {
 		listenerList.remove(TreeModelListener.class, l);	
 	}
-	/*
-	/**
-     * Notifies all listeners that have registered interest for
-     * notification on this event type.  The event instance
-     * is lazily created using the parameters passed into
-     * the fire method.
-     *
-     * @param source the source of the {@code TreeModelEvent};
-     *               typically {@code this}
-     * @param path the path to the parent of the nodes that changed; use
-     *             {@code null} to identify the root has changed
-     * @param childIndices the indices of the changed elements
-     * @param children the changed elements
-     */
-    /*protected void fireTreeNodesChanged(Object source, Object[] path,
-                                        int[] childIndices,
-                                        Object[] children) {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        TreeModelEvent e = null;
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length-2; i>=0; i-=2) {
-            if (listeners[i]==TreeModelListener.class) {
-                // Lazily create the event:
-                if (e == null)
-                    e = new TreeModelEvent(source, path,
-                                           childIndices, children);
-                ((TreeModelListener)listeners[i+1]).treeNodesChanged(e);
-            }
-        }
-    }*/
 	
 	/**
      * Notifies all listeners that have registered interest for

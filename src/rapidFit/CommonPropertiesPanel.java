@@ -3,9 +3,10 @@ package rapidFit;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
-import java.util.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
 
 import rapidFit.rpfit.*;
 
@@ -20,34 +21,32 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 	private JButton btnAddObs;
 	private JButton btnRemoveObs;
 	
-	private DataPanel<ObservableType> dataPanel;
+	private DataPanel<ObservableType> obsDataPanel;
 	
 	//variable for common PDF
 	private PDFExpressionType commonPDFTreeRoot;
-	private String pdfExpression;
 	private JButton btnEditPDF;
+	
+	private PDFManager pdfManager;
+	private PDFTreeModel pdfTreeModel;
+	private PDFTree pdfTree;
+	private JScrollPane pdfTreeScrollPane;
+	private JPanel pdfTreePanel;
+	
+	private PDFInspectorPanel pdfInspectorPanel;
+	
+	private JPanel pdfDisplayPanel;
 	private JPanel pdfPanel;
 	
 	private List<PhysicsParameterType> parameters;
 	
-	private JTextPane txtPDFExpression;
-	private JScrollPane expressionScrollPane;
-	
-	private ArrayList<PDFType> listOfPDFs;
-	
 	public CommonPropertiesPanel(List<PhysicsParameterType> params, 
 			PhaseSpaceBoundaryType phaseBound, PDFExpressionType comPDFTreeRoot){
 		
-		if (phaseBound != null){
-			phaseSpaceBoundary = phaseBound;
-		} else {
-			ObjectFactory of = new ObjectFactory();
-			phaseSpaceBoundary = of.createPhaseSpaceBoundaryType();
-		}
-		
+		phaseSpaceBoundary = phaseBound;
 		parameters = params;
 		
-		dataPanel = new DataPanel<ObservableType>
+		obsDataPanel = new DataPanel<ObservableType>
 		(ObservableType.class, phaseSpaceBoundary.getObservable(), null);
 		
 		btnAddObs = new JButton("Add Observable");
@@ -61,69 +60,87 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 		
 		phaseSpacePanel = new JPanel();
 		phaseSpacePanel.setLayout(new BorderLayout());
-		phaseSpacePanel.add(dataPanel, BorderLayout.CENTER);
+		phaseSpacePanel.add(obsDataPanel, BorderLayout.CENTER);
 		phaseSpacePanel.add(controlPanel, BorderLayout.SOUTH);
 		phaseSpacePanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Common Phase Space</h3></html>"));
 		
+		//====================================================================================
+		//common PDF panel
+		
 		commonPDFTreeRoot = comPDFTreeRoot;
 		
+		pdfManager = new PDFManager(commonPDFTreeRoot);
+		pdfTreeModel = new PDFTreeModel(commonPDFTreeRoot);
+		pdfTree = new PDFTree(pdfTreeModel, pdfManager.getPDFAsKeyMap());
+		
+		pdfInspectorPanel = new PDFInspectorPanel();
 		
 		/*
-		commonPDFTreeRoot = comPDFTreeRoot;
-		pdfExpression = PDFParser.convertToExpression(
-				commonPDFTreeRoot.getProdPDFOrNormalisedSumPDFOrPDF().get(0));
+		 * trigger the PDF inspector panel to display info of the selected
+		 * node in the PDF tree
+		 */
+		pdfTree.addTreeSelectionListener(new TreeSelectionListener() {
+		  
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				if (e.getNewLeadSelectionPath() != null){
+					pdfDisplayPanel.remove(pdfInspectorPanel);
+					
+					pdfInspectorPanel = new PDFInspectorPanel(
+							e.getNewLeadSelectionPath().getLastPathComponent());
+					pdfDisplayPanel.add(pdfInspectorPanel);
+					pdfDisplayPanel.validate();
+				}
+			}
+		});
+		pdfTreeScrollPane = new JScrollPane(pdfTree);
 		
-		//get list of pdfs
-		listOfPDFs = PDFParser.getListOfPDFs(
-				commonPDFTreeRoot.getProdPDFOrNormalisedSumPDFOrPDF().get(0));
-		ArrayList<String> pdfNames = new ArrayList<String>();
-		for (PDFType pdf : listOfPDFs){
-			pdfNames.add(pdf.getName());
-		}
+		pdfTreePanel = new JPanel();
+		pdfTreePanel.setLayout(new BorderLayout());
+		pdfTreePanel.add(pdfTreeScrollPane, BorderLayout.CENTER);
 		
-		txtPDFExpression = new JTextPane(new ExpressionStyledDocument(pdfNames));
-		txtPDFExpression.setText(pdfExpression);
-		txtPDFExpression.setPreferredSize(new Dimension(300, 50));
-		txtPDFExpression.setEditable(false);
-		txtPDFExpression.setFocusable(false);
+		Border border = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+		Border title = BorderFactory.createTitledBorder("<html><b>PDF Expression</b></html>");
+		pdfTreePanel.setBorder(new CompoundBorder(border, title));
 		
-		expressionScrollPane = new JScrollPane(txtPDFExpression);
-		*/
+		pdfDisplayPanel = new JPanel();
+		pdfDisplayPanel.setLayout(new GridLayout(1,2));
+		pdfDisplayPanel.add(pdfTreePanel);
+		pdfDisplayPanel.add(pdfInspectorPanel);
+
 		btnEditPDF = new JButton("Edit PDF");
 		btnEditPDF.addActionListener(this);
+		
 		pdfPanel = new JPanel();
 		pdfPanel.setLayout(new BorderLayout());
-	//	pdfPanel.add(expressionScrollPane, BorderLayout.CENTER);
-		pdfPanel.add(btnEditPDF, BorderLayout.EAST);
+		pdfPanel.add(pdfDisplayPanel, BorderLayout.CENTER);
+		pdfPanel.add(btnEditPDF, BorderLayout.SOUTH);
 		pdfPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Common PDF</h3></html>"));
 		
-		this.setLayout(new BorderLayout());
-		this.add(phaseSpacePanel, BorderLayout.CENTER);
-		this.add(pdfPanel, BorderLayout.SOUTH);
+		this.setLayout(new GridLayout(2,0));
+		this.add(phaseSpacePanel);
+		this.add(pdfPanel);
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnAddObs){
-			dataPanel.addRow();
+			obsDataPanel.addRow();
 			
 		} else if (e.getSource() == btnRemoveObs){
-			dataPanel.removeSelectedRows();
+			obsDataPanel.removeSelectedRows();
 			
 		} else if (e.getSource() == btnEditPDF){
 			
 			PDFBuilder pdfBuilder = new PDFBuilder(parameters, commonPDFTreeRoot);
 			pdfBuilder.setVisible(true);
 			
-			/*OldPDFBuilder pdfBuilder = new OldPDFBuilder(
-					listOfPDFs, commonPDFTreeRoot, pdfExpression);
-			pdfBuilder.setVisible(true);
-			
-			//update expression to the latest one
-			pdfExpression = PDFParser.convertToExpression(
-					commonPDFTreeRoot.getProdPDFOrNormalisedSumPDFOrPDF().get(0));
-			txtPDFExpression.setText(pdfExpression);*/
+			//update the pdf tree and pdf tag names
+			pdfManager = new PDFManager(commonPDFTreeRoot);
+			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
+			pdfTreeModel.updateEntireTree();
+			pdfTree.expandAllRows();
 		}
 	}
 }

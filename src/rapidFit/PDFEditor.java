@@ -6,8 +6,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
+import javax.swing.border.*;
 
 import rapidFit.rpfit.*;
 

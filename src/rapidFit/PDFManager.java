@@ -22,6 +22,7 @@ public class PDFManager {
 		updateTagName();		
 	}
 	
+	//a recursive method to find all the PDFs
 	private void getPDFs(Object node){
 		if (node instanceof SumPDFType){
 			getPDFs(((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));

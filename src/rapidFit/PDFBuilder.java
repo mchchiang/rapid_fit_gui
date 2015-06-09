@@ -1,7 +1,6 @@
 package rapidFit;
 
 import java.util.List;
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -35,7 +34,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 	
 	private PDFTree pdfTree;
 
-	private PDFTreeModel treeModel;
+	private PDFTreeModel pdfTreeModel;
 	
 	private DataList<PDFType> pdfList;
 	private DataListModel<PDFType> listModel;
@@ -44,7 +43,6 @@ public class PDFBuilder extends JDialog implements ActionListener {
 	
 	private PDFManager pdfManager;
 	
-	//pass in a deep copy of the pdf root
 	public PDFBuilder (List<PhysicsParameterType> params, PDFExpressionType root){
 		
 		//set window properties
@@ -58,8 +56,8 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		
 		/*
 		 * create a deep copy of the PDF root. All edits on the PDFs
-		 * and the PDF expression is done on the copy. The actual PDF
-		 * expression only gets updated when user press the save button.
+		 * and the PDF expression are done on the copy. The actual PDF
+		 * expression only gets updated when user presses the save button.
 		 */
 		copyOfPDFRoot = (PDFExpressionType) Cloner.deepClone(root);
 		
@@ -73,11 +71,18 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		
 		pdfList.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
+				//allow user to edit the PDF by double-clciking it
 				if (e.getClickCount() == 2){
 					int index = pdfList.locationToIndex(e.getPoint());
 					try{
-						
-						//do something
+						if (index != -1){
+							new PDFEditor(listModel.getElementAt(
+									pdfList.getSelectedIndex())).setVisible(true);
+							
+							//update tag name for PDFs
+							pdfManager.updateTagName();
+							pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
+						}
 					} catch (Exception ex){
 						ex.printStackTrace();
 					}
@@ -98,7 +103,6 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		pdfOptionPanel = new JPanel();
 		pdfOptionPanel.setLayout(new GridLayout(0,3));
 		pdfOptionPanel.add(btnAddPDF);
-		//pdfOptionPanel.add(btnRemovePDF);
 		pdfOptionPanel.add(btnEditPDF);
 		
 		listOfPDFPanel = new JPanel();
@@ -113,9 +117,9 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		//for the PDF expression
 		//
 		
-		//create the pdf tree
-		treeModel = new PDFTreeModel(copyOfPDFRoot);
-		pdfTree = new PDFTree(treeModel, pdfManager.getPDFAsKeyMap());
+		//create the PDF tree
+		pdfTreeModel = new PDFTreeModel(copyOfPDFRoot);
+		pdfTree = new PDFTree(pdfTreeModel, pdfManager.getPDFAsKeyMap());
 		
 		pdfTreeScrollPane = new JScrollPane(pdfTree);
 		
@@ -140,6 +144,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		pdfBuilderPanel.add(pdfBuilderOptionPanel, BorderLayout.SOUTH);
 		
 		btnBuildPDF = new JButton("Save and Build PDF");
+		btnBuildPDF.addActionListener(this);
 		
 		Container content = this.getContentPane();
 		content.add(listOfPDFPanel, BorderLayout.WEST);
@@ -174,18 +179,24 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		if (e.getSource() == btnAddPDF){
 			
 			/*
-			 *  add the PDF at the position below the currently 
-			 *  selected PDF in the list. If no PDF is selected,
-			 *  the new PDF is added at the end of the list.
+			 * add the PDF at the position below the currently 
+			 * selected PDF in the list. If no PDF is selected,
+			 * the new PDF is added at the end of the list.
 			 */
-			int index = pdfList.getSelectedIndex();
 			
-			if (index == -1){
-				index += listModel.getSize();
+			int index = 0;
+			
+			if (listModel.getSize() == 0){
+				listModel.addRow();
 			} else {
-				index++;
+				index = pdfList.getSelectedIndex();
+				if (index == -1){
+					index += listModel.getSize();
+				} else {
+					index++;
+				}
+				listModel.addRow(index);
 			}
-			listModel.addRow(index);
 			
 			//set the name of the new PDF
 			PDFType pdf = listModel.getElementAt(index);
@@ -227,16 +238,19 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		 * with the selected PDF in the data list
 		 */
 		} else if (e.getSource() == btnReplaceWithPDF){
+			/*
+			 * ensure that a PDF is selected from t
+			 */
 			if (pdfList.getSelectedIndex() != -1 &&
 					pdfTree.getSelectionPath() != null){
-				((PDFTreeModel) pdfTree.getModel()).replace(
+					pdfTreeModel.replace(
 						pdfTree.getSelectionPath(), 
 						pdfList.getSelectedValue());
 			}
 		
 		/*
-		 *  for replacing a selected PDF / composite PDF in the PDF tree
-		 *  with a new PDF sum
+		 * for replacing a selected PDF / composite PDF in the PDF tree
+		 * with a new PDF sum
 		 */
 		} else if (e.getSource() == btnReplaceWithSum){
 			if (pdfTree.getSelectionPath() != null){
@@ -245,14 +259,21 @@ public class PDFBuilder extends JDialog implements ActionListener {
 			}
 			
 		/*
-		 *  for replacing a selected PDF / composite PDF in the PDF tree
-		 *  with a new PDF product
+		 * for replacing a selected PDF / composite PDF in the PDF tree
+		 * with a new PDF product
 		 */	
 		} else if (e.getSource() == btnReplaceWithProd){
 			if (pdfTree.getSelectionPath() != null){
 				new PDFProdDialog(
 						pdfManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
 			}
+			
+		} else if (e.getSource() == btnBuildPDF){
+			pdfRoot.setNormalisedSumPDF(copyOfPDFRoot.getNormalisedSumPDF());
+			pdfRoot.setProdPDF(copyOfPDFRoot.getProdPDF());
+			pdfRoot.setPDF(copyOfPDFRoot.getPDF());
+	
+			dispose();
 		}
 	}
 }

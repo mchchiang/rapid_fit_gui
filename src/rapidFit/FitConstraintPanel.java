@@ -1,6 +1,5 @@
 package rapidFit;
 
-import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -27,24 +26,7 @@ public class FitConstraintPanel extends JPanel implements ActionListener{
 	private JButton btnAddConstMatrix;
 	private JButton btnRemoveConstMatrix;
 	
-	public FitConstraintPanel(List<ToFitType> toFitRoot, List<ToFitType> constraints){
-		ToFitType constraintFit = new ToFitType();
-		ConstraintFunctionType constraint = new ConstraintFunctionType();
-		
-		for (ToFitType fit : constraints){
-			constraint.getExternalConstraint().addAll(
-					fit.getConstraintFunction().getExternalConstraint());
-			constraint.getExternalConstMatrix().addAll(
-					fit.getConstraintFunction().getExternalConstMatrix());
-		}
-		
-		/*
-		 * combine all external constraints and external constant matrix into
-		 * single constraint function
-		 */
-		constraintFit.setConstraintFunction(constraint);
-		toFitRoot.add(constraintFit);
-		
+	public FitConstraintPanel(ConstraintFunctionType constraint){		
 		constraintTablePanel = new DataPanel<ExternalConstraintType>(
 				ExternalConstraintType.class, 
 				constraint.getExternalConstraint(), null);

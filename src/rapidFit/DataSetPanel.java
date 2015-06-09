@@ -3,11 +3,16 @@ package rapidFit;
 import javax.xml.bind.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.Serializable;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 
 import rapidFit.rpfit.*;
 
@@ -29,30 +34,36 @@ public class DataSetPanel extends JPanel implements ActionListener{
 	private JButton btnRemoveObservable;
 	
 	//variable for common PDF
-	private Object pdfRoot;
-	private JTextPane txtPDFExpression;
-	private String pdfExpression;
+	private PDFExpressionType pdfRoot;
+	
+	private PDFManager pdfManager;
+	private PDFTreeModel pdfTreeModel;
+	private PDFTree pdfTree;
+	private JScrollPane pdfTreeScrollPane;
+	private PDFInspectorPanel pdfInspectorPanel;
+	private JPanel pdfTreePanel;
+	private JPanel pdfDisplayPanel;
+	
 	private JButton btnEditPDF;
+	
 	private JPanel pdfPanel;
 	private JPanel pdfOptionPanel;
-	private ArrayList<PDFType> listOfPDFs;
 	private AttributePanel<PDFConfiguratorType> pdfConfigPanel;
-	
-	private JScrollPane expressionScrollPane;
+
 	
 	private JLabel lblUseCommonPhaseSpace;
 	private JLabel lblUseCommonPDF;
 	
-	private JLabel lblDataSetName;
-	private JTextField txtDataSetName;
+	private List<PhysicsParameterType> parameters;
 	
 	public DataSetPanel(){
 		JLabel lblNoData = new JLabel("There is no data set selected.");
 		add(lblNoData);
 	}
 	
-	public DataSetPanel (ToFitType toFit){
+	public DataSetPanel (List<PhysicsParameterType> params, ToFitType toFit){
 		fit = toFit;
+		parameters = params;
 		
 		//for new data set 
 		if (fit.getDataSet() == null){
@@ -73,6 +84,9 @@ public class DataSetPanel extends JPanel implements ActionListener{
 				DataSetType.class, dataSet, "Details", ignoreAttr);
 		details.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Details</h3></html>"));
+		
+		//==============================================================================
+		// Phase space panel
 		
 		cbCommonPhaseSpace = new JCheckBox();
 		cbCommonPhaseSpace.addActionListener(this);
@@ -112,76 +126,30 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		
 		phaseSpacePanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Phase Space</h3></html>"));
-		/*
-		//check if common pdf is used
-		lblUseCommonPDF = new JLabel("Use Common PDF");
 		
+		//==============================================================================
+		// PDF panel
+		
+		lblUseCommonPDF = new JLabel("Use Common PDF");
 		cbCommonPDF = new JCheckBox();
 		cbCommonPDF.addActionListener(this);
-		cbCommonPDF.setSelected(false);
 		
 		pdfOptionPanel = new JPanel();
 		pdfOptionPanel.add(lblUseCommonPDF);
 		pdfOptionPanel.add(cbCommonPDF);
 		
 		pdfPanel = new JPanel();
-		pdfPanel.setLayout(new BorderLayout());
-		pdfPanel.add(pdfOptionPanel, BorderLayout.SOUTH);
 		pdfPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>PDF</h3></html>"));
-
+		pdfPanel.setLayout(new BorderLayout());
+		pdfPanel.add(pdfOptionPanel, BorderLayout.SOUTH);
 		
-		//if it is a common pdf
+		//for using common PDF
 		if (fit.isCommonPDF() != null && fit.isCommonPDF()){
-			cbCommonPDF.setSelected(true);
-			pdfConfigPanel = new AttributePanel<PDFConfiguratorType>(
-					PDFConfiguratorType.class, fit.getPDFConfigurator(),
-					"PDF Configurator", null);	
-			pdfConfigPanel.setBorder(BorderFactory.createTitledBorder(
-					"PDF Configurator"));
-			pdfPanel.add(pdfConfigPanel, BorderLayout.CENTER);
-			
+			initCommonPDF();
 		} else {
-			ObjectFactory of = new ObjectFactory();
-			JAXBElement<? extends Serializable> pdfTag;
-			if (fit.getNormalisedSumPDF() != null){
-				//pdfRoot = fit.getNormalisedSumPDF();
-				pdfTag = of.createPDFOperatorTypeNormalisedSumPDF(
-						fit.getNormalisedSumPDF());
-			} else if (fit.getProdPDF() != null){
-				//pdfRoot = fit.getProdPDF();
-				pdfTag = of.createPDFOperatorTypeProdPDF(
-						fit.getProdPDF());
-			} else {
-				//pdfRoot = fit.getPDF();
-				pdfTag =  of.createPDFOperatorTypePDF(
-						fit.getPDF());
-			}
-			
-			pdfExpression = PDFParser.convertToExpression(pdfTag);
-			
-			//get list of pdfs
-			listOfPDFs = PDFParser.getListOfPDFs(pdfTag);
-			ArrayList<String> pdfNames = new ArrayList<String>();
-			for (PDFType pdf : listOfPDFs){
-				pdfNames.add(pdf.getName());
-			}
-			
-			txtPDFExpression = new JTextPane(
-					new ExpressionStyledDocument(pdfNames));
-			txtPDFExpression.setText(pdfExpression);
-			txtPDFExpression.setPreferredSize(new Dimension(300, 50));
-			txtPDFExpression.setEditable(false);
-			txtPDFExpression.setFocusable(false);
-			
-			expressionScrollPane = new JScrollPane(txtPDFExpression);
-			
-			btnEditPDF = new JButton("Edit PDF");
-			btnEditPDF.addActionListener(this);
-			
-			pdfOptionPanel.add(btnEditPDF);
-			pdfPanel.add(expressionScrollPane, BorderLayout.CENTER);
-		}*/
+			initIndividualPDF();
+		}
 		
 		//set layout for the components
 		setLayout(new GridBagLayout());
@@ -215,8 +183,8 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		c.gridx = 0;
 		c.gridy = 2;
 		c.weightx = 1.0;
-		c.weighty = 0.3;
-		//add(pdfPanel, c);
+		c.weighty = 0.8;
+		add(pdfPanel, c);
 		
 	}
 	
@@ -236,32 +204,107 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		dataSet.setPhaseSpaceBoundary(null);
 	}
 	
-	public void switchToCommonPDF(){
-		//remove the pdf expression and the edit button
-		pdfOptionPanel.remove(btnEditPDF);
-		pdfPanel.remove(expressionScrollPane);
+	public void initIndividualPDF(){
+		/*
+		 * need to do this because there is no wrapper tag around
+		 * the PDF expression in the To Fit section
+		 */
+		pdfRoot = new PDFExpressionType();
+		pdfRoot.setNormalisedSumPDF(fit.getNormalisedSumPDF());
+		pdfRoot.setProdPDF(fit.getProdPDF());
+		pdfRoot.setPDF(fit.getPDF());
 		
-		//remove the pdf
-		if (fit.getPDF() != null){
-			fit.setPDF(null);
-		} else if (fit.getNormalisedSumPDF() != null){
-			fit.setNormalisedSumPDF(null);
-		} else if (fit.getProdPDF() != null){
-			fit.setProdPDF(null);
-		}
+		pdfManager = new PDFManager(pdfRoot);
+		pdfTreeModel = new PDFTreeModel(pdfRoot);
+		pdfTree = new PDFTree(pdfTreeModel, pdfManager.getPDFAsKeyMap());
 		
-		PDFConfiguratorType pdfConfig = new PDFConfiguratorType();
+		pdfTreeScrollPane = new JScrollPane(pdfTree);
 		
+		pdfTreePanel = new JPanel();
+		pdfTreePanel.setLayout(new BorderLayout());
+		pdfTreePanel.add(pdfTreeScrollPane, BorderLayout.CENTER);
+		
+		Border border = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+		Border title = BorderFactory.createTitledBorder("<html><b>PDF Expression</b></html>");
+		pdfTreePanel.setBorder(new CompoundBorder(border, title));
+		
+		pdfInspectorPanel = new PDFInspectorPanel();
+		/*
+		 * trigger the PDF inspector panel to display info of the selected
+		 * node in the PDF tree
+		 */
+		pdfTree.addTreeSelectionListener(new TreeSelectionListener() {
+		  
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				if (e.getNewLeadSelectionPath() != null){
+					pdfDisplayPanel.remove(pdfInspectorPanel);
+					
+					pdfInspectorPanel = new PDFInspectorPanel(
+							e.getNewLeadSelectionPath().getLastPathComponent());
+					pdfDisplayPanel.add(pdfInspectorPanel);
+					pdfDisplayPanel.validate();
+				}
+			}
+		});
+		
+		pdfDisplayPanel = new JPanel();
+		pdfDisplayPanel.setLayout(new GridLayout(1,2));
+		pdfDisplayPanel.add(pdfTreePanel);
+		pdfDisplayPanel.add(pdfInspectorPanel);
+
+		btnEditPDF = new JButton("Edit PDF");
+		btnEditPDF.addActionListener(this);
+		
+		pdfPanel.add(pdfDisplayPanel, BorderLayout.CENTER);
+		pdfOptionPanel.add(btnEditPDF);
+	}
+	
+	public void initCommonPDF(){
 		fit.setCommonPDF(true);
-		fit.setPDFConfigurator(pdfConfig);
-		
-		//add the pdf config panel
+		cbCommonPDF.setSelected(true);
+		//add the PDF config panel
 		pdfConfigPanel = new AttributePanel<PDFConfiguratorType>(
 				PDFConfiguratorType.class, fit.getPDFConfigurator(),
 				"PDF Configurator", null);	
 		pdfConfigPanel.setBorder(BorderFactory.createTitledBorder(
 				"PDF Configurator"));
 		pdfPanel.add(pdfConfigPanel, BorderLayout.CENTER);
+	}
+	
+	public void removeCommonPDF(){
+		fit.setCommonPDF(false);
+		cbCommonPDF.setSelected(false);
+		//remove the PDF config panel
+		pdfPanel.remove(pdfConfigPanel);
+	}
+	
+	public void removeIndividualPDF(){
+		//remove the PDF Tree
+		pdfPanel.remove(pdfDisplayPanel);
+		pdfOptionPanel.remove(btnEditPDF);
+		
+		//remove the pdf
+		fit.setPDF(null);
+		fit.setNormalisedSumPDF(null);
+		fit.setProdPDF(null);
+	}
+	
+	public void switchToCommonPDF(){
+		removeIndividualPDF();
+		fit.setPDFConfigurator(new PDFConfiguratorType());
+		initCommonPDF();
+		
+		//refresh panel display
+		pdfPanel.validate();
+	}
+	
+	public void switchToIndividualPDF(){
+		removeCommonPDF();
+		PDFType pdf = new PDFType();
+		pdf.setName("PDF");
+		fit.setPDF(pdf);
+		initIndividualPDF();
 		
 		//refresh panel display
 		pdfPanel.validate();
@@ -272,6 +315,8 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		//clicked on switching phase space checkbox
 		if (e.getSource() == cbCommonPhaseSpace){
 			int result = JOptionPane.NO_OPTION;
+			
+			//selected to switch to common phase space
 			if (cbCommonPhaseSpace.isSelected()){
 				result = JOptionPane.showOptionDialog(this, 
 						"Are you sure you want to switch common phase space?\n"
@@ -286,6 +331,8 @@ public class DataSetPanel extends JPanel implements ActionListener{
 				} else {
 					switchToCommonPhaseSpace();
 				}
+			
+			//selected to switch to individual phase space
 			} else {
 				result = JOptionPane.showOptionDialog(this, 
 						"Are you sure you want to switch to individual phase space?\n"
@@ -301,9 +348,11 @@ public class DataSetPanel extends JPanel implements ActionListener{
 				}
 			}
 			
-			//clicked on switching pdf checkbox
+		//clicked on switching pdf checkbox
 		} else if (e.getSource() == cbCommonPDF){
 			int result = JOptionPane.NO_OPTION;
+			
+			//selected to switch to common PDF
 			if (cbCommonPDF.isSelected()){
 				result = JOptionPane.showOptionDialog(this, 
 						"Are you sure you want to use the common PDF?\n" + 
@@ -317,6 +366,8 @@ public class DataSetPanel extends JPanel implements ActionListener{
 				} else {
 					switchToCommonPDF();
 				}
+			
+			//selected to switch to individual PDF
 			} else {
 				result = JOptionPane.showOptionDialog(this, 
 						"Are you sure you want to use a separate PDF?\n", 
@@ -327,9 +378,10 @@ public class DataSetPanel extends JPanel implements ActionListener{
 						result == JOptionPane.CLOSED_OPTION){
 					cbCommonPDF.setSelected(true);
 				} else {
-					
+					switchToIndividualPDF();
 				}
 			}
+			
 		} else if (e.getSource() == btnAddObservable){
 			phaseSpaceDataPanel.addRow();
 			
@@ -338,7 +390,19 @@ public class DataSetPanel extends JPanel implements ActionListener{
 			
 		} else if (e.getSource() == btnEditPDF){
 					
+			PDFBuilder pdfBuilder = new PDFBuilder(parameters, pdfRoot);
+			pdfBuilder.setVisible(true);
 			
+			//update the PDF of the data set
+			fit.setNormalisedSumPDF(pdfRoot.getNormalisedSumPDF());
+			fit.setProdPDF(pdfRoot.getProdPDF());
+			fit.setPDF(pdfRoot.getPDF());
+			
+			//update the pdf tree and pdf tag names
+			pdfManager = new PDFManager(pdfRoot);
+			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
+			pdfTreeModel.updateEntireTree();
+			pdfTree.expandAllRows();
 		}
 	}
 }

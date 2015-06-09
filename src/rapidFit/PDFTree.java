@@ -41,6 +41,13 @@ public class PDFTree extends JTree {
 		//default tree settings
 		setCellRenderer(new PDFTreeCellRenderer());
 		setEditable(false);
+		getSelectionModel().setSelectionMode(
+				TreeSelectionModel.SINGLE_TREE_SELECTION);
+		expandAllRows();
+		
+	}
+	
+	public void expandAllRows(){
 		//expand all rows
 		for (int i = 0; i < getRowCount(); i++) {
 			expandRow(i);

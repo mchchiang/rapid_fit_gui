@@ -1,6 +1,5 @@
 package rapidFit;
 
-import java.io.*;
 import java.util.*;
 import java.util.List;
 import java.awt.*;
@@ -34,10 +33,14 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 	private IdentityHashMap<ToFitType, String> dataSetNameMap;
 	private int dataSetCount = 0;
 	
-	public FitDataSetPanel(List<ToFitType> root, ArrayList<ToFitType> dataSets){
+	private List<PhysicsParameterType> parameters;
+
+	public FitDataSetPanel(List<PhysicsParameterType> params, List<ToFitType> root, ArrayList<ToFitType> dataSets){
 		dataSetPanel = new DataSetPanel();
 		
 		toFitRoot = root;
+		
+		parameters = params;
 		
 		final FitDataSetPanel thisPanel = this;
 		
@@ -64,12 +67,21 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 							thisPanel.remove(dataSetPanel);
 							currentDataSetIndex = index;
 							dataSetPanel = new DataSetPanel(
-									listModel.getElementAt(index));
+									parameters, listModel.getElementAt(index));
 
 							dataSetPanel.setBorder(BorderFactory.createTitledBorder(
 									"<html><h3>" + dataSetList.getTagName(
 											listModel.getElementAt(index)) + "</h3></html>"));
-							thisPanel.add(dataSetPanel, BorderLayout.CENTER);
+							//thisPanel.add(dataSetPanel, BorderLayout.CENTER);
+							GridBagConstraints c = new GridBagConstraints();
+							c.fill = GridBagConstraints.BOTH;
+							c.insets = new Insets(0,5,0,5);
+							c.gridx = 1;
+							c.gridy = 0;
+							c.gridwidth = 4;
+							c.weightx = 1.0;
+							c.weighty = 1.0;
+							add(dataSetPanel, c);
 							thisPanel.validate();
 						} catch (Exception ex){
 							ex.printStackTrace();
@@ -91,6 +103,7 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 		btnDuplicateDataSet.addActionListener(this);
 		
 		dataSetOptionPanel = new JPanel();
+		dataSetOptionPanel.setLayout(new GridLayout(0,3));
 		dataSetOptionPanel.add(btnAddDataSet);
 		dataSetOptionPanel.add(btnRemoveDataSet);
 		dataSetOptionPanel.add(btnDuplicateDataSet);
@@ -102,9 +115,30 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 		listOfDataSetPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Available Data Sets</h3></html>"));
 		
-		setLayout(new BorderLayout());
-		add(listOfDataSetPanel, BorderLayout.WEST);
-		add(dataSetPanel, BorderLayout.CENTER);
+		setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		
+		//for details panel
+		c.insets = new Insets(0,5,0,5);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		add(listOfDataSetPanel, c);
+		
+		//for phase space panel
+		c.fill = GridBagConstraints.BOTH;
+		c.insets = new Insets(0,5,0,5);
+		c.gridx = 1;
+		c.gridy = 0;
+		c.gridwidth = 4;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		add(dataSetPanel, c);
+		//add(listOfDataSetPanel, BorderLayout.WEST);
+		//add(dataSetPanel, BorderLayout.CENTER);
 	}
 
 	@Override
@@ -114,23 +148,38 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 				if (index == currentDataSetIndex){
 					this.remove(dataSetPanel);
 					dataSetPanel = new DataSetPanel();
-					this.add(dataSetPanel, BorderLayout.CENTER);
+					//this.add(dataSetPanel, BorderLayout.CENTER);
+					GridBagConstraints c = new GridBagConstraints();
+					c.fill = GridBagConstraints.BOTH;
+					c.insets = new Insets(0,5,0,5);
+					c.gridx = 1;
+					c.gridy = 0;
+					c.gridwidth = 4;
+					c.weightx = 1.0;
+					c.weighty = 1.0;
+					add(dataSetPanel, c);
 					this.validate();
 				}
 				toFitRoot.remove(listModel.getElementAt(index));
 				listModel.removeRow(index);
 			}
 			currentDataSetIndex = -1;
-		} else if (e.getSource() == btnAddDataSet){
-			int index = dataSetList.getSelectedIndex();
 			
-			if (index == -1){
-				index += listModel.getSize();
+		} else if (e.getSource() == btnAddDataSet){
+			
+			int index = 0;
+			if (listModel.getSize() == 0){
+				listModel.addRow();
 			} else {
-				index++;
+				index = dataSetList.getSelectedIndex();
+				if (index == -1){
+					index += listModel.getSize();
+				} else {
+					index++;
+				}
+				listModel.addRow(index);
 			}
 			
-			listModel.addRow(index);
 			toFitRoot.add(listModel.getElementAt(index));
 			
 			dataSetCount++;
@@ -143,12 +192,21 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 			currentDataSetIndex = index;
 			
 			dataSetPanel = new DataSetPanel(
-					listModel.getElementAt(index));
+					parameters, listModel.getElementAt(index));
 			dataSetPanel.setBorder(BorderFactory.createTitledBorder(
 					"<html><h3>" + dataSetList.getTagName(
 							listModel.getElementAt(index)) + "</h3></html>"));
 			
-			this.add(dataSetPanel, BorderLayout.CENTER);
+			//this.add(dataSetPanel, BorderLayout.CENTER);
+			GridBagConstraints c = new GridBagConstraints();
+			c.fill = GridBagConstraints.BOTH;
+			c.insets = new Insets(0,5,0,5);
+			c.gridx = 1;
+			c.gridy = 0;
+			c.gridwidth = 4;
+			c.weightx = 1.0;
+			c.weighty = 1.0;
+			add(dataSetPanel, c);
 			this.validate();
 			
 		} else if (e.getSource() == btnDuplicateDataSet){
@@ -171,7 +229,7 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 				toFitRoot.add(copy);
 				
 				//change the data panel to display the new data set
-				dataSetPanel = new DataSetPanel(copy);
+				dataSetPanel = new DataSetPanel(parameters, copy);
 				
 				dataSetList.setSelectedIndex(index);
 				currentDataSetIndex = index;
@@ -181,37 +239,21 @@ public class FitDataSetPanel extends JPanel implements ActionListener {
 				dataSetPanel.setBorder(BorderFactory.createTitledBorder(
 						"<html><h3>" + dataSetList.getTagName(
 								listModel.getElementAt(index)) + "</h3></html>"));
-				this.add(dataSetPanel, BorderLayout.CENTER);
+				//this.add(dataSetPanel, BorderLayout.CENTER);
+				GridBagConstraints c = new GridBagConstraints();
+				c.fill = GridBagConstraints.BOTH;
+				c.insets = new Insets(0,5,0,5);
+				c.gridx = 1;
+				c.gridy = 0;
+				c.gridwidth = 4;
+				c.weightx = 1.0;
+				c.weighty = 1.0;
+				add(dataSetPanel, c);
 				this.validate();
 			} else {
 				Toolkit.getDefaultToolkit().beep();
 			}		
 		}
 		
-	}
-	
-	private ToFitType copyDataSet(ToFitType original){
-		ToFitType copy = null;
-        try {
-            // Write the object out to a byte array
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(bos);
-            out.writeObject(original);
-            out.flush();
-            out.close();
-
-            // Make an input stream from the byte array and read
-            // a copy of the object back in.
-            ObjectInputStream in = new ObjectInputStream(
-                new ByteArrayInputStream(bos.toByteArray()));
-            copy = (ToFitType) in.readObject();
-        }
-        catch(IOException err) {
-            err.printStackTrace();
-        }
-        catch(ClassNotFoundException cnfe) {
-            cnfe.printStackTrace();
-        }
-		return copy;
 	}
 }
