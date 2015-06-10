@@ -1,7 +1,6 @@
 package rapidFit;
 
 import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -9,91 +8,34 @@ import javax.swing.border.*;
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
-public class FitConstraintPanel extends JPanel implements ActionListener{
+public class FitConstraintPanel extends JPanel{
 	
-	private JPanel constMatrixControlPanel;
-	private JPanel constraintControlPanel;
-	private JPanel constraintPanel;
-	private JPanel constMatrixPanel;
-	private JPanel mainConstraintPanel;
-	
-	private DataPanel<ExternalConstraintType> constraintTablePanel;
-	private DataPanel<ExternalConstMatrixType> constMatrixTablePanel;
-	
-	private JButton btnAddConstraint;
-	private JButton btnRemoveConstraint;
-	
-	private JButton btnAddConstMatrix;
-	private JButton btnRemoveConstMatrix;
+	private DataTablePanel<ExternalConstraintType> constraintTablePanel;
+	private DataTablePanel<ExternalConstMatrixType> constMatrixTablePanel;
 	
 	public FitConstraintPanel(ConstraintFunctionType constraint){		
-		constraintTablePanel = new DataPanel<ExternalConstraintType>(
-				ExternalConstraintType.class, 
-				constraint.getExternalConstraint(), null);
+		constraintTablePanel = new DataTablePanel<ExternalConstraintType>(
+				ExternalConstraintType.class,
+				constraint.getExternalConstraint(), null,
+				"Add Constraint", "Remove Constraint(s)", "Duplicate Constraint(s)");
 		
-		btnAddConstraint = new JButton("Add Constraint");
-		btnAddConstraint.addActionListener(this);
-		btnRemoveConstraint = new JButton("Remove Constraint(s)");
-		btnRemoveConstraint.addActionListener(this);
-		
-		constraintControlPanel = new JPanel();
-		constraintControlPanel.add(btnAddConstraint);
-		constraintControlPanel.add(btnRemoveConstraint);
-		
-		constMatrixTablePanel = new DataPanel<ExternalConstMatrixType>(
-				ExternalConstMatrixType.class, 
-				constraint.getExternalConstMatrix(), null);
-		
-		btnAddConstMatrix = new JButton("Add Constraint Matrix");
-		btnAddConstMatrix.addActionListener(this);
-		btnRemoveConstMatrix = new JButton("Remove Constraint Matrix");
-		btnRemoveConstMatrix.addActionListener(this);
-		
-		constMatrixControlPanel = new JPanel();
-		constMatrixControlPanel.add(btnAddConstMatrix);
-		constMatrixControlPanel.add(btnRemoveConstMatrix);
-		
-		constraintPanel = new JPanel();
-		constraintPanel.setLayout(new BorderLayout());
-		constraintPanel.add(constraintTablePanel, BorderLayout.CENTER);
-		constraintPanel.add(constraintControlPanel, BorderLayout.SOUTH);
+		constMatrixTablePanel = new DataTablePanel<ExternalConstMatrixType>(
+				ExternalConstMatrixType.class,
+				constraint.getExternalConstMatrix(), null,
+				"Add Constraint Matrix", "Remove Constraint Matrix", 
+				"Duplicate Constraint Matrix");
 		
 		Border border = BorderFactory.createTitledBorder(
 				"<html><h3>External Constraints</html></h3>");
 		Border margin = BorderFactory.createEmptyBorder(0,10,10,0);
-		constraintPanel.setBorder(new CompoundBorder(margin, border));
-		
-		constMatrixPanel = new JPanel();
-		constMatrixPanel.setLayout(new BorderLayout());
-		constMatrixPanel.add(constMatrixTablePanel, BorderLayout.CENTER);
-		constMatrixPanel.add(constMatrixControlPanel, BorderLayout.SOUTH);
+		constraintTablePanel.setBorder(new CompoundBorder(margin, border));
 		
 		border = BorderFactory.createTitledBorder(
 				"<html><h3>External Constraint Matrices</html></h3>");
-		constMatrixPanel.setBorder(new CompoundBorder(margin, border));
+		constMatrixTablePanel.setBorder(new CompoundBorder(margin, border));
 		
-		mainConstraintPanel = new JPanel();
-		mainConstraintPanel.setLayout(new GridLayout(1,2));
-		mainConstraintPanel.add(constraintPanel);
-		mainConstraintPanel.add(constMatrixPanel);
-		
-		setLayout(new BorderLayout());
-		add(mainConstraintPanel, BorderLayout.CENTER);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnAddConstraint){
-			constraintTablePanel.addRow();
-			
-		} else if (e.getSource() == btnRemoveConstraint){
-			constraintTablePanel.removeSelectedRows();
-			
-		} else if (e.getSource() == btnAddConstMatrix){
-			constMatrixTablePanel.addRow();
-			
-		} else if (e.getSource() == btnRemoveConstMatrix){
-			constMatrixTablePanel.removeSelectedRows();
-		}
+		setLayout(new GridLayout(1,2));
+		this.add(constraintTablePanel);
+		this.add(constMatrixTablePanel);
 	}
 }

@@ -156,7 +156,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 1.0;
-		c.weighty = 0.3;
+		c.weighty = 0.5;
 		add(details, c);
 		
 		//for phase space panel

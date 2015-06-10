@@ -56,6 +56,12 @@ public class RapidFitFactory {
 			root.getCommonPhaseSpace().setPhaseSpaceBoundary(new PhaseSpaceBoundaryType());
 		}
 		
+		if (root.getOutput() == null){
+			OutputType output = new OutputType();
+			
+			root.setOutput(output);
+		}
+		
 		//combine all the constraint function
 		List<ToFitType> toFits = root.getToFit();
 		ArrayList<ToFitType> constraints = new ArrayList<ToFitType>();

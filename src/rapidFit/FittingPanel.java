@@ -12,6 +12,12 @@ public class FittingPanel extends JPanel {
 	private AttributePanel<MinimiserType> minimiserPanel;
 	private AttributePanel<PrecalculatorType> preCalPanel;
 	
+	private JLabel lblNumOfRepeats;
+	private JTextField txtNumOfRepeats;
+	
+	private JLabel lblSeed;
+	private JTextField txtSeed;
+	
 	private JPanel otherAttrPanel;
 	
 	public FittingPanel(FitFunctionType fitFunction, 

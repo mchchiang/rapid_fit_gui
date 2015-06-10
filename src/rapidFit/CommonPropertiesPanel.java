@@ -15,13 +15,7 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 	//variables for common phase space
 	private PhaseSpaceBoundaryType phaseSpaceBoundary = null;
 	
-	private JPanel controlPanel;
-	private JPanel phaseSpacePanel;
-	
-	private JButton btnAddObs;
-	private JButton btnRemoveObs;
-	
-	private DataPanel<ObservableType> obsDataPanel;
+	private DataTablePanel<ObservableType> obsDataTablePanel;
 	
 	//variable for common PDF
 	private PDFExpressionType commonPDFTreeRoot;
@@ -46,23 +40,13 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 		phaseSpaceBoundary = phaseBound;
 		parameters = params;
 		
-		obsDataPanel = new DataPanel<ObservableType>
-		(ObservableType.class, phaseSpaceBoundary.getObservable(), null);
+		obsDataTablePanel = new DataTablePanel<ObservableType>(
+				ObservableType.class,
+				phaseSpaceBoundary.getObservable(), null,
+				"Add Observable", "Remove Observable(s)",
+				"Duplicate Observable(s)");
 		
-		btnAddObs = new JButton("Add Observable");
-		btnAddObs.addActionListener(this);
-		btnRemoveObs = new JButton("Remove Observable(s)");
-		btnRemoveObs.addActionListener(this);
-		
-		controlPanel = new JPanel();
-		controlPanel.add(btnAddObs);
-		controlPanel.add(btnRemoveObs);
-		
-		phaseSpacePanel = new JPanel();
-		phaseSpacePanel.setLayout(new BorderLayout());
-		phaseSpacePanel.add(obsDataPanel, BorderLayout.CENTER);
-		phaseSpacePanel.add(controlPanel, BorderLayout.SOUTH);
-		phaseSpacePanel.setBorder(BorderFactory.createTitledBorder(
+		obsDataTablePanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Common Phase Space</h3></html>"));
 		
 		//====================================================================================
@@ -120,18 +104,12 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 				"<html><h3>Common PDF</h3></html>"));
 		
 		this.setLayout(new GridLayout(2,0));
-		this.add(phaseSpacePanel);
+		this.add(obsDataTablePanel);
 		this.add(pdfPanel);
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnAddObs){
-			obsDataPanel.addRow();
-			
-		} else if (e.getSource() == btnRemoveObs){
-			obsDataPanel.removeSelectedRows();
-			
-		} else if (e.getSource() == btnEditPDF){
+		if (e.getSource() == btnEditPDF){
 			
 			PDFBuilder pdfBuilder = new PDFBuilder(parameters, commonPDFTreeRoot);
 			pdfBuilder.setVisible(true);

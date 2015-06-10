@@ -12,6 +12,7 @@ public class DataPanel<T> extends JPanel {
 	private JScrollPane scrollPane;
 	private JTable rowTable; //make row numbers next to table
 	
+	
 	public DataPanel (Class<T> type, List<T> data, ArrayList<String> ignoreAttr){
 		tableModel = new DataTableModel<T>(type, data, ignoreAttr);
 		table = new DataTable(tableModel);

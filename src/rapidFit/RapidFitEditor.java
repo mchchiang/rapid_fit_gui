@@ -16,7 +16,7 @@ public class RapidFitEditor extends JFrame {
 	private JTabbedPane tabs;
 	
 	//all panels
-	private ParameterSetPanel paramSetPanel;
+	private DataTablePanel<PhysicsParameterType> paramSetPanel;
 	private CommonPropertiesPanel commonPhaseSpacePanel;
 	private FittingPanel fitPanel;
 	private FitConstraintPanel fitConstraintPanel;
@@ -34,7 +34,8 @@ public class RapidFitEditor extends JFrame {
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
-		txtNoData = new JTextArea("No data is loaded. Choose File/Import in the menu bar to import a RapidFit XML file or "
+		txtNoData = new JTextArea("No data is loaded. Choose File/Import "
+				+ "in the menu bar to import a RapidFit XML file or "
 				+ "choose File/New to create a new RapidFit XML file.");
 		txtNoData.setEditable(false);
 		txtNoData.setBackground(getBackground());
@@ -57,7 +58,10 @@ public class RapidFitEditor extends JFrame {
 		this.root = root;
 		
 		//create panels
-		paramSetPanel = new ParameterSetPanel(root.getParameterSet());
+		paramSetPanel = new DataTablePanel<PhysicsParameterType>(
+				PhysicsParameterType.class,
+				root.getParameterSet().getPhysicsParameter(), null,
+				"Add Parameter", "Remove Parameter(s)", "Duplicate Parameter(s)");
 
 		fitPanel = new FittingPanel(root.getFitFunction(), 
 				root.getMinimiser(), root.getPrecalculator());

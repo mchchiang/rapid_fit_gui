@@ -97,9 +97,14 @@ public class DataTableModel<T> extends AbstractTableModel {
 		fireTableCellUpdated(row, col);
 	}
 	
+	public void addRow(int row, T entry){
+		data.add(row, entry);
+		fireTableDataChanged();
+	}
+	
 	public void addRow(int row){
 		try{
-			data.add(row+1, dataClass.newInstance());
+			data.add(row, dataClass.newInstance());
 		} catch (Exception e){
 			e.printStackTrace();
 		}

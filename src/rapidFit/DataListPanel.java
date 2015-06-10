@@ -2,7 +2,9 @@ package rapidFit;
 
 import java.util.List;
 import java.awt.*;
+
 import javax.swing.*;
+import javax.swing.text.*;
 
 @SuppressWarnings("serial")
 public class DataListPanel<T> extends AbstractDataListPanel<T> {
@@ -23,8 +25,12 @@ public class DataListPanel<T> extends AbstractDataListPanel<T> {
 
 	@Override
 	protected JPanel initNullDisplayPanel() {
-		JTextArea txtNoData = new JTextArea("There is no entry selected.");
-		txtNoData.setLineWrap(true);
+		JTextPane txtNoData = new JTextPane();
+		txtNoData.setText("There is no entry selected.");
+		StyledDocument doc = txtNoData.getStyledDocument();
+		SimpleAttributeSet center = new SimpleAttributeSet();
+		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+		doc.setParagraphAttributes(0, doc.getLength(), center, false);
 		txtNoData.setEditable(false);
 		txtNoData.setBackground(getBackground());
 		
