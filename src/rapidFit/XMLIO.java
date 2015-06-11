@@ -129,7 +129,10 @@ public class XMLIO {
 						String tagName = line.substring(startIndex+1,endIndex-1);
 						writer.println(line.substring(0, startIndex)
 								+ "<" + tagName + "></" + tagName + ">");
-					} else {
+						
+					//don't write the XML header line
+					} else if (!line.equals(
+							"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")) {
 						writer.println(line);
 					}
 				}
