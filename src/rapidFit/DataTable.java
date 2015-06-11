@@ -4,10 +4,19 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.swing.*;
+//import javax.swing.table.*;
 
 @SuppressWarnings("serial")
 public class DataTable extends Table{
-
+	
+	
+	/*private class ListCellRenderer extends DefaultTableCellRenderer{
+		public ListCellRenderer(){
+			super();
+		}
+		
+		
+	}*/
 //
 // Constructors
 	@SuppressWarnings("unchecked")

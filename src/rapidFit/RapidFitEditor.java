@@ -63,8 +63,7 @@ public class RapidFitEditor extends JFrame {
 				root.getParameterSet().getPhysicsParameter(), null,
 				"Add Parameter", "Remove Parameter(s)", "Duplicate Parameter(s)");
 
-		fitPanel = new FittingPanel(root.getFitFunction(), 
-				root.getMinimiser(), root.getPrecalculator());
+		fitPanel = new FittingPanel(root);
 
 		commonPhaseSpacePanel = new CommonPropertiesPanel(
 				root.getParameterSet().getPhysicsParameter(),
@@ -107,8 +106,8 @@ public class RapidFitEditor extends JFrame {
 		tabs.addTab("Common Properties", commonPhaseSpacePanel);
 		tabs.addTab("Fit Constraints", fitConstraintPanel);
 		tabs.addTab("Data Sets", fitDataSetPanel);
-		tabs.addTab("Output - Scan", outputScanPanel);
-		tabs.addTab("Output - Projection", outputProjectionPanel);
+		tabs.addTab("Output - Scans", outputScanPanel);
+		tabs.addTab("Output - Projections", outputProjectionPanel);
 		
 		
 		content.add(tabs, BorderLayout.CENTER);
