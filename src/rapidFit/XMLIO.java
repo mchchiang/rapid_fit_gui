@@ -2,6 +2,8 @@ package rapidFit;
 
 
 import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 import javax.xml.*;
 import javax.xml.bind.*;
@@ -37,7 +39,9 @@ public class XMLIO {
 				line = line.replaceAll("True", "true");
 				line = line.replaceAll("False", "false");
 				
-				if (line.indexOf("<Minimiser>") != -1 && line.indexOf("</Minimiser>") != -1){
+				if (line.trim().startsWith("#")){
+					//ignore line
+				} else if (line.indexOf("<Minimiser>") != -1 && line.indexOf("</Minimiser>") != -1){
 					int startIndex = line.indexOf("<Minimiser>");
 					int endIndex = line.indexOf("</Minimiser>");
 					
@@ -74,6 +78,7 @@ public class XMLIO {
 					text = text.replaceAll("'", "&apos;");
 					writer.print(text);
 					writer.print(line.substring(endIndex)+"\n");
+					
 				} else {
 					writer.println(line);
 				}
@@ -89,7 +94,148 @@ public class XMLIO {
 		
 	}
 	
-	public static void postWriteFile(String fileURL){
+	private static void removeNullElements(Iterator<?> it){
+		while (it.hasNext()){
+			if (isNull(it.next())){
+				it.remove();
+			}
+		}
+	}
+	
+	private static boolean isNull (Object obj){
+		try {
+			for (Method m : obj.getClass().getDeclaredMethods()){
+				if ((m.getName().startsWith("get") || m.getName().startsWith("is")) &&
+					m.invoke(obj, (Object []) null) != null){
+					return false;
+				}
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		System.out.println("is null");
+		return true;
+	}
+	
+	public static void preWriteFile(RapidFitType root){
+		//remove all empty components before writing file
+		if (root.getParameterSet().getPhysicsParameter().size() != 0){
+			removeNullElements(root.getParameterSet().
+					getPhysicsParameter().iterator());
+		}
+		if (root.getParameterSet().getPhysicsParameter().size() == 0){
+			root.setParameterSet(null);
+		}
+		
+		if (isNull(root.getMinimiser())){
+			root.setMinimiser(null);
+		}
+		
+		if (isNull(root.getFitFunction())){
+			root.setFitFunction(null);
+		}
+		
+		if (isNull(root.getPrecalculator())){
+			root.setPrecalculator(null);
+		}
+		
+		//NumberRepeats
+		//Seed
+		
+		if (root.getCommonPhaseSpace().getPhaseSpaceBoundary().getObservable().size() != 0){
+			removeNullElements(root.getCommonPhaseSpace().
+					getPhaseSpaceBoundary().getObservable().iterator());
+		}
+		
+		if (root.getCommonPhaseSpace().getPhaseSpaceBoundary().getObservable().size() == 0){
+			root.setCommonPhaseSpace(null);
+		}
+		
+		if (root.getCommonPDF().getNormalisedSumPDF() == null &&
+			root.getCommonPDF().getProdPDF() == null &&
+			(root.getCommonPDF().getPDF() == null ||
+			root.getCommonPDF().getPDF().getName().equals("Null") ||
+			root.getCommonPDF().getPDF().getName().equals(""))){
+			root.setCommonPDF(null);
+		}
+		
+		if (root.getToFit().size() != 0){
+			//find the constraint function and check if it contains constraint
+			Iterator<ToFitType> it = root.getToFit().iterator();
+			while (it.hasNext()){
+				ToFitType fit = it.next();
+				//it is a constraint function
+				if (fit.getConstraintFunction() != null){
+					if (fit.getConstraintFunction().getExternalConstraint().size() != 0){
+						removeNullElements(fit.getConstraintFunction().
+								getExternalConstraint().iterator());
+					}
+					
+					if (fit.getConstraintFunction().getExternalConstMatrix().size() != 0){
+						removeNullElements(fit.getConstraintFunction().
+								getExternalConstMatrix().iterator());
+					}
+					if (fit.getConstraintFunction().getExternalConstraint().size() == 0 &&
+						fit.getConstraintFunction().getExternalConstMatrix().size() == 0){
+						it.remove();
+					}
+					
+				// it is a data set
+				} else {
+					//for data set that uses common PDF
+					if (fit.isCommonPDF() != null && fit.isCommonPDF()){ 
+						if (isNull(fit.getPDFConfigurator())){
+							fit.setPDFConfigurator(null);
+						}
+						
+						if (fit.getDataSet().getCommonPhaseSpace().getObservable().size() != 0){
+							removeNullElements(fit.getDataSet().
+									getCommonPhaseSpace().getObservable().iterator());
+						}
+						
+						if (fit.getDataSet().getCommonPhaseSpace().getObservable().size() == 0){
+							fit.getDataSet().setCommonPhaseSpace(null);
+						}
+						
+					} else {
+						if (fit.getDataSet().getPhaseSpaceBoundary().getObservable().size() != 0){
+							removeNullElements(fit.getDataSet().
+									getPhaseSpaceBoundary().getObservable().iterator());
+						}
+						
+						if (fit.getDataSet().getPhaseSpaceBoundary().getObservable().size() == 0){
+							fit.getDataSet().setPhaseSpaceBoundary(null);
+						}
+					}
+					
+					if (isNull(fit)){
+						it.remove();
+					}
+				}
+				
+				//output
+				if (root.getOutput().getComponentProjection().size() != 0){
+					removeNullElements(root.getOutput().getComponentProjection().iterator());
+				}
+				if (root.getOutput().getScan().size() != 0){
+					removeNullElements(root.getOutput().getScan().iterator());
+				}
+				if (root.getOutput().getTwoDScan().size() != 0){
+					removeNullElements(root.getOutput().getTwoDScan().iterator());
+				}
+				
+				if (root.getOutput().getComponentProjection().size() == 0 &&
+					root.getOutput().getScan().size() == 0 &&
+					root.getOutput().getTwoDScan().size() == 0 &&
+					root.getOutput().getDoPullPlots() == null){
+					root.setOutput(null);
+				}
+			}
+		} 
+		
+	}
+	
+	private static void postWriteFile(String fileURL){
 		try {
 			
 			PrintWriter writer = new PrintWriter(new FileWriter(fileURL));
@@ -117,6 +263,7 @@ public class XMLIO {
 					text = text.replaceAll("&apos;", "'");
 					writer.print(text);
 					writer.print(line.substring(endIndex)+"\n");
+					
 				} else {
 					/*
 					 * fix the problem that the rapid fit programme does not like
@@ -203,6 +350,9 @@ public class XMLIO {
     }
 	
 	public static void writeFile (RapidFitType rpfit, String fileURL, String schemaURL){
+		
+		preWriteFile(rpfit);
+		
 		//System.out.println("Writing File...");
 		
 		//validate xml document
