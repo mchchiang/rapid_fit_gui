@@ -259,6 +259,12 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		fit.setCommonPDF(true);
 		cbCommonPDF.setSelected(true);
 		//add the PDF config panel
+		
+		//ensure that there is a pdf configurator
+		if (fit.getPDFConfigurator() == null){
+			fit.setPDFConfigurator(new PDFConfiguratorType());
+		}
+		
 		pdfConfigPanel = new AttributePanel<PDFConfiguratorType>(
 				PDFConfiguratorType.class, fit.getPDFConfigurator(),
 				"PDF Configurator", null);	

@@ -118,7 +118,20 @@ public class XMLIO {
 					writer.print(text);
 					writer.print(line.substring(endIndex)+"\n");
 				} else {
-					writer.println(line);
+					/*
+					 * fix the problem that the rapid fit programme does not like
+					 * empty tags <tagName/>. This changes the tag to:
+					 * <tagName></tagName>
+					 */
+					startIndex = line.indexOf("<");
+					endIndex = line.indexOf(">");
+					if (line.charAt(endIndex-1) == '/'){
+						String tagName = line.substring(startIndex+1,endIndex-1);
+						writer.println(line.substring(0, startIndex)
+								+ "<" + tagName + "></" + tagName + ">");
+					} else {
+						writer.println(line);
+					}
 				}
 			}
 			
