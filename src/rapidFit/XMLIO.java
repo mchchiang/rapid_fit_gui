@@ -63,22 +63,9 @@ public class XMLIO {
 				
 					
 				} else if (line.indexOf("<CutString>") != -1 && line.indexOf("</CutString>") != -1){
-					
-					int startIndex = line.indexOf("<CutString>");
-					int endIndex = line.indexOf("</CutString>");
-					
-					writer.print(line.substring(0, startIndex) + "<CutString>");
-					
-					String text = line.substring(
-							startIndex+"<CutString>".length(), endIndex);
-					text = text.replaceAll("&", "&amp;");
-					text = text.replaceAll("<", "&lt;");
-					text = text.replaceAll(">", "&gt;");
-					text = text.replaceAll("\"", "&quot;");
-					text = text.replaceAll("'", "&apos;");
-					writer.print(text);
-					writer.print(line.substring(endIndex)+"\n");
-					
+					writer.println(formatLineToProperXML(line, "CutString"));
+				} else if (line.indexOf("<TF1>") != -1 && line.indexOf("</TF1>") != -1){
+					writer.println(formatLineToProperXML(line, "TF1"));
 				} else {
 					writer.println(line);
 				}
@@ -91,6 +78,34 @@ public class XMLIO {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	private static String formatLineToProperXML(String line, String tagName){
+		int startIndex = line.indexOf("<" + tagName + ">");
+		int endIndex = line.indexOf("</" + tagName + ">");
+		String output = line.substring(0, startIndex) + "<" + tagName + ">";
+		String text = line.substring(startIndex+("<"+tagName+">").length(), endIndex);
+		text = text.replaceAll("&", "&amp;");
+		text = text.replaceAll("<", "&lt;");
+		text = text.replaceAll(">", "&gt;");
+		text = text.replaceAll("\"", "&quot;");
+		text = text.replaceAll("'", "&apos;");
+		output += (text + "</" + tagName + ">");
+		return output;
+	}
+	
+	private static String formatLineToRapidFitXML(String line, String tagName){
+		int startIndex = line.indexOf("<" + tagName + ">");
+		int endIndex = line.indexOf("</" + tagName + ">");
+		String output = line.substring(0, startIndex) + "<" + tagName + ">";
+		String text = line.substring(startIndex+("<"+tagName+">").length(), endIndex);
+		text = text.replaceAll("&amp;", "&");
+		text = text.replaceAll("&lt;", "<");
+		text = text.replaceAll("&gt;", ">");
+		text = text.replaceAll("&quot;", "\"");
+		text = text.replaceAll("&apos;", "'");
+		output += (text + "</" + tagName + ">");
+		return output;
 	}
 	
 	private static void removeNullElements(Iterator<?> it){
@@ -127,7 +142,7 @@ public class XMLIO {
 		return true;
 	}
 	
-	public static void preWriteFile(RapidFitType root){
+	private static void preWriteFile(RapidFitType root){
 		//remove all empty components before writing file
 		
 		//ParameterSet
@@ -231,15 +246,17 @@ public class XMLIO {
 					}
 					
 					//for data set that uses common phase space
+					boolean useCommonPhaseSpace = true;
 					if (fit.getDataSet().getCommonPhaseSpace() != null){
 						removeNullElements(fit.getDataSet().
 								getCommonPhaseSpace().getObservable().iterator());
-						/*if (fit.getDataSet().getCommonPhaseSpace().getObservable().size() == 0){
+						if (fit.getDataSet().getCommonPhaseSpace().getObservable().size() == 0){
 							fit.getDataSet().setCommonPhaseSpace(null);
-						}*/
+						}
 						
 					//for data set that uses individual phase space	
 					} else if (fit.getDataSet().getPhaseSpaceBoundary() != null){
+						useCommonPhaseSpace = false;
 						removeNullElements(fit.getDataSet().
 								getPhaseSpaceBoundary().getObservable().iterator());
 						if (fit.getDataSet().getPhaseSpaceBoundary().getObservable().size() == 0){
@@ -249,6 +266,16 @@ public class XMLIO {
 					
 					if (isNull(fit.getDataSet())){
 						fit.setDataSet(null);
+					} else {
+						/*
+						 * preserve the needed <CommonPhaseSpace> or <PhaseSpaceBoundary> tag
+						 * even if there are no observables. 
+						 */
+						if (useCommonPhaseSpace){
+							fit.getDataSet().setCommonPhaseSpace(new PhaseSpaceBoundaryType());
+						} else {
+							fit.getDataSet().setPhaseSpaceBoundary(new PhaseSpaceBoundaryType());
+						}
 					}
 					
 					/*
@@ -303,38 +330,28 @@ public class XMLIO {
 				line = line.replaceAll("true", "True");
 				line = line.replaceAll("false", "False");
 				
-				int startIndex = line.indexOf("<CutString>");
-				int endIndex = line.indexOf("</CutString>");
-				if (startIndex != -1 && endIndex != -1){
-					writer.print(line.substring(0, startIndex) + "<CutString>");
-					String text = line.substring(
-							startIndex+"<CutString>".length(), endIndex);
-					text = text.replaceAll("&amp;", "&");
-					text = text.replaceAll("&lt;", "<");
-					text = text.replaceAll("&gt;", ">");
-					text = text.replaceAll("&quot;", "\"");
-					text = text.replaceAll("&apos;", "'");
-					writer.print(text);
-					writer.print(line.substring(endIndex)+"\n");
+				if (line.indexOf("<CutString>") != -1 && line.indexOf("</CutString>") != -1){
+					line = formatLineToRapidFitXML(line, "CutString");
+				} else if (line.indexOf("<TF1>") != -1 && line.indexOf("</TF1>") != -1){
+					line = formatLineToRapidFitXML(line, "TF1");
+				}
+				
+				/*
+				 * fix the problem that the rapid fit programme does not like
+				 * empty tags <tagName/>. This changes the tag to:
+				 * <tagName></tagName>*/
+				 
+				int startIndex = line.indexOf("<");
+				int endIndex = line.indexOf(">");
+				if (line.charAt(endIndex-1) == '/'){
+					String tagName = line.substring(startIndex+1,endIndex-1);
+					writer.println(line.substring(0, startIndex)
+							+ "<" + tagName + "></" + tagName + ">");
 					
-				} else {
-					/*
-					 * fix the problem that the rapid fit programme does not like
-					 * empty tags <tagName/>. This changes the tag to:
-					 * <tagName></tagName>
-					 */
-					startIndex = line.indexOf("<");
-					endIndex = line.indexOf(">");
-					if (line.charAt(endIndex-1) == '/'){
-						String tagName = line.substring(startIndex+1,endIndex-1);
-						writer.println(line.substring(0, startIndex)
-								+ "<" + tagName + "></" + tagName + ">");
-						
-					//don't write the XML header line
-					} else if (!line.equals(
-							"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")) {
-						writer.println(line);
-					}
+				//don't write the XML header line
+				} else if (!line.equals(
+						"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")) {
+					writer.println(line);
 				}
 			}
 			
@@ -352,16 +369,16 @@ public class XMLIO {
 		RapidFitType root = null;
 		
 		//validate xml document
-		Schema mySchema = null;
-		SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		//Schema mySchema = null;
+		//SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		JAXBContext jc = null;
 		Unmarshaller u = null;
-		ValidationEventCollector vec = new ValidationEventCollector();
+		/*ValidationEventCollector vec = new ValidationEventCollector();
 		try {
 			mySchema = sf.newSchema(new File(schemaURL));
 		} catch (SAXException saxe){
 			saxe.printStackTrace();
-		}
+		}*/
 		
         try {
         	
@@ -380,7 +397,7 @@ public class XMLIO {
             root = (RapidFitType) jbe.getValue();
             
         } catch( JAXBException je ) {
-        	if (vec != null && vec.hasEvents()){
+        	/*if (vec != null && vec.hasEvents()){
         		for (ValidationEvent ve : vec.getEvents()){
         			String msg = ve.getMessage();
         			ValidationEventLocator vel = ve.getLocator();
@@ -389,7 +406,7 @@ public class XMLIO {
         			System.err.println(fileURL + ": " + line + "." +
         								column + ": " + msg);
         		}
-        	}
+        	}*/
         	
         } catch( IOException ioe ) {
             ioe.printStackTrace();
@@ -414,17 +431,16 @@ public class XMLIO {
 		//System.out.println("Writing File...");
 		
 		//validate xml document
-		Schema mySchema = null;
-		SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		//Schema mySchema = null;
+		//SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		JAXBContext jc = null;
 		Marshaller m = null;
-		String file = "trial.xml";
-		ValidationEventCollector vec = new ValidationEventCollector();
-		try {
+		//ValidationEventCollector vec = new ValidationEventCollector();
+		/*try {
 			mySchema = sf.newSchema(new File(schemaURL));
 		} catch (SAXException saxe){
 			saxe.printStackTrace();
-		}
+		}*/
 		
         try {
             // create a JAXBContext capable of handling classes generated into
@@ -447,7 +463,7 @@ public class XMLIO {
             postWriteFile(fileURL);
             
         } catch( JAXBException je ) {
-        	if (vec != null && vec.hasEvents()){
+        	/*if (vec != null && vec.hasEvents()){
         		for (ValidationEvent ve : vec.getEvents()){
         			String msg = ve.getMessage();
         			ValidationEventLocator vel = ve.getLocator();
@@ -456,7 +472,7 @@ public class XMLIO {
         			System.err.println(file + ": " + line + "." +
         								column + ": " + msg);
         		}
-        	}
+        	}*/
         } catch(IOException e){
         	e.printStackTrace();
         }
