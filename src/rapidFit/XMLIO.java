@@ -5,12 +5,12 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-import javax.xml.*;
+//import javax.xml.*;
 import javax.xml.bind.*;
-import javax.xml.bind.util.*;
-import javax.xml.validation.*;
+//import javax.xml.bind.util.*;
+//import javax.xml.validation.*;
 
-import org.xml.sax.*;
+//import org.xml.sax.*;
 
 import rapidFit.rpfit.*;
 
@@ -19,7 +19,7 @@ public class XMLIO {
 	private static String tempXMLFileURL = "temp.xml";
 	
 	//convert the input XML to a properly formatted XML
-	private static void preReadFile(String fileURL){
+	private static void preReadFile(String fileURL) throws XMLIOException {
 		try {
 			
 			PrintWriter writer = new PrintWriter(new FileWriter(tempXMLFileURL));
@@ -75,7 +75,7 @@ public class XMLIO {
 			writer.close();
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new XMLIOException(XMLIOException.ErrorType.READ_FILE_ERROR);
 		}
 		
 	}
@@ -341,8 +341,7 @@ public class XMLIO {
 				/*
 				 * fix the problem that the rapid fit programme does not like
 				 * empty tags <tagName/>. This changes the tag to:
-				 * <tagName></tagName>*/
-				 
+				 * <tagName></tagName>*/ 
 				int startIndex = line.indexOf("<");
 				int endIndex = line.indexOf(">");
 				if (line.charAt(endIndex-1) == '/'){
@@ -365,7 +364,7 @@ public class XMLIO {
 		}
 	}
 	
-	public static RapidFitType readFile (String fileURL, String schemaURL){
+	public static RapidFitType readFile (String fileURL, String schemaURL) throws XMLIOException {
 		preReadFile(fileURL);
 		
 		RapidFitType root = null;
@@ -416,7 +415,10 @@ public class XMLIO {
         }  catch (Exception e){
         	e.printStackTrace();
         }
-       
+        
+        if (root == null){
+        	throw new XMLIOException (XMLIOException.ErrorType.XML_PARSING_ERROR);
+        }
         return root;
     }
 	

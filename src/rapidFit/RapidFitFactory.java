@@ -36,7 +36,7 @@ public class RapidFitFactory {
 		return root;
 	}
 	
-	public static RapidFitType createFitFromFile(String fileURL, String schemaURL){
+	public static RapidFitType createFitFromFile(String fileURL, String schemaURL) throws XMLIOException {
 		RapidFitType root = XMLIO.readFile(fileURL, schemaURL);
 		
 		//check that all components/classes of the fit are initialised

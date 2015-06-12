@@ -4,8 +4,6 @@ import javax.swing.*;
 import javax.swing.filechooser.*;
 
 import rapidFit.rpfit.RapidFitType;
-
-import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 
@@ -55,10 +53,14 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 				File file = fc.getSelectedFile();
 				
 				//read xml
-				RapidFitType root = RapidFitFactory.createFitFromFile(file.getAbsolutePath(), 
-						"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
-						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
-				editor.showFit(root);
+				try {
+					RapidFitType root = RapidFitFactory.createFitFromFile(file.getAbsolutePath(), 
+							"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
+							+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
+					editor.showFit(root);
+				} catch (XMLIOException xe){
+					RapidFitExceptionHandler.handle(xe);
+				}
 			}
 						
 		} else if (e.getSource() == mnuExport){
@@ -74,23 +76,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 			editor.showFit(RapidFitFactory.createEmptyFit());
 			
 		} else if (e.getSource() == mnuAbout){
-			
-			JFrame helpFrame = new JFrame("About Rapid Fit Editor");
-			helpFrame.setSize(new Dimension(300, 180));
-			helpFrame.setLayout(new BorderLayout());
-			helpFrame.getRootPane().setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-			helpFrame.add(new JLabel(
-	"<html>"
-	+"<body>" 
-	+"<h2> Rapid Fit Editor </h2>"
-	+"<p> Version 1.0.0 </p>"
-	+"<p> Created by Michael Chiang </p>"
-	+"</body>"
-	+"</html>"),
-	BorderLayout.CENTER);
-			helpFrame.setVisible(true);
-			
-			helpFrame.setLocationRelativeTo(null);
+			new AboutDialog().setVisible(true);
 		}
 		
 	}

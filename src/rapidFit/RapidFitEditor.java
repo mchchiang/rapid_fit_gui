@@ -10,8 +10,8 @@ import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
 public class RapidFitEditor extends JFrame {
-	private int width = 700;
-	private int height = 500;
+	private int width = 1000;
+	private int height = 800;
 	private RapidFitEditorMenuBar menuBar;
 	private JTabbedPane tabs;
 	
