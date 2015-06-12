@@ -271,9 +271,11 @@ public class XMLIO {
 						 * preserve the needed <CommonPhaseSpace> or <PhaseSpaceBoundary> tag
 						 * even if there are no observables. 
 						 */
-						if (useCommonPhaseSpace){
+						if (useCommonPhaseSpace && 
+								fit.getDataSet().getCommonPhaseSpace() == null){
 							fit.getDataSet().setCommonPhaseSpace(new PhaseSpaceBoundaryType());
-						} else {
+						} else if (!useCommonPhaseSpace && 
+								fit.getDataSet().getPhaseSpaceBoundary() == null){
 							fit.getDataSet().setPhaseSpaceBoundary(new PhaseSpaceBoundaryType());
 						}
 					}
