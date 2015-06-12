@@ -234,9 +234,9 @@ public class XMLIO {
 					if (fit.getDataSet().getCommonPhaseSpace() != null){
 						removeNullElements(fit.getDataSet().
 								getCommonPhaseSpace().getObservable().iterator());
-						if (fit.getDataSet().getCommonPhaseSpace().getObservable().size() == 0){
+						/*if (fit.getDataSet().getCommonPhaseSpace().getObservable().size() == 0){
 							fit.getDataSet().setCommonPhaseSpace(null);
-						}
+						}*/
 						
 					//for data set that uses individual phase space	
 					} else if (fit.getDataSet().getPhaseSpaceBoundary() != null){
