@@ -88,7 +88,6 @@ public class XMLIO {
 			writer.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -102,39 +101,53 @@ public class XMLIO {
 		}
 	}
 	
+	/*
+	 * determine if an object is empty (null) by checking if the fields of
+	 * the object that can be accessed by getter methods are null. If the field 
+	 * is a List, it will be treated as null if it contains no element.
+	 */
 	private static boolean isNull (Object obj){
 		try {
 			for (Method m : obj.getClass().getDeclaredMethods()){
-				if ((m.getName().startsWith("get") || m.getName().startsWith("is")) &&
-					m.invoke(obj, (Object []) null) != null){
+				//if the field is a List
+				if (m.getName().startsWith("get") && m.getReturnType() == List.class &&
+						m.invoke(obj, (Object[]) null) != null &&
+						((List<?>) m.invoke(obj, (Object[]) null)).size() != 0){
+					return false;
+					
+				} else if ((m.getName().startsWith("get") || m.getName().startsWith("is")) &&
+					m.getReturnType() != List.class && m.invoke(obj, (Object []) null) != null){
 					return false;
 				}
 			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		System.out.println("is null");
+		//System.out.println("is null");
 		return true;
 	}
 	
 	public static void preWriteFile(RapidFitType root){
 		//remove all empty components before writing file
-		if (root.getParameterSet().getPhysicsParameter().size() != 0){
-			removeNullElements(root.getParameterSet().
-					getPhysicsParameter().iterator());
-		}
+		
+		//ParameterSet
+		removeNullElements(root.getParameterSet().
+				getPhysicsParameter().iterator());
 		if (root.getParameterSet().getPhysicsParameter().size() == 0){
 			root.setParameterSet(null);
 		}
 		
+		//Minimiser
 		if (isNull(root.getMinimiser())){
 			root.setMinimiser(null);
 		}
 		
+		//FitFunction
 		if (isNull(root.getFitFunction())){
 			root.setFitFunction(null);
 		}
 		
+		//Precalculator
 		if (isNull(root.getPrecalculator())){
 			root.setPrecalculator(null);
 		}
@@ -142,39 +155,51 @@ public class XMLIO {
 		//NumberRepeats
 		//Seed
 		
-		if (root.getCommonPhaseSpace().getPhaseSpaceBoundary().getObservable().size() != 0){
-			removeNullElements(root.getCommonPhaseSpace().
-					getPhaseSpaceBoundary().getObservable().iterator());
-		}
-		
+		//CommonPhaseSpace
+		removeNullElements(root.getCommonPhaseSpace().
+				getPhaseSpaceBoundary().getObservable().iterator());
 		if (root.getCommonPhaseSpace().getPhaseSpaceBoundary().getObservable().size() == 0){
 			root.setCommonPhaseSpace(null);
 		}
 		
+		//CommonPDF
+		boolean noPDF = false;
 		if (root.getCommonPDF().getNormalisedSumPDF() == null &&
-			root.getCommonPDF().getProdPDF() == null &&
-			(root.getCommonPDF().getPDF() == null ||
-			root.getCommonPDF().getPDF().getName().equals("Null") ||
-			root.getCommonPDF().getPDF().getName().equals(""))){
+			root.getCommonPDF().getProdPDF() == null){
+			
+			if (root.getCommonPDF().getPDF() != null){
+				if (root.getCommonPDF().getPDF().getName().equalsIgnoreCase("null") ||
+					root.getCommonPDF().getPDF().getName().equals("")){
+					root.getCommonPDF().getPDF().setName(null);
+				}				
+				if (isNull(root.getCommonPDF().getPDF())){
+					root.getCommonPDF().setPDF(null);
+					noPDF = true;
+				}
+			} else {
+				root.getCommonPDF().setPDF(null);
+				noPDF = true;
+			}
+		}
+		
+		if (noPDF){
 			root.setCommonPDF(null);
 		}
 		
+		//ToFit
 		if (root.getToFit().size() != 0){
-			//find the constraint function and check if it contains constraint
+			//remove any empty to fit section
 			Iterator<ToFitType> it = root.getToFit().iterator();
 			while (it.hasNext()){
 				ToFitType fit = it.next();
 				//it is a constraint function
 				if (fit.getConstraintFunction() != null){
-					if (fit.getConstraintFunction().getExternalConstraint().size() != 0){
-						removeNullElements(fit.getConstraintFunction().
-								getExternalConstraint().iterator());
-					}
-					
-					if (fit.getConstraintFunction().getExternalConstMatrix().size() != 0){
-						removeNullElements(fit.getConstraintFunction().
-								getExternalConstMatrix().iterator());
-					}
+					removeNullElements(fit.getConstraintFunction().
+							getExternalConstraint().iterator());
+
+					removeNullElements(fit.getConstraintFunction().
+							getExternalConstMatrix().iterator());
+						
 					if (fit.getConstraintFunction().getExternalConstraint().size() == 0 &&
 						fit.getConstraintFunction().getExternalConstMatrix().size() == 0){
 						it.remove();
@@ -188,48 +213,76 @@ public class XMLIO {
 							fit.setPDFConfigurator(null);
 						}
 						
-						if (fit.getDataSet().getCommonPhaseSpace().getObservable().size() != 0){
-							removeNullElements(fit.getDataSet().
-									getCommonPhaseSpace().getObservable().iterator());
-						}
-						
+					//for data set that uses individual PDF
+					} else {
+						if (fit.getNormalisedSumPDF() == null &&
+							fit.getProdPDF() == null &&
+							fit.getPDF() != null){
+								if (fit.getPDF().getName().equalsIgnoreCase("null") ||
+									fit.getPDF().getName().equals("")){
+									fit.getPDF().setName(null);
+								}				
+								if (isNull(fit.getPDF())){
+									fit.setPDF(null);
+								}
+						} else {
+							fit.setPDF(null);
+						}	
+					}
+					
+					//for data set that uses common phase space
+					if (fit.getDataSet().getCommonPhaseSpace() != null){
+						removeNullElements(fit.getDataSet().
+								getCommonPhaseSpace().getObservable().iterator());
 						if (fit.getDataSet().getCommonPhaseSpace().getObservable().size() == 0){
 							fit.getDataSet().setCommonPhaseSpace(null);
 						}
 						
-					} else {
-						if (fit.getDataSet().getPhaseSpaceBoundary().getObservable().size() != 0){
-							removeNullElements(fit.getDataSet().
-									getPhaseSpaceBoundary().getObservable().iterator());
-						}
-						
+					//for data set that uses individual phase space	
+					} else if (fit.getDataSet().getPhaseSpaceBoundary() != null){
+						removeNullElements(fit.getDataSet().
+								getPhaseSpaceBoundary().getObservable().iterator());
 						if (fit.getDataSet().getPhaseSpaceBoundary().getObservable().size() == 0){
 							fit.getDataSet().setPhaseSpaceBoundary(null);
 						}
 					}
 					
+					if (isNull(fit.getDataSet())){
+						fit.setDataSet(null);
+					}
+					
+					/*
+					 * try setting the default field CommonPDF to null and check
+					 * if the entire data set is empty. Remove the data set if it
+					 * is empty; otherwise, reset the CommonPDF field
+					 */
+					Boolean temp = fit.isCommonPDF();
+					fit.setCommonPDF(null);
 					if (isNull(fit)){
 						it.remove();
+					} else {
+						fit.setCommonPDF(temp);
 					}
 				}
-				
-				//output
-				if (root.getOutput().getComponentProjection().size() != 0){
-					removeNullElements(root.getOutput().getComponentProjection().iterator());
+			}
+			
+			//Output
+			removeNullElements(root.getOutput().getComponentProjection().iterator());
+			removeNullElements(root.getOutput().getScan().iterator());
+			if (root.getOutput().getTwoDScan().size() != 0){
+				Iterator<TwoDScanType> twoDScans = root.getOutput().getTwoDScan().iterator();
+				while (twoDScans.hasNext()){
+					TwoDScanType scan = twoDScans.next();
+					if (isNull(scan.getXParam()) && isNull(scan.getYParam())){
+						twoDScans.remove();
+					}
 				}
-				if (root.getOutput().getScan().size() != 0){
-					removeNullElements(root.getOutput().getScan().iterator());
-				}
-				if (root.getOutput().getTwoDScan().size() != 0){
-					removeNullElements(root.getOutput().getTwoDScan().iterator());
-				}
-				
-				if (root.getOutput().getComponentProjection().size() == 0 &&
-					root.getOutput().getScan().size() == 0 &&
-					root.getOutput().getTwoDScan().size() == 0 &&
-					root.getOutput().getDoPullPlots() == null){
-					root.setOutput(null);
-				}
+			}
+			if (root.getOutput().getComponentProjection().size() == 0 &&
+				root.getOutput().getScan().size() == 0 &&
+				root.getOutput().getTwoDScan().size() == 0 &&
+				root.getOutput().getDoPullPlots() == null){
+				root.setOutput(null);
 			}
 		} 
 		
@@ -289,7 +342,6 @@ public class XMLIO {
 			writer.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -350,8 +402,14 @@ public class XMLIO {
     }
 	
 	public static void writeFile (RapidFitType rpfit, String fileURL, String schemaURL){
+		/*
+		 * make a copy of the data (so the edits in the GUI is not
+		 * affected by the removal of empty elements in pre-processing
+		 * the data for exporting them to an XML file
+		 */
+		RapidFitType copyOfFit = (RapidFitType) Cloner.deepClone(rpfit);
 		
-		preWriteFile(rpfit);
+		preWriteFile(copyOfFit);
 		
 		//System.out.println("Writing File...");
 		
@@ -381,7 +439,7 @@ public class XMLIO {
             // unmarshal a po instance document into a tree of Java content
             // objects composed of classes from the primer.po package.
             ObjectFactory of = new ObjectFactory();
-            JAXBElement<RapidFitType> root = of.createRapidFit(rpfit);
+            JAXBElement<RapidFitType> root = of.createRapidFit(copyOfFit);
             
             m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
             m.marshal(root, new FileOutputStream(tempXMLFileURL));

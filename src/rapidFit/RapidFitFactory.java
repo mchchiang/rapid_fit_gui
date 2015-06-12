@@ -21,7 +21,7 @@ public class RapidFitFactory {
 		root.setCommonPDF(new PDFExpressionType());
 		
 		PDFType pdf = new PDFType();
-		pdf.setName("Null");
+		pdf.setName("null");
 		root.getCommonPDF().setPDF(pdf);
 		
 		root.setCommonPhaseSpace(new CommonPhaseSpaceType());
@@ -48,7 +48,7 @@ public class RapidFitFactory {
 		if (root.getCommonPDF() == null) {
 			root.setCommonPDF(new PDFExpressionType());
 			PDFType pdf = new PDFType();
-			pdf.setName("Null");
+			pdf.setName("null");
 			root.getCommonPDF().setPDF(pdf);
 		}
 		if (root.getCommonPhaseSpace() == null){
