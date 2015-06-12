@@ -103,8 +103,18 @@ public class AttributeTableModel<T> extends AbstractTableModel {
 	public void setValueAt(Object value, int row, int col){
 		if (col == 1){
 			try {
-				setMethods.get(row).invoke(data, 
-						(getMethods.get(row).getReturnType().cast(value)));
+				/*
+				 * for empty String input (i.e. ""), set the string to null.
+				 * This is needed to ensure there is no empty tag <></> generated
+				 */
+				if (getRowClass(row) == String.class &&
+						((String) value).equals("")){
+					setMethods.get(row).invoke(data, 
+							(getRowClass(row).cast(null)));
+				} else {
+					setMethods.get(row).invoke(data, 
+							(getRowClass(row).cast(value)));
+				}
 			} catch (Exception e){
 				e.printStackTrace();
 			}

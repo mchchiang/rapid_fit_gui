@@ -178,7 +178,16 @@ public class DataTableModel<T> extends AbstractTableModel {
 				}
 				
 			} else {
-				setMethods.get(col).invoke(param, (getColumnClass(col).cast(value)));
+				/*
+				 * for empty String input (i.e. ""), set the string to null.
+				 * This is needed to ensure there is no empty tag <></> generated
+				 */
+				if (getColumnClass(col) == String.class && 
+					((String) value).equals("")){
+					setMethods.get(col).invoke(param, (getColumnClass(col)).cast(null));
+				} else {
+					setMethods.get(col).invoke(param, (getColumnClass(col).cast(value)));
+				}
 			}
 		} catch (Exception e){
 			e.printStackTrace();
