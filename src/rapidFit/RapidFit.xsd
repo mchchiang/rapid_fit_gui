@@ -190,6 +190,7 @@
 	
 	<xs:complexType name="PDFConfiguratorType">
 		<xs:sequence>
+			<xs:element name="FractionName" type="xs:string" minOccurs="0"/>
 			<xs:element name="ParameterSubstitution" type="xs:string" minOccurs="0"/>
 			<xs:element name="AppendParameterNames" type="xs:string" minOccurs="0"/>
 			<xs:element name="ConfigurationParameter" type="xs:string" minOccurs="0"/>

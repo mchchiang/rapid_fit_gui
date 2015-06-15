@@ -50,7 +50,10 @@ public class RapidFitEditor extends JFrame {
 		setVisible(true);
 	}
 	
-	public void showFit(RapidFitType root){
+	public void showFit(RapidFitType root, String fileName){
+		//set title
+		setTitle("Rapid Fit Editor - " + fileName);
+		
 		//remove previously displayed contents
 		Container content = getContentPane();
 		content.removeAll();

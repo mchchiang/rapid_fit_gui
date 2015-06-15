@@ -57,7 +57,8 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 					RapidFitType root = RapidFitFactory.createFitFromFile(file.getAbsolutePath(), 
 							"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
 							+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
-					editor.showFit(root);
+					String fileName = file.getName();
+					editor.showFit(root, fileName);
 				} catch (XMLIOException xe){
 					RapidFitExceptionHandler.handle(xe);
 				}
@@ -73,7 +74,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 			}
 		
 		} else if (e.getSource() == mnuNew) {
-			editor.showFit(RapidFitFactory.createEmptyFit());
+			editor.showFit(RapidFitFactory.createEmptyFit(), "New Fit");
 			
 		} else if (e.getSource() == mnuAbout){
 			new AboutDialog().setVisible(true);
