@@ -11,6 +11,7 @@ import rapidFit.rpfit.*;
 
 public class RapidFitFactory {
 	
+	//create an empty fit
 	public static RapidFitType createEmptyFit(){
 		RapidFitType root = new RapidFitType();
 		root.setParameterSet(new ParameterSetType());
@@ -36,6 +37,7 @@ public class RapidFitFactory {
 		return root;
 	}
 	
+	//create a fit from file
 	public static RapidFitType createFitFromFile(String fileURL, String schemaURL) throws XMLIOException {
 		RapidFitType root = XMLIO.readFile(fileURL, schemaURL);
 		
