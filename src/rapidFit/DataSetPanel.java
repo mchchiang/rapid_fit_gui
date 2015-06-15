@@ -21,12 +21,9 @@ public class DataSetPanel extends JPanel implements ActionListener{
 	private JCheckBox cbCommonPhaseSpace;
 	private JCheckBox cbCommonPDF;
 	
-	private DataPanel<ObservableType> phaseSpaceDataPanel;
+	private DataTablePanel<ObservableType> phaseSpaceDataPanel;
 	private JPanel phaseSpacePanel;
 	private JPanel phaseSpaceOptionPanel;
-	
-	private JButton btnAddObservable;
-	private JButton btnRemoveObservable;
 	
 	//variable for common PDF
 	private PDFExpressionType pdfRoot;
@@ -44,7 +41,6 @@ public class DataSetPanel extends JPanel implements ActionListener{
 	private JPanel pdfPanel;
 	private JPanel pdfOptionPanel;
 	private AttributePanel<PDFConfiguratorType> pdfConfigPanel;
-
 	
 	private JLabel lblUseCommonPhaseSpace;
 	private JLabel lblUseCommonPDF;
@@ -89,31 +85,23 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		
 		lblUseCommonPhaseSpace = new JLabel("Use Common Phase Space");
 		
-		btnAddObservable = new JButton("Add Observable");
-		btnAddObservable.addActionListener(this);
-		btnRemoveObservable = new JButton("Remove Observable");
-		btnRemoveObservable.addActionListener(this);
+		//display observables in phase space panel
+		//using common phase space
+		if (dataSet.getCommonPhaseSpace() != null){
+			phaseSpaceDataPanel = new DataTablePanel<ObservableType>(
+					ObservableType.class, dataSet.getCommonPhaseSpace().getObservable(), null,
+					"Add Observable", "Remove Observable(s)", "Duplicate Observable(s)");
+		} else {
+			phaseSpaceDataPanel = new DataTablePanel<ObservableType>(
+					ObservableType.class, dataSet.getPhaseSpaceBoundary().getObservable(), null,
+					"Add Observable", "Remove Observable(s)", "Duplicate Observable(s)");
+		}
 		
 		phaseSpaceOptionPanel = new JPanel();
 		phaseSpaceOptionPanel.add(lblUseCommonPhaseSpace);
 		phaseSpaceOptionPanel.add(cbCommonPhaseSpace);
-		phaseSpaceOptionPanel.add(btnAddObservable);
-		phaseSpaceOptionPanel.add(btnRemoveObservable);
 		
-		//display observables in phase space panel
-		//using common phase space
-		if (dataSet.getCommonPhaseSpace() != null){
-			cbCommonPhaseSpace.setSelected(true);
-			phaseSpaceDataPanel = new DataPanel<ObservableType>(
-					ObservableType.class, 
-					dataSet.getCommonPhaseSpace().getObservable(), null);
-			
-		} else {
-			phaseSpaceDataPanel = new DataPanel<ObservableType>(
-					ObservableType.class, 
-					dataSet.getPhaseSpaceBoundary().getObservable(), null);
-		}
-		
+
 		phaseSpacePanel = new JPanel();
 		phaseSpacePanel.setLayout(new BorderLayout());
 		phaseSpacePanel.add(phaseSpaceDataPanel, BorderLayout.CENTER);
@@ -382,12 +370,6 @@ public class DataSetPanel extends JPanel implements ActionListener{
 					switchToIndividualPDF();
 				}
 			}
-			
-		} else if (e.getSource() == btnAddObservable){
-			phaseSpaceDataPanel.addRow();
-			
-		} else if (e.getSource() == btnRemoveObservable){
-			phaseSpaceDataPanel.removeSelectedRows();
 			
 		} else if (e.getSource() == btnEditPDF){
 					

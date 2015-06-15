@@ -32,7 +32,7 @@ public class DataTablePanel<T> extends JPanel implements ActionListener {
 	private String btnCopyName = "Copy";
 	
 	//container for all the buttons 
-	private JPanel controlPanel;
+	protected JPanel controlPanel;
 	
 	//constructor
 	public DataTablePanel (Class<T> type, List<T> data, ArrayList<String> ignoreAttr){
@@ -52,7 +52,7 @@ public class DataTablePanel<T> extends JPanel implements ActionListener {
 		initMainPanel();
 	}
 	
-	private void initTablePanel(){
+	protected void initTablePanel(){
 		table = new DataTable(tableModel);
 		rowTable = new RowNumberTable(table);
 		
@@ -66,7 +66,7 @@ public class DataTablePanel<T> extends JPanel implements ActionListener {
 		tablePanel.add(scrollPane);
 	}
 
-	private void initControlPanel(){
+	protected void initControlPanel(){
 		//initialise the buttons 
 		btnAdd = new JButton(btnAddName);
 		btnAdd.addActionListener(this);
@@ -84,7 +84,7 @@ public class DataTablePanel<T> extends JPanel implements ActionListener {
 		controlPanel.add(btnCopy);
 	}
 	
-	private void initMainPanel(){
+	protected void initMainPanel(){
 		this.setLayout(new BorderLayout());
 		this.add(tablePanel, BorderLayout.CENTER);
 		this.add(controlPanel, BorderLayout.SOUTH);

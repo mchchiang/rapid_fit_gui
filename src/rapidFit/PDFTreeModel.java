@@ -1,7 +1,6 @@
 package rapidFit;
 
 import java.io.Serializable;
-import java.util.*;
 
 import javax.swing.event.*;
 import javax.swing.tree.*;
@@ -96,19 +95,6 @@ public class PDFTreeModel implements TreeModel {
 		}		
 	}
 	
-	
-	/*private void printList(List<Serializable> list){
-		System.out.print("\n[");
-		for (int i = 0; i < list.size(); i++){
-			if (i != list.size()-1){
-				System.out.print(((PDFType) list.get(i)).getName() + ", ");
-			} else {
-				System.out.print(((PDFType) list.get(i)).getName());
-			}
-		}
-		System.out.print("]\n");
-	}*/
-	
 	@Override
 	public boolean isLeaf(Object node) {
 		if (node instanceof PDFType){
@@ -172,12 +158,4 @@ public class PDFTreeModel implements TreeModel {
             }
         }
     }
-	
-	protected void fireTreeStructureChanged(Object [] path){
-		TreeModelEvent event = new TreeModelEvent(this, path);
-		EventListener[] listeners = listenerList.getListeners(TreeModelListener.class);
-		for (int i = 0; i < listeners.length; i++){
-			((TreeModelListener) listeners[i]).treeStructureChanged(event);
-		}
-	}
 }

@@ -36,15 +36,6 @@ public class DataList<T> extends JList<T> {
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	}
 	
-	public void setTagName(T entry, String name){
-		nameMap.put(entry, name);
-		setCellRenderer(new DataListRenderer());
-	}
-	
-	public String getTagName(T entry){
-		return nameMap.get(entry);
-	}
-	
 	public void updateNameMap(IdentityHashMap<T, String> map){
 		nameMap = map;
 		setCellRenderer(new DataListRenderer());

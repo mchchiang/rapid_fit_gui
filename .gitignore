@@ -16,7 +16,7 @@ hs_err_pid*
 /bin/
 
 # xml examplar file
-/XMLExamplar/
+
 
 #TeX stuff
 *.bbl

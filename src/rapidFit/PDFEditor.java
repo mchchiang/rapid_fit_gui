@@ -15,14 +15,9 @@ public class PDFEditor extends JDialog implements ActionListener {
 	
 	private AttributePanel<PDFType> pdfPanel;
 	
-	private DataPanel<ConfigParam> configTablePanel;
-	private JPanel configControlPanel;
-	private JPanel configPanel;
+	private DataTablePanel<ConfigParam> configTablePanel;
 	
 	private JPanel mainPanel;
-	
-	private JButton btnAddConfig;
-	private JButton btnRemoveConfig;
 	
 	private JButton btnSave;
 	
@@ -60,32 +55,19 @@ public class PDFEditor extends JDialog implements ActionListener {
 			configs.add(new ConfigParam(config));
 		}
 		
-		configTablePanel = new DataPanel<ConfigParam>
-		(ConfigParam.class, configs, null);
-		
-		btnAddConfig = new JButton("Add Config");
-		btnAddConfig.addActionListener(this);
-		btnRemoveConfig = new JButton("Remove Config");
-		btnRemoveConfig.addActionListener(this);
-		
-		configControlPanel = new JPanel();
-		configControlPanel.add(btnAddConfig);
-		configControlPanel.add(btnRemoveConfig);
-		
-		configPanel = new JPanel();
-		configPanel.setLayout(new BorderLayout());
-		configPanel.add(configTablePanel, BorderLayout.CENTER);
-		configPanel.add(configControlPanel, BorderLayout.SOUTH);
+		configTablePanel = new DataTablePanel<ConfigParam>(
+				ConfigParam.class, configs, null,
+				"Add Config", "Remov Config", "Copy Config");
 		
 		Border border = BorderFactory.createTitledBorder(
-				"<html><h3>Configure Parameters</html></h3>");
+				"<html><h3>Configuration Parameters</html></h3>");
 		Border margin = BorderFactory.createEmptyBorder(10,10,10,10);
-		configPanel.setBorder(new CompoundBorder(margin, border));
+		configTablePanel.setBorder(new CompoundBorder(margin, border));
 
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new GridLayout(1,2));
 		mainPanel.add(pdfPanel);
-		mainPanel.add(configPanel);
+		mainPanel.add(configTablePanel);
 		
 		btnSave = new JButton("Save Edit and Close");
 		btnSave.addActionListener(this);
@@ -111,14 +93,8 @@ public class PDFEditor extends JDialog implements ActionListener {
 						config.getConfigurationParameter());
 			}
 			
-			dispose();
-			
-		} else if (e.getSource() == btnAddConfig){
-			configTablePanel.addRow();
-			
-		} else if (e.getSource() == btnRemoveConfig){
-			configTablePanel.removeSelectedRows();
-		}
+			dispose();	
+		} 
 	}
 	
 }
