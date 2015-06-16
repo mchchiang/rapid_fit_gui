@@ -191,9 +191,9 @@
 	<xs:complexType name="PDFConfiguratorType">
 		<xs:sequence>
 			<xs:element name="FractionName" type="xs:string" minOccurs="0"/>
-			<xs:element name="ParameterSubstitution" type="xs:string" minOccurs="0"/>
+			<xs:element name="ParameterSubstitution" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="AppendParameterNames" type="xs:string" minOccurs="0"/>
-			<xs:element name="ConfigurationParameter" type="xs:string" minOccurs="0"/>
+			<xs:element name="ConfigurationParameter" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="AppendAllOthers" type="xs:string" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -241,7 +241,7 @@
 				<xs:element name="ParameterName" type="xs:string" minOccurs="0"/>
 				<xs:element name="AppendAllOthers" type="xs:string" minOccurs="0"/>
 				<xs:element name="FractionName" type="xs:string" minOccurs="0"/>
-				<xs:element name="ParameterSubstitution" type="xs:string" minOccurs="0"/>
+				<xs:element name="ParameterSubstitution" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element name="AppendParameterNames" type="xs:string" minOccurs="0"/>
 				<xs:element name="ConfigurationParameter" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>

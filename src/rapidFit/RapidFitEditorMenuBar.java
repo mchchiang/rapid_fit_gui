@@ -15,25 +15,36 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	private JMenuItem mnuAbout;
 	
 	private JMenuItem mnuImport;
+	private JMenuItem mnuSave;
 	private JMenuItem mnuExport;
 	private JMenuItem mnuNew;
 	
 	private JFileChooser fc = new JFileChooser();
 	private RapidFitEditor editor;
 	
+	private File inputFile;//for storing input file path
+	
 	public RapidFitEditorMenuBar(RapidFitEditor e){
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("XML file", "xml");
 		fc.setFileFilter(filter);
 		editor = e;
-		mnuImport = new JMenuItem("Import XML");
+		
+		mnuImport = new JMenuItem("Open XML");
 		mnuImport.addActionListener(this);
-		mnuExport = new JMenuItem("Export XML");
+		
+		mnuExport = new JMenuItem("Save As New XML");
+		mnuExport.setFocusable(true);
 		mnuExport.addActionListener(this);
+		
+		mnuSave = new JMenuItem("Save XML");
+		mnuSave.addActionListener(this);
+		
 		mnuNew = new JMenuItem("New XML");
 		mnuNew.addActionListener(this);
 		
 		mnuFile = new JMenu("File");
 		mnuFile.add(mnuImport);
+		mnuFile.add(mnuSave);
 		mnuFile.add(mnuExport);
 		mnuFile.add(mnuNew);
 		
@@ -58,6 +69,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 							"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
 							+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
 					String fileName = file.getName();
+					inputFile = file;
 					editor.showFit(root, fileName);
 				} catch (XMLIOException xe){
 					RapidFitExceptionHandler.handles(xe);
@@ -73,6 +85,10 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
 			}
 		
+		} else if (e.getSource() == mnuSave){	
+			XMLIO.writeFile(editor.root, inputFile.getAbsolutePath(), "/Users/MichaelChiang/Dropbox/Edinburgh"
+						+ "/Courses/Year 2/Summer_Project/"
+						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");			
 		} else if (e.getSource() == mnuNew) {
 			editor.showFit(RapidFitFactory.createEmptyFit(), "New Fit");
 			

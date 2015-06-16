@@ -114,7 +114,7 @@ public class RapidFitEditor extends JFrame {
 		
 		
 		content.add(tabs, BorderLayout.CENTER);
-		pack();
+		//pack();
 		validate();
 		setVisible(true);
 	}
