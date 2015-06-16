@@ -96,7 +96,12 @@ public abstract class AbstractDataListPanel<T> extends JPanel implements ActionL
 		}
 		
 		//set up tag names for the list of data
-		tagNameManager = new TagNameManager<T>(this.data, this.tagName);
+		try {
+			tagNameManager = new TagNameManager<T>(this.data, this.tagName);
+		} catch (TagNameException e) {
+			RapidFitExceptionHandler.handles(e);
+		}
+		
 		
 		initDataListPanel();
 		initMainDisplayPanel();
@@ -184,7 +189,13 @@ public abstract class AbstractDataListPanel<T> extends JPanel implements ActionL
 			dataDisplayPanel = initDataDisplayPanel(entry);
 			
 			//set tag name
-			String name = tagNameManager.getTagName(entry);
+			String name = "null";
+			try {
+				name = tagNameManager.getTagName(entry);
+			} catch (TagNameException e){
+				RapidFitExceptionHandler.handles(e);
+			}
+			
 			txtTagName.setText(name);
 			txtTagName.setEditable(false);
 			
@@ -235,7 +246,11 @@ public abstract class AbstractDataListPanel<T> extends JPanel implements ActionL
 			
 			dataList.setSelectedIndex(index);
 			currentDataSetIndex = index;
-			tagNameManager.addEntry(entry);
+			try {
+				tagNameManager.addEntry(entry);
+			} catch (TagNameException err){
+				RapidFitExceptionHandler.handles(err);
+			}
 			
 			//update the tag name of the data list
 			dataList.validate();
@@ -257,7 +272,13 @@ public abstract class AbstractDataListPanel<T> extends JPanel implements ActionL
 				
 				listModel.removeRow(index);
 				currentDataSetIndex = -1;
-				tagNameManager.removeEntry(entry);
+				
+				try {
+					tagNameManager.removeEntry(entry);
+				} catch (TagNameException err){
+					
+				}
+				
 				
 				//update the tag name of the data list
 				dataList.validate();
@@ -295,8 +316,13 @@ public abstract class AbstractDataListPanel<T> extends JPanel implements ActionL
 				
 				dataList.setSelectedIndex(index);
 				currentDataSetIndex = index;
-				tagNameManager.addEntry(copy, 
-						tagNameManager.getTagName(original) + "_copy");
+				
+				try {
+					tagNameManager.addEntry(copy, 
+							tagNameManager.getTagName(original) + "_copy");
+				} catch (TagNameException err){
+					RapidFitExceptionHandler.handles(err);
+				}
 				
 				//update the tag name of the data list
 				dataList.validate();

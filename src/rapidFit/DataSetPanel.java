@@ -28,7 +28,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 	//variable for common PDF
 	private PDFExpressionType pdfRoot;
 	
-	private PDFManager pdfManager;
+	private OldPDFManager pdfManager;
 	private PDFTreeModel pdfTreeModel;
 	private PDFTree pdfTree;
 	private JScrollPane pdfTreeScrollPane;
@@ -197,7 +197,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		pdfRoot.setProdPDF(fit.getProdPDF());
 		pdfRoot.setPDF(fit.getPDF());
 		
-		pdfManager = new PDFManager(pdfRoot);
+		pdfManager = new OldPDFManager(pdfRoot);
 		pdfTreeModel = new PDFTreeModel(pdfRoot);
 		pdfTree = new PDFTree(pdfTreeModel, pdfManager.getPDFAsKeyMap());
 		
@@ -382,7 +382,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 			fit.setPDF(pdfRoot.getPDF());
 			
 			//update the pdf tree and pdf tag names
-			pdfManager = new PDFManager(pdfRoot);
+			pdfManager = new OldPDFManager(pdfRoot);
 			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
 			pdfTreeModel.updateEntireTree();
 			pdfTree.expandAllRows();

@@ -4,34 +4,26 @@ import java.util.*;
 
 import rapidFit.rpfit.*;
 
-/*
- * a class to handle tag names for PDFs. This is needed as it is possible
- * to have multiple PDFs in the PDF expression with the same name but
- * have different configurations.
- */
 
-public class PDFManager extends TagNameManager<PDFType> {
+//a class for handling tag names for the pdfs
+public class OldPDFManager {
+	private IdentityHashMap<PDFType, String> nameMap;
 	
-	private HashMap<String, Integer> tagNameCounter;
-	
-	public PDFManager(PDFExpressionType root) throws TagNameException {
-
-		super();//for initialising the name map
-		
-		tagNameCounter = new HashMap<String, Integer>();
-		
+	public OldPDFManager(PDFExpressionType root){
 		//find all the PDFs
+		nameMap = new IdentityHashMap<PDFType, String>();
 		if (root.getNormalisedSumPDF() != null){
 			getPDFs(root.getNormalisedSumPDF());
 		} else if (root.getProdPDF() != null){
 			getPDFs(root.getProdPDF());
 		} else if (root.getPDF() != null){
 			getPDFs(root.getPDF());
-		}
+		}	
+		updateTagName();		
 	}
 	
 	//a recursive method to find all the PDFs
-	private void getPDFs(Object node) throws TagNameException {
+	private void getPDFs(Object node){
 		if (node instanceof SumPDFType){
 			getPDFs(((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
 			getPDFs(((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
@@ -41,25 +33,45 @@ public class PDFManager extends TagNameManager<PDFType> {
 			getPDFs(((ProdPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
 			
 		} else if (node instanceof PDFType){
-			addEntry((PDFType) node, ((PDFType) node).getName());
+			nameMap.put((PDFType) node, ((PDFType) node).getName()); 
 		}
 	}
 	
-	//only for adding a new entry to the PDF map (not for setting the tag name)
-	public void addEntry(PDFType entry, String name) throws TagNameException{
-		//ensure that the map does not contain the entry
-		if (nameMap.containsKey(entry)){
-			throw new TagNameException(TagNameException.ErrorType.DUPLICATE_ENTRY);
-		}
-		
-		if (tagNameCounter.containsKey(name)){
-			tagNameCounter.put(name, tagNameCounter.get(name)+1);
-		} else {
-			tagNameCounter.put(name, new Integer(0));
-		}
-		
-		nameMap.put(entry, name + "_" + tagNameCounter.get(name));
+	public void addPDF(PDFType pdf){
+		nameMap.put(pdf, pdf.getName());
+		updateTagName();
 	}
+	
+	public void removePDF(PDFType pdf){
+		if (nameMap.containsKey(pdf)){
+			nameMap.remove(pdf);
+			updateTagName();
+		}
+	}
+	
+	public void updateTagName(){
+		HashMap<String, Integer> nameCount = new HashMap<String, Integer>();
+		//set the pdf tag name
+		for (PDFType pdf : nameMap.keySet()){
+			String name = pdf.getName();
+			if (nameCount.containsKey(name)){
+				nameCount.put(name, nameCount.get(name)+1);
+				nameMap.put(pdf, name + "_" + nameCount.get(name));
+			} else {
+				nameCount.put(name, 0);
+				nameMap.put(pdf, name);
+			}		
+		}
+	}
+	
+	public String getTagName(PDFType pdf){
+		if (nameMap.containsKey(pdf)){
+			return nameMap.get(pdf);
+		}
+		return null;
+	}
+	
+	public IdentityHashMap<PDFType, String> getPDFAsKeyMap(){return nameMap;}
 	
 	public HashMap<String, PDFType> getTagNameAsKeyMap(){
 		HashMap<String, PDFType> map = new HashMap<String, PDFType>();

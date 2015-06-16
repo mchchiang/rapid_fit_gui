@@ -1,7 +1,6 @@
 package rapidFit;
 
 import java.io.*;
-
 import javax.swing.*;
 
 public class RapidFitExceptionHandler {
@@ -13,7 +12,7 @@ public class RapidFitExceptionHandler {
 		return(writer.toString());
 	}
 	
-	public static void handle (Exception e){
+	public static void handles (Exception e){
 		 if (e instanceof XMLIOException){
 			 XMLIOException xe = (XMLIOException) e;
 			 
@@ -51,7 +50,27 @@ public class RapidFitExceptionHandler {
 			 } 
 			 
 		 } else if (e instanceof TagNameException){
-			 
+			 TagNameException te = (TagNameException) e;
+			 if (te.getErrorType() == TagNameException.ErrorType.DUPLICATE_ENTRY){
+				 JOptionPane.showMessageDialog(null, 
+						 "Data entry already exists in the list.",
+						 "Tag Name Error", JOptionPane.WARNING_MESSAGE);
+				 
+			 } else if (te.getErrorType() == TagNameException.ErrorType.DUPLICATE_TAG_NAME){
+				 JOptionPane.showMessageDialog(null, 
+						 "The tag name already exists. Please choose another tag name.",
+						 "Tag Name Error", JOptionPane.WARNING_MESSAGE);
+				 
+			 } else if (te.getErrorType() == TagNameException.ErrorType.ENTRY_NOT_EXIST){
+				 JOptionPane.showMessageDialog(null, 
+						 "Data entry does not exist in the list.",
+						 "Tag Name Error", JOptionPane.WARNING_MESSAGE);
+				 
+			 } else if (te.getErrorType() == TagNameException.ErrorType.UNKNOWN_ERROR){
+				 JOptionPane.showMessageDialog(null, 
+						 "An unknown error has occurred.",
+						 "Tag Name Error", JOptionPane.WARNING_MESSAGE);
+			 }
 		 }
 	 }
 }

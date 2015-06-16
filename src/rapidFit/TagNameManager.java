@@ -12,60 +12,70 @@ public class TagNameManager<T> {
 	 * a map that associates each object in the data list with
 	 * a unique tag name
 	 */
-	private IdentityHashMap<T, String> nameMap;
-	private int counter = 0;
-	private String tagName;
+	protected IdentityHashMap<T, String> nameMap;
+	protected int counter = 0;
+	protected String tagName;
 	
-	public TagNameManager(List<T> data, String tag){
-		
-		tagName = tag;
-		
+	public TagNameManager(){
 		nameMap = new IdentityHashMap<T, String>();
-		
+	}
+	
+	public TagNameManager(List<T> data, String tag) throws TagNameException{
+		tagName = tag;
+		nameMap = new IdentityHashMap<T, String>();
+		addEntries(data);
+	}
+	
+	public void addEntry(T entry) throws TagNameException {
+		/*
+		 * ensure there is no duplicate of the same 
+		 * data entry in the map
+		 */
+		if (nameMap.containsKey(entry)){
+			throw new TagNameException(
+					TagNameException.ErrorType.DUPLICATE_ENTRY);
+		}
+		counter++;
+		nameMap.put(entry, tagName + "_" + counter);
+	}
+	
+	public void addEntry(T entry, String tagName) throws TagNameException {
+		setTagName(entry, tagName);
+	}
+	
+	//add multiple entries to the map
+	public void addEntries(List<T> data) throws TagNameException{
 		for (T entry : data){
 			addEntry(entry);
 		}
 	}
 	
-	public boolean addEntry(T entry){
-		/*
-		 * ensure there is no duplicate of the same 
-		 * data entry in the map
-		 */
+	public void removeEntry(T entry) throws TagNameException{
 		if (!nameMap.containsKey(entry)){
-			counter++;
-			nameMap.put(entry, tagName + "_" + counter);
-			return true;
+			throw new TagNameException(
+					TagNameException.ErrorType.ENTRY_NOT_EXIST);
 		}
-		return false;
+		nameMap.remove(entry);
 	}
 	
-	public boolean addEntry(T entry, String tagName){
-		return setTagName(entry, tagName);
-	}
-	
-	public boolean removeEntry(T entry){
-		if (nameMap.containsKey(entry)){
-			nameMap.remove(entry);
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean setTagName(T entry, String tagName){
+	public void setTagName(T entry, String tagName) throws TagNameException{
 		/*
 		 * check if the tag name is already used.
 		 * If the entry is not in the map, it will be added
 		 * to the map
 		 */
-		if (!nameMap.containsValue(tagName)){
-			nameMap.put(entry, tagName);
-			return true;
+		if (nameMap.containsValue(tagName)){
+			throw new TagNameException(
+					TagNameException.ErrorType.DUPLICATE_TAG_NAME);
 		}
-		return false;
+		nameMap.put(entry, tagName);
 	}
 	
-	public String getTagName(T entry){
+	public String getTagName(T entry) throws TagNameException{
+		if (!nameMap.containsKey(entry)){
+			throw new TagNameException(
+					TagNameException.ErrorType.ENTRY_NOT_EXIST);
+		}
 		return nameMap.get(entry);
 	}
 	

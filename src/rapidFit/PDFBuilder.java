@@ -41,7 +41,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 
 	private List<PhysicsParameterType> parameters;
 	
-	private PDFManager pdfManager;
+	private OldPDFManager pdfManager;
 	
 	public PDFBuilder (List<PhysicsParameterType> params, PDFExpressionType root){
 		
@@ -62,7 +62,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		copyOfPDFRoot = (PDFExpressionType) Cloner.deepClone(root);
 		
 		//create a list of tag names for the pdfs
-		pdfManager = new PDFManager(copyOfPDFRoot);
+		pdfManager = new OldPDFManager(copyOfPDFRoot);
 		
 		//create a data list for displaying the available PDFs
 		listModel = new DataListModel<PDFType>(PDFType.class, pdfManager.getListOfPDFs());

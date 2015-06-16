@@ -60,7 +60,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 					String fileName = file.getName();
 					editor.showFit(root, fileName);
 				} catch (XMLIOException xe){
-					RapidFitExceptionHandler.handle(xe);
+					RapidFitExceptionHandler.handles(xe);
 				}
 			}
 						

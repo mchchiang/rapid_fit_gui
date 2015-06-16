@@ -21,7 +21,7 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 	private PDFExpressionType commonPDFTreeRoot;
 	private JButton btnEditPDF;
 	
-	private PDFManager pdfManager;
+	private OldPDFManager pdfManager;
 	private PDFTreeModel pdfTreeModel;
 	private PDFTree pdfTree;
 	private JScrollPane pdfTreeScrollPane;
@@ -54,7 +54,7 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 		
 		commonPDFTreeRoot = comPDFTreeRoot;
 		
-		pdfManager = new PDFManager(commonPDFTreeRoot);
+		pdfManager = new OldPDFManager(commonPDFTreeRoot);
 		pdfTreeModel = new PDFTreeModel(commonPDFTreeRoot);
 		pdfTree = new PDFTree(pdfTreeModel, pdfManager.getPDFAsKeyMap());
 		
@@ -115,7 +115,7 @@ public class CommonPropertiesPanel extends JPanel implements ActionListener {
 			pdfBuilder.setVisible(true);
 			
 			//update the pdf tree and pdf tag names
-			pdfManager = new PDFManager(commonPDFTreeRoot);
+			pdfManager = new OldPDFManager(commonPDFTreeRoot);
 			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
 			pdfTreeModel.updateEntireTree();
 			pdfTree.expandAllRows();

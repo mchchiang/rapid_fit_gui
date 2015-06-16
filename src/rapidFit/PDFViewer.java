@@ -9,7 +9,7 @@ public class PDFViewer extends JPanel {
 	//variables for the PDF expression tree
 	private PDFExpressionType pdfRoot;
 	private PDFTreeModel treeModel;
-	private PDFManager pdfManager;
+	private OldPDFManager pdfManager;
 	private PDFTree pdfTree;
 	private JScrollPane scrollPane;
 	

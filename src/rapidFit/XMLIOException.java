@@ -10,7 +10,8 @@ public class XMLIOException extends Exception {
 		WRITE_XML_SCHEMA_VALIDATION_ERROR,
 		READ_XML_SCHEMA_VALIDATION_ERROR,
 		READ_SCHEMA_ERROR,
-		UNKNOWN_ERROR};
+		UNKNOWN_ERROR
+	}
 	
 	private ErrorType error;
 	
