@@ -71,7 +71,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		
 		pdfList.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
-				//allow user to edit the PDF by double-clciking it
+				//allow user to edit the PDF by double-clicking it
 				if (e.getClickCount() == 2){
 					int index = pdfList.locationToIndex(e.getPoint());
 					try{

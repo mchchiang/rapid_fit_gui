@@ -13,9 +13,7 @@ public class TagNameManager<T> {
 	 * a unique tag name
 	 */
 	private IdentityHashMap<T, String> nameMap;
-	
 	private int counter = 0;
-	
 	private String tagName;
 	
 	public TagNameManager(List<T> data, String tag){

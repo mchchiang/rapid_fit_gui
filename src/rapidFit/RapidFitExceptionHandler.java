@@ -49,6 +49,9 @@ public class RapidFitExceptionHandler {
 						 + getStackTrace(xe),
 						 "Unknown Error", JOptionPane.WARNING_MESSAGE);
 			 } 
+			 
+		 } else if (e instanceof TagNameException){
+			 
 		 }
 	 }
 }
