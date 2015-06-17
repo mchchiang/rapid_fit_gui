@@ -7,11 +7,11 @@ import rapidFit.rpfit.*;
 
 //a class for handling tag names for the pdfs
 public class OldPDFManager {
-	private IdentityHashMap<PDFType, String> nameMap;
+	private HashMap<PDFType, String> nameMap;
 	
 	public OldPDFManager(PDFExpressionType root){
 		//find all the PDFs
-		nameMap = new IdentityHashMap<PDFType, String>();
+		nameMap = new HashMap<PDFType, String>();
 		if (root.getNormalisedSumPDF() != null){
 			getPDFs(root.getNormalisedSumPDF());
 		} else if (root.getProdPDF() != null){
@@ -71,7 +71,7 @@ public class OldPDFManager {
 		return null;
 	}
 	
-	public IdentityHashMap<PDFType, String> getPDFAsKeyMap(){return nameMap;}
+	public HashMap<PDFType, String> getPDFAsKeyMap(){return nameMap;}
 	
 	public HashMap<String, PDFType> getTagNameAsKeyMap(){
 		HashMap<String, PDFType> map = new HashMap<String, PDFType>();

@@ -57,12 +57,13 @@ public abstract class AbstractDataListViewer<T> extends JPanel implements Action
 	//labels and textfield for setting tag name
 	private JLabel lblTagName;
 	private JTextField txtTagName;
+	private TagNamePanel tagNamePanel;
 	
 	//store the tag name suffix
 	private String tagName = "Data_Set";
 	
 	//panel for displaying the tag name
-	private JPanel tagNamePanel;
+	//private JPanel tagNamePanel;
 	
 	//panel for display an entry of the data
 	private JPanel dataDisplayPanel;
@@ -154,13 +155,14 @@ public abstract class AbstractDataListViewer<T> extends JPanel implements Action
 	
 	public void initMainDisplayPanel(){
 		//initialise the tag name panel
-		lblTagName = new JLabel("<html><b>Tag Name: </b></html>");
+		/*lblTagName = new JLabel("<html><b>Tag Name: </b></html>");
 		txtTagName = new JTextField();
 		
 		tagNamePanel = new JPanel();
 		tagNamePanel.setLayout(new BorderLayout());
 		tagNamePanel.add(lblTagName, BorderLayout.WEST);
-		tagNamePanel.add(txtTagName, BorderLayout.CENTER);
+		tagNamePanel.add(txtTagName, BorderLayout.CENTER);*/
+		tagNamePanel = new TagNamePanel<T>();
 		
 		dataDisplayPanel = initNullDisplayPanel();
 
@@ -179,16 +181,22 @@ public abstract class AbstractDataListViewer<T> extends JPanel implements Action
 	
 	public void changeDataDisplayPanel(T entry){
 		mainDisplayPanel.remove(dataDisplayPanel);
+		mainDisplayPanel.remove(tagNamePanel);
 		
 		if (entry == null){
-			mainDisplayPanel.remove(tagNamePanel);
 			dataDisplayPanel = initNullDisplayPanel();
 			mainDisplayPanel.setBorder(BorderFactory.createTitledBorder("<html><h3>&nbsp;</h3></html>"));	
 			
 		} else {
 			dataDisplayPanel = initDataDisplayPanel(entry);
-			
-			//set tag name
+			tagNamePanel = new TagNamePanel<T>(tagNameManager, entry){
+				public void tagNameChanged(String newTagName){
+					dataList.validate();
+					mainDisplayPanel.setBorder(BorderFactory.createTitledBorder(
+							"<html><h3>" + newTagName + "</h3></html>"));	
+				}
+			};
+			/*//set tag name
 			String name = "null";
 			try {
 				name = tagNameManager.getTagName(entry);
@@ -197,11 +205,11 @@ public abstract class AbstractDataListViewer<T> extends JPanel implements Action
 			}
 			
 			txtTagName.setText(name);
-			txtTagName.setEditable(false);
+			txtTagName.setEditable(false);*/
 			
 			mainDisplayPanel.add(tagNamePanel, BorderLayout.NORTH);
 			mainDisplayPanel.setBorder(BorderFactory.createTitledBorder(
-					"<html><h3>" + name + "</h3></html>"));	
+					"<html><h3>" + tagNamePanel.getTagName() + "</h3></html>"));	
 		}
 		
 		mainDisplayPanel.add(dataDisplayPanel, BorderLayout.CENTER);

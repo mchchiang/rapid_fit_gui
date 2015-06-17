@@ -12,17 +12,17 @@ public class TagNameManager<T> {
 	 * a map that associates each object in the data list with
 	 * a unique tag name
 	 */
-	protected IdentityHashMap<T, String> nameMap;
+	protected HashMap<T, String> nameMap;
 	protected int counter = 0;
 	protected String tagName;
 	
 	public TagNameManager(){
-		nameMap = new IdentityHashMap<T, String>();
+		nameMap = new HashMap<T, String>();
 	}
 	
 	public TagNameManager(List<T> data, String tag) throws TagNameException{
 		tagName = tag;
-		nameMap = new IdentityHashMap<T, String>();
+		nameMap = new HashMap<T, String>();
 		addEntries(data);
 	}
 	
@@ -64,11 +64,22 @@ public class TagNameManager<T> {
 		 * If the entry is not in the map, it will be added
 		 * to the map
 		 */
+		//printNameMap();
+		//System.out.println(tagName + "\t" + nameMap.containsValue(tagName));
 		if (nameMap.containsValue(tagName)){
 			throw new TagNameException(
 					TagNameException.ErrorType.DUPLICATE_TAG_NAME);
 		}
 		nameMap.put(entry, tagName);
+	}
+	
+	public void printNameMap(){
+		System.out.print("[");
+		for (String name : nameMap.values()){
+			System.out.print(name +", ");
+		}
+		System.out.print("]");
+		System.out.println();
 	}
 	
 	public String getTagName(T entry) throws TagNameException{
@@ -79,5 +90,5 @@ public class TagNameManager<T> {
 		return nameMap.get(entry);
 	}
 	
-	public IdentityHashMap<T,String> getNameMap(){return nameMap;}
+	public HashMap<T,String> getNameMap(){return nameMap;}
 }

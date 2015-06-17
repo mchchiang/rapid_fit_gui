@@ -12,7 +12,7 @@ import rapidFit.rpfit.*;
 public class PDFTree extends JTree {
 	
 	//used for displaying the tag name of the PDF in the tree
-	private IdentityHashMap<PDFType, String> nameMap;
+	private HashMap<PDFType, String> nameMap;
 	
 	private class PDFTreeCellRenderer extends DefaultTreeCellRenderer{
 		@Override
@@ -33,7 +33,7 @@ public class PDFTree extends JTree {
 		}
 	}
 	
-	public PDFTree (PDFTreeModel model, IdentityHashMap<PDFType, String> map){
+	public PDFTree (PDFTreeModel model, HashMap<PDFType, String> map){
 		super(model);
 		
 		nameMap = map;
@@ -54,7 +54,7 @@ public class PDFTree extends JTree {
 		}
 	}
 	
-	public void updateMap(IdentityHashMap<PDFType, String> map){
+	public void updateMap(HashMap<PDFType, String> map){
 		nameMap = map;
 		setCellRenderer(new PDFTreeCellRenderer());
 		validate();

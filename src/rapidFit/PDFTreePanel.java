@@ -15,7 +15,7 @@ public class PDFTreePanel extends JPanel {
 	private JScrollPane scrollPane;
 	
 	//constructor
-	public PDFTreePanel (PDFExpressionType root, IdentityHashMap<PDFType, String> nameMap){
+	public PDFTreePanel (PDFExpressionType root, HashMap<PDFType, String> nameMap){
 		
 		pdfTreeModel = new PDFTreeModel(root);
 		pdfTree = new PDFTree(pdfTreeModel, nameMap);
@@ -44,7 +44,7 @@ public class PDFTreePanel extends JPanel {
 	public PDFTree getPDFTree(){return pdfTree;}
 	public PDFTreeModel getPDFTreeModel(){return pdfTreeModel;}
 	
-	public void updatePDFTree(IdentityHashMap<PDFType, String> nameMap){
+	public void updatePDFTree(HashMap<PDFType, String> nameMap){
 		pdfTree.updateMap(nameMap);
 		pdfTreeModel.updateEntireTree();
 		pdfTree.expandAllRows();

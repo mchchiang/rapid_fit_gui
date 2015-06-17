@@ -9,7 +9,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class DataList<T> extends JList<T> {
 	
-	private IdentityHashMap<T, String> nameMap = null;
+	private HashMap<T, String> nameMap = null;
 	
 	/*
 	 * overriding the cell renderer to display a meaningful name of the object
@@ -29,14 +29,14 @@ public class DataList<T> extends JList<T> {
 		}
 	}
 	
-	public DataList(DataListModel<T> model, IdentityHashMap<T, String> map){
+	public DataList(DataListModel<T> model, HashMap<T, String> map){
 		super(model);
 		nameMap = map;
 		setCellRenderer(new DataListRenderer());
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	}
 	
-	public void updateNameMap(IdentityHashMap<T, String> map){
+	public void updateNameMap(HashMap<T, String> map){
 		nameMap = map;
 		setCellRenderer(new DataListRenderer());
 	}
