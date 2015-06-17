@@ -4,70 +4,74 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
-
 import javax.swing.*;
-import javax.swing.border.*;
-
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
 public class PDFEditor extends JDialog implements ActionListener {
 	
+	private final int width = 700;
+	private final int height = 550;
+	
 	private AttributePanel<PDFType> pdfPanel;
 	
 	private DataTablePanel<ConfigParam> configTablePanel;
+	private DataTablePanel<ParameterSubstitution> paramSubTablePanel;
 	
+	private JPanel configAndParamSubPanel;
 	private JPanel mainPanel;
 	
 	private JButton btnSave;
 	
 	private List<ConfigParam> configs;
+	private List<ParameterSubstitution> paramSubs;
 	private PDFType pdf;
-	
-	private static class ConfigParam {
-		private String configParam;
-		public ConfigParam(){}
-		public ConfigParam(String config){
-			setConfigurationParameter(config);
-		}
-		public void setConfigurationParameter(String config){
-			configParam = config;
-		}
-		public String getConfigurationParameter(){
-			return configParam;
-		}
-	}
 	
 	public PDFEditor(PDFType pdf){
 		setTitle("PDF Editor");
 		setResizable(true);
 		setModal(true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setPreferredSize(new Dimension(width, height));
 		
 		this.pdf = pdf;
 		
 		pdfPanel = new AttributePanel<PDFType>
 		(PDFType.class, pdf, "PDF Info", null);
+		pdfPanel.setBorder(BorderFactory.createTitledBorder(
+				"<html><h3>PDF Info</html></h3>"));
 		
 		configs = new ArrayList<ConfigParam>();
 		for (String config : pdf.getConfigurationParameter()){
-			new ConfigParam();
 			configs.add(new ConfigParam(config));
 		}
 		
 		configTablePanel = new DataTablePanel<ConfigParam>(
 				ConfigParam.class, configs, null,
-				"Add Config", "Remov Config", "Copy Config");
+				"Add Config", "Remove Config", "Copy Config");
+		configTablePanel.setBorder(BorderFactory.createTitledBorder(
+				"<html><h3>Configuration Parameters</html></h3>"));
 		
-		Border border = BorderFactory.createTitledBorder(
-				"<html><h3>Configuration Parameters</html></h3>");
-		Border margin = BorderFactory.createEmptyBorder(10,10,10,10);
-		configTablePanel.setBorder(new CompoundBorder(margin, border));
-
+		paramSubs = new ArrayList<ParameterSubstitution>();
+		for (String paramSub : pdf.getParameterSubstitution()){
+			paramSubs.add(new ParameterSubstitution(paramSub));
+		}
+		
+		paramSubTablePanel = new DataTablePanel<ParameterSubstitution>(
+				ParameterSubstitution.class, paramSubs, null,
+				"Add Param Sub", "Remove Param Sub", "Copy Param Sub");
+		paramSubTablePanel.setBorder(BorderFactory.createTitledBorder(
+				"<html><h3>Parameter Substitutions</html></h3>"));
+		
+		configAndParamSubPanel = new JPanel();
+		configAndParamSubPanel.setLayout(new GridLayout(2,1));
+		configAndParamSubPanel.add(configTablePanel);
+		configAndParamSubPanel.add(paramSubTablePanel);
+		
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new GridLayout(1,2));
 		mainPanel.add(pdfPanel);
-		mainPanel.add(configTablePanel);
+		mainPanel.add(configAndParamSubPanel);
 		
 		btnSave = new JButton("Save Edit and Close");
 		btnSave.addActionListener(this);
@@ -91,6 +95,12 @@ public class PDFEditor extends JDialog implements ActionListener {
 			for (ConfigParam config : configs){
 				pdf.getConfigurationParameter().add(
 						config.getConfigurationParameter());
+			}
+			
+			pdf.getParameterSubstitution().clear();
+			for (ParameterSubstitution paramSub : paramSubs){
+				pdf.getParameterSubstitution().add(
+						paramSub.getParameterSubstitution());
 			}
 			
 			dispose();	

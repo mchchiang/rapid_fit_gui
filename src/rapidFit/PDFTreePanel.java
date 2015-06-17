@@ -1,13 +1,9 @@
 package rapidFit;
 
 import java.util.*;
-
 import java.awt.*;
-
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.event.*;
-
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
@@ -35,20 +31,18 @@ public class PDFTreePanel extends JPanel {
 		
 		scrollPane = new JScrollPane(pdfTree);
 		
-		Border border = BorderFactory.createEmptyBorder(5, 5, 5, 5);
-		Border title = BorderFactory.createTitledBorder(
-				"<html><b>PDF Expression</b></html>");
-		setBorder(new CompoundBorder(border, title));
-		
 		setLayout(new BorderLayout());
 		add(scrollPane, BorderLayout.CENTER);
 	}
 	
-	public void treeElementSelectedAction(Object obj){
-		/*
-		 * no action by default when the tree element is selected.
-		 */
-	}
+	/*
+	 * no action by default when the tree element is selected.
+	 */
+	public void treeElementSelectedAction(Object obj){}
+	
+	//get methods
+	public PDFTree getPDFTree(){return pdfTree;}
+	public PDFTreeModel getPDFTreeModel(){return pdfTreeModel;}
 	
 	public void updatePDFTree(IdentityHashMap<PDFType, String> nameMap){
 		pdfTree.updateMap(nameMap);

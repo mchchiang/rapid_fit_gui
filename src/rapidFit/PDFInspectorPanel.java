@@ -6,7 +6,6 @@ import java.awt.*;
 import java.lang.reflect.*;
 
 import javax.swing.*;
-import javax.swing.border.*;
 
 import rapidFit.rpfit.*;
 
@@ -26,13 +25,11 @@ public class PDFInspectorPanel extends JPanel {
 		scrollPane = new JScrollPane(txtNoPDF);
 		txtNoPDF.setBackground(scrollPane.getBackground());
 		add(scrollPane);
-		setDefaultProperties();
 	}
 	
 	
 	public PDFInspectorPanel(Object pdf){
 		setLayout(new BorderLayout());
-		setDefaultProperties();
 		if (pdf instanceof SumPDFType){
 			setPanelForSumPDF((SumPDFType) pdf);
 		} else if (pdf instanceof ProdPDFType){
@@ -41,12 +38,6 @@ public class PDFInspectorPanel extends JPanel {
 			setPanelForPDF((PDFType) pdf);
 		}
 		add(scrollPane);
-	}
-	
-	private void setDefaultProperties(){
-		Border border = BorderFactory.createEmptyBorder(5, 5, 5, 5);
-		Border title = BorderFactory.createTitledBorder("<html><b>PDF Inspector</b></html>");
-		setBorder(new CompoundBorder(border, title));
 	}
 	
 	private void setPanelForPDF(PDFType pdf){

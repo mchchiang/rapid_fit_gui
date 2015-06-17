@@ -1,7 +1,6 @@
 package rapidFit;
 
 import java.util.*;
-
 import rapidFit.rpfit.*;
 
 /*
@@ -40,7 +39,7 @@ public class PDFManager extends TagNameManager<PDFType> {
 			getPDFs(((ProdPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
 			getPDFs(((ProdPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
 			
-		} else if (node instanceof PDFType){
+		} else if (node instanceof PDFType && !nameMap.containsKey((PDFType) node)){
 			addEntry((PDFType) node, ((PDFType) node).getName());
 		}
 	}

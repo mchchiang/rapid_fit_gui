@@ -3,7 +3,7 @@ package rapidFit;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
-
+import java.util.*;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
@@ -22,10 +22,11 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 	 * the main XML tree.
 	 */
 	private boolean isExternalRoot = false;
+	private Class<T> dataClass;
 	private TagNameManager<T> tagNameManager;
 	
 	//for display the entries in the data as a list
-	private int currentDataSetIndex = -1;
+	private int currentSelectedIndex = -1;
 	private DataListModel<T> listModel;
 	private DataList<T> dataList;
 	
@@ -41,25 +42,53 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 	private JButton btnAdd;
 	private JButton btnRemove;
 	private JButton btnCopy;
+	//for extra buttons to be added to the option panel
+	private ArrayList<JButton> extraButtons = null;
 	
 	//container for all the control buttons
 	private JPanel optionPanel;
 	
 	
-	public DataListPanel (Class<T> clazz, List<T> root, 
-			List<T> data, TagNameManager<T> manager){
+	public DataListPanel (Class<T> clazz, List<T> dataRoot, 
+			List<T> data, TagNameManager<T> manager,
+			ArrayList<JButton> buttons){
+		this.dataClass = clazz;
+		this.root = dataRoot;
+		this.data = data;
 		
+		//check if root and data are the same reference
+		if (root != data){
+			isExternalRoot = true;
+		} else {
+			isExternalRoot = false;
+		}
+		
+		//for extra components to be added to option panel
+		extraButtons = buttons;
+		
+		tagNameManager = manager;
+		
+		initDataListPanel();
+		initOptionPanel();
+		initMainPanel();
 	}
 	
 	public void initDataListPanel(){
+		//initialise the list panel
+		listModel = new DataListModel<T>(dataClass, data);
+		dataList = new DataList<T>(listModel, tagNameManager.getNameMap());
+		
 		dataList.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
 				int index = dataList.locationToIndex(e.getPoint());
-				if (index != -1){
-					mouseClickedOnListEntry(listModel.getElementAt(index));
+				if (index != -1 && currentSelectedIndex != index){
+					mouseClickedOnListEntry(
+							listModel.getElementAt(index), e.getClickCount());
 				}
 			}
 		});
+		
+		scrollPane = new JScrollPane(dataList);
 	}
 	
 	public void initOptionPanel(){
@@ -72,17 +101,32 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 		
 		btnCopy = new JButton("Copy");
 		btnCopy.addActionListener(this);
-		
+
 		optionPanel = new JPanel();
-		optionPanel.setLayout(new GridLayout(2,2));
+		optionPanel.setLayout(new GridLayout(0,2));
 		optionPanel.add(btnAdd);
 		optionPanel.add(btnRemove);
 		optionPanel.add(btnCopy);
+		
+		/*
+		 * add action listener to extra buttons and add the
+		 * buttons to the option panel
+		 */
+		if (extraButtons != null){
+			for (JButton btn : extraButtons){
+				btn.addActionListener(this);
+				optionPanel.add(btn);
+			}
+		}
 	}
 	
-	public void mouseClickedOnListEntry(T entry){
-		//do nothing by default (to be overridden by subclasses)
+	public void initMainPanel(){
+		setLayout(new BorderLayout());
+		add(scrollPane, BorderLayout.CENTER);
+		add(optionPanel, BorderLayout.SOUTH);
 	}
+	
+	public DataList<T> getDataList(){return dataList;}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -119,7 +163,8 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 			}
 
 			dataList.setSelectedIndex(index);
-			currentDataSetIndex = index;
+			currentSelectedIndex = index;
+			
 			try {
 				tagNameManager.addEntry(entry);
 			} catch (TagNameException err){
@@ -128,9 +173,8 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 
 			//update the tag name of the data list
 			dataList.validate();
-
-			//display the newly added data entry
-			//changeDataDisplayPanel(entry);
+			
+			addButtonClicked(entry);
 
 			//for clicking the remove button
 		} else if (e.getSource() == btnRemove){
@@ -145,7 +189,7 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 				}
 
 				listModel.removeRow(index);
-				currentDataSetIndex = -1;
+				currentSelectedIndex = -1;
 
 				try {
 					tagNameManager.removeEntry(entry);
@@ -153,12 +197,10 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 
 				}
 
-
 				//update the tag name of the data list
 				dataList.validate();
-
-				//display the newly added data entry
-				//changeDataDisplayPanel(null);
+				
+				removeButtonClicked();
 
 			} else {
 				Toolkit.getDefaultToolkit().beep();
@@ -181,7 +223,7 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 				//add copied data set to the list
 				listModel.addRow(index, copy);
 
-				//add data to ToFit root
+				//add data to root
 
 				//update the main XML tree if root is external
 				if (isExternalRoot){
@@ -189,7 +231,7 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 				}
 
 				dataList.setSelectedIndex(index);
-				currentDataSetIndex = index;
+				currentSelectedIndex = index;
 
 				try {
 					tagNameManager.addEntry(copy, 
@@ -200,13 +242,33 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 
 				//update the tag name of the data list
 				dataList.validate();
+				
+				copyButtonClicked(copy);
 
-				//display the newly added data entry
-				//changeDataDisplayPanel(copy);
-
+			} else {
+				Toolkit.getDefaultToolkit().beep();
+			}
+		
+		//for clicking on the extra buttons added to the option panel
+		} else if (extraButtons != null &&
+				extraButtons.contains(e.getSource())){
+			
+			int index = dataList.getSelectedIndex();
+			if (index != -1){
+				otherButtonsClicked(listModel.getElementAt(index), e.getSource());
 			} else {
 				Toolkit.getDefaultToolkit().beep();
 			}
 		}
 	}
+	
+	/*
+	 * methods to be overridden by subclasses to handle events 
+	 * (e.g. when a list entry is clicked)
+	 */
+	protected void mouseClickedOnListEntry(T entry, int clickCount){}
+	protected void addButtonClicked(T entry){}
+	protected void removeButtonClicked(){}
+	protected void copyButtonClicked(T entry){}
+	protected void otherButtonsClicked(T entry, Object source){}
 }

@@ -1,6 +1,7 @@
 package rapidFit;
 
 import java.util.List;
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -8,54 +9,50 @@ import javax.swing.*;
 
 import rapidFit.rpfit.*;
 
+
 @SuppressWarnings("serial")
 public class PDFBuilder extends JDialog implements ActionListener {
 	
-	private PDFExpressionType copyOfPDFRoot;
-	private PDFExpressionType pdfRoot;
+	private final int width = 1000;
+	private final int height = 500;
 	
-	private JButton btnAddPDF;
-	private JButton btnRemovePDF;
-	private JButton btnEditPDF;
-	private JButton btnBuildPDF;
+	private PDFExpressionType pdfRootCopy;
+	private PDFExpressionType pdfRoot;
 	
 	private JButton btnReplaceWithPDF;
 	private JButton btnReplaceWithSum;
 	private JButton btnReplaceWithProd;
 	
-	private JScrollPane listOfPDFScrollPane;
-	private JScrollPane pdfTreeScrollPane;
+	private PDFManager pdfManager;
 	
-	private JPanel listOfPDFPanel;
-	private JPanel pdfOptionPanel;
-	
+	private PDFTreePanel pdfTreePanel;
 	private JPanel pdfBuilderPanel;
 	private JPanel pdfBuilderOptionPanel;
 	
-	private PDFTree pdfTree;
-
-	private PDFTreeModel pdfTreeModel;
+	private JRadioButton rbInspectFromPDFTree;
+	private JRadioButton rbInspectFromPDFList;
 	
-	private DataList<PDFType> pdfList;
-	private DataListModel<PDFType> listModel;
-
+	private PDFInspectorPanel pdfInspector;
+	private JPanel pdfInspectorOptionPanel;
+	private JPanel pdfInspectorPanel;
+	
+	private JPanel pdfViewerPanel;
+	
+	private JButton btnEditPDF;
+	private DataListPanel<PDFType> pdfListPanel;
+	
+	private JButton btnBuildPDF;
+	
 	private List<PhysicsParameterType> parameters;
 	
-	private OldPDFManager oldPDFManager;
-	
-	
-	private PDFManager pdfManager;
-	private PDFTreePanel pdfTreePanel;
-	private PDFInspectorPanel pdfInspectorPanel;
-	private JPanel pdfDisplayPanel;
-	
 	public PDFBuilder (List<PhysicsParameterType> params, PDFExpressionType root){
-		
+
 		//set window properties
 		setTitle("PDF Builder");
 		setModal(true);
 		setResizable(true);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		setPreferredSize(new Dimension(width, height));
 		
 		pdfRoot = root;
 		parameters = params;
@@ -65,89 +62,97 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		 * and the PDF expression are done on the copy. The actual PDF
 		 * expression only gets updated when user presses the save button.
 		 */
-		copyOfPDFRoot = (PDFExpressionType) Cloner.deepClone(root);
+		pdfRootCopy = (PDFExpressionType) Cloner.deepClone(root);
 		
 		//create a list of tag names for the pdfs
-		oldPDFManager = new OldPDFManager(copyOfPDFRoot);
+		try {
+			pdfManager = new PDFManager(pdfRootCopy);
+		} catch (TagNameException e) {
+			RapidFitExceptionHandler.handles(e);
+		}
 		
-		//create a data list for displaying the available PDFs
-		listModel = new DataListModel<PDFType>(PDFType.class, oldPDFManager.getListOfPDFs());
+		initListPanel();
+		initViewerPanel();
+		initMainPanel();
 		
-		pdfList = new DataList<PDFType>(listModel, oldPDFManager.getPDFAsKeyMap());
-		
-		pdfList.addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e){
-				//allow user to edit the PDF by double-clicking it
-				if (e.getClickCount() == 2){
-					int index = pdfList.locationToIndex(e.getPoint());
-					try{
-						if (index != -1){
-							new PDFEditor(listModel.getElementAt(
-									pdfList.getSelectedIndex())).setVisible(true);
-							
-							//update tag name for PDFs
-							oldPDFManager.updateTagName();
-							pdfTree.updateMap(oldPDFManager.getPDFAsKeyMap());
-						}
-					} catch (Exception ex){
-						ex.printStackTrace();
-					}
+		//for warning before closing the window
+		final PDFBuilder thisPanel = this;
+		thisPanel.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				int result = JOptionPane.showOptionDialog(thisPanel, 
+						"Are you sure to close this window without saving?\n "
+								+ "All edits on the PDFs will be lost.", "Really Closing?", 
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+								new String [] {"Yes", "No"}, "No");
+				if (result == JOptionPane.YES_OPTION){
+					dispose();
+				} else {
+					setVisible(true);
 				}
 			}
 		});
+
+		pack();
+	}
+	
+	public void initListPanel(){
+		//create the PDF List Panel
+		btnEditPDF = new JButton("Edit");
+		ArrayList<JButton> buttons = new ArrayList<JButton>();
+		buttons.add(btnEditPDF);
+		ArrayList<PDFType> pdfList = pdfManager.getListOfPDFs();
+		pdfListPanel = new DataListPanel<PDFType>(
+				PDFType.class, pdfList, pdfList, pdfManager, buttons){
+
+			protected void mouseClickedOnListEntry(PDFType pdf, int clickCount){
+				if (clickCount == 1 && rbInspectFromPDFList.isSelected()){
+					updatePDFInspector(pdf);
+				} else if (clickCount == 2){
+					new PDFEditor(pdf).setVisible(true);
+					pdfListPanel.validate();
+				}
+			}
+			protected void addButtonClicked(PDFType pdf){
+				new PDFEditor(pdf).setVisible(true);
+				pdfListPanel.validate();
+			}
+			protected void copyButtonClicked(PDFType pdf){
+				new PDFEditor(pdf).setVisible(true);
+				pdfListPanel.validate();
+			}
+			protected void otherButtonsClicked(PDFType pdf, Object source){
+				if (source == btnEditPDF){
+					new PDFEditor(pdf).setVisible(true);
+					pdfListPanel.validate();
+				}
+			}
+		};
 		
-		listOfPDFScrollPane = new JScrollPane(pdfList);
-		
-		//add the buttons for adding, removing, and editing the PDFs
-		btnAddPDF = new JButton("Add PDF");
-		btnAddPDF.addActionListener(this);
-		btnRemovePDF = new JButton("Remove PDF");
-		btnRemovePDF.addActionListener(this);
-		btnEditPDF = new JButton("Edit PDF");
-		btnEditPDF.addActionListener(this);
-		
-		pdfOptionPanel = new JPanel();
-		pdfOptionPanel.setLayout(new GridLayout(0,3));
-		pdfOptionPanel.add(btnAddPDF);
-		pdfOptionPanel.add(btnEditPDF);
-		
-		listOfPDFPanel = new JPanel();
-		listOfPDFPanel.setLayout(new BorderLayout());
-		listOfPDFPanel.add(listOfPDFScrollPane, BorderLayout.CENTER);
-		listOfPDFPanel.add(pdfOptionPanel, BorderLayout.SOUTH);
-		listOfPDFPanel.setBorder(BorderFactory.createTitledBorder(
+		pdfListPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Available PDFs</h3></html>"));
-		
-		//============================================================================
-		//
-		//for the PDF expression
-		//
-		
-		//create the PDF tree
-		pdfTreeModel = new PDFTreeModel(copyOfPDFRoot);
-		pdfTree = new PDFTree(pdfTreeModel, oldPDFManager.getPDFAsKeyMap());
-		
-		pdfTreeScrollPane = new JScrollPane(pdfTree);
-		
-		try {
-			pdfManager = new PDFManager(pdfRoot);
-		} catch (TagNameException err) {
-			RapidFitExceptionHandler.handles(err);
-		}
-		
-		pdfTreePanel = new PDFTreePanel(pdfRoot, pdfManager.getNameMap());
-		pdfInspectorPanel = new PDFInspectorPanel();
-		pdfDisplayPanel = new JPanel();
+	}
+	
+	public void initViewerPanel(){
+		pdfTreePanel = new PDFTreePanel(pdfRootCopy, pdfManager.getNameMap()){
+			public void treeElementSelectedAction(Object obj){
+				if (rbInspectFromPDFTree.isSelected()){
+					updatePDFInspector(obj);
+				}
+			}
+		};
 		
 		btnReplaceWithPDF = new JButton("Replace with Selected PDF");
 		btnReplaceWithPDF.addActionListener(this);
+		
 		btnReplaceWithSum = new JButton("Replace with Sum");
 		btnReplaceWithSum.addActionListener(this);
+		
 		btnReplaceWithProd = new JButton("Replace with Product");
 		btnReplaceWithProd.addActionListener(this);
 		
 		pdfBuilderOptionPanel = new JPanel();
-		pdfBuilderOptionPanel.setLayout(new GridLayout(0,3));
+		pdfBuilderOptionPanel.setLayout(new GridLayout(3,1));
 		pdfBuilderOptionPanel.add(btnReplaceWithPDF);
 		pdfBuilderOptionPanel.add(btnReplaceWithSum);
 		pdfBuilderOptionPanel.add(btnReplaceWithProd);
@@ -156,140 +161,107 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		pdfBuilderPanel.setLayout(new BorderLayout());
 		pdfBuilderPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>PDF Expression</h3></html>"));
-		pdfBuilderPanel.add(pdfTreeScrollPane, BorderLayout.CENTER);
+		pdfBuilderPanel.add(pdfTreePanel, BorderLayout.CENTER);
 		pdfBuilderPanel.add(pdfBuilderOptionPanel, BorderLayout.SOUTH);
 		
+		pdfInspector = new PDFInspectorPanel();
+		
+		rbInspectFromPDFTree = new JRadioButton("Inspect From PDF Expression");
+		rbInspectFromPDFTree.setSelected(true);
+		rbInspectFromPDFTree.addActionListener(this);
+		
+		rbInspectFromPDFList = new JRadioButton("Inspect From PDF List");
+		rbInspectFromPDFList.setSelected(false);
+		rbInspectFromPDFList.addActionListener(this);
+		
+		pdfInspectorOptionPanel = new JPanel();
+		pdfInspectorOptionPanel.setLayout(new GridLayout(2,1));
+		pdfInspectorOptionPanel.add(rbInspectFromPDFList);
+		pdfInspectorOptionPanel.add(rbInspectFromPDFTree);
+		
+		pdfInspectorPanel = new JPanel();
+		pdfInspectorPanel.setLayout(new BorderLayout());
+		pdfInspectorPanel.add(pdfInspector, BorderLayout.CENTER);
+		pdfInspectorPanel.add(pdfInspectorOptionPanel, BorderLayout.SOUTH);
+		pdfInspectorPanel.setBorder(BorderFactory.createTitledBorder(
+				"<html><h3>PDF Inspector</h3></html>"));
+		
+		pdfViewerPanel = new JPanel();
+		pdfViewerPanel.setLayout(new GridLayout(1,2));
+		pdfViewerPanel.add(pdfBuilderPanel);
+		pdfViewerPanel.add(pdfInspectorPanel);
+	}
+	
+	public void initMainPanel(){
 		btnBuildPDF = new JButton("Save and Build PDF");
 		btnBuildPDF.addActionListener(this);
 		
 		Container content = this.getContentPane();
-		content.add(listOfPDFPanel, BorderLayout.WEST);
-		content.add(pdfBuilderPanel, BorderLayout.CENTER);
+		content.add(pdfListPanel, BorderLayout.WEST);
+		content.add(pdfViewerPanel, BorderLayout.CENTER);
 		content.add(btnBuildPDF, BorderLayout.SOUTH);
-		
-		//for warning before closing the window
-		final PDFBuilder thisPanel = this;
-		thisPanel.addWindowListener(new java.awt.event.WindowAdapter() {
-		    @Override
-		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		    	int result = JOptionPane.showOptionDialog(thisPanel, 
-		    			"Are you sure to close this window without saving?\n "
-		    			+ "All edits on the PDFs will be lost.", "Really Closing?", 
-		    			JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-						new String [] {"Yes", "No"}, "No");
-		        if (result == JOptionPane.YES_OPTION){
-		        	dispose();
-		        } else {
-		        	setVisible(true);
-		        }
-		    }
-		});
-		
-		pack();
+	}
+	
+	public void updatePDFInspector(Object pdf){
+		pdfInspectorPanel.remove(pdfInspector);
+		pdfInspector = new PDFInspectorPanel(pdf);
+		pdfInspectorPanel.add(pdfInspector, BorderLayout.CENTER);
+		pdfInspectorPanel.validate();
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		PDFTree pdfTree = pdfTreePanel.getPDFTree();
+		PDFTreeModel pdfTreeModel = pdfTreePanel.getPDFTreeModel();
+		DataList<PDFType> pdfList = pdfListPanel.getDataList();
 		
-		//for adding a new PDF
-		if (e.getSource() == btnAddPDF){
-			
-			/*
-			 * add the PDF at the position below the currently 
-			 * selected PDF in the list. If no PDF is selected,
-			 * the new PDF is added at the end of the list.
-			 */
-			
-			int index = 0;
-			
-			if (listModel.getSize() == 0){
-				listModel.addRow();
-			} else {
-				index = pdfList.getSelectedIndex();
-				if (index == -1){
-					index += listModel.getSize();
-				} else {
-					index++;
-				}
-				listModel.addRow(index);
-			}
-			
-			//set the name of the new PDF
-			PDFType pdf = listModel.getElementAt(index);
-			pdf.setName("PDF");
-			oldPDFManager.addPDF(pdf);
-			pdfTree.updateMap(oldPDFManager.getPDFAsKeyMap());
-			
-			//set the selected PDF in the list to be the new PDF
-			pdfList.setSelectedIndex(index);
-			
-			//open the PDF editor to allow user to edit the new PDF
-			new PDFEditor(listModel.getElementAt(index)).setVisible(true);
-			
-			//update tag name for PDFs
-			oldPDFManager.updateTagName();
-			pdfTree.updateMap(oldPDFManager.getPDFAsKeyMap());
-		
-		//for removing a PDF
-		} else if (e.getSource() == btnRemovePDF &&
-				pdfList.getSelectedIndex() != -1){
-			
-			//remove the selected PDF from the list
-			oldPDFManager.removePDF(pdfList.getSelectedValue());
-			listModel.removeRow(pdfList.getSelectedIndex());
-
-		//for editing a PDF
-		} else if (e.getSource() == btnEditPDF && 
-				pdfList.getSelectedIndex() != -1){
-			
-			new PDFEditor(listModel.getElementAt(
-					pdfList.getSelectedIndex())).setVisible(true);
-			
-			//update tag name for PDFs
-			oldPDFManager.updateTagName();
-			pdfTree.updateMap(oldPDFManager.getPDFAsKeyMap());
-		
-		/*
-		 * for replacing a selected PDF / composite PDF in the PDF tree 
-		 * with the selected PDF in the data list
-		 */
-		} else if (e.getSource() == btnReplaceWithPDF){
+		if (e.getSource() == btnReplaceWithPDF){
 			/*
 			 * ensure that a PDF is selected from t
 			 */
 			if (pdfList.getSelectedIndex() != -1 &&
 					pdfTree.getSelectionPath() != null){
-					pdfTreeModel.replace(
+				pdfTreeModel.replace(
 						pdfTree.getSelectionPath(), 
 						pdfList.getSelectedValue());
 			}
-		
-		/*
-		 * for replacing a selected PDF / composite PDF in the PDF tree
-		 * with a new PDF sum
-		 */
+
+			/*
+			 * for replacing a selected PDF / composite PDF in the PDF tree
+			 * with a new PDF sum
+			 */
 		} else if (e.getSource() == btnReplaceWithSum){
 			if (pdfTree.getSelectionPath() != null){
 				new PDFSumDialog(parameters, 
-						oldPDFManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
+						pdfManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
 			}
-			
-		/*
-		 * for replacing a selected PDF / composite PDF in the PDF tree
-		 * with a new PDF product
-		 */	
+
+			/*
+			 * for replacing a selected PDF / composite PDF in the PDF tree
+			 * with a new PDF product
+			 */	
 		} else if (e.getSource() == btnReplaceWithProd){
 			if (pdfTree.getSelectionPath() != null){
 				new PDFProdDialog(
-						oldPDFManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
+						pdfManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
 			}
-			
+
 		} else if (e.getSource() == btnBuildPDF){
-			pdfRoot.setNormalisedSumPDF(copyOfPDFRoot.getNormalisedSumPDF());
-			pdfRoot.setProdPDF(copyOfPDFRoot.getProdPDF());
-			pdfRoot.setPDF(copyOfPDFRoot.getPDF());
-	
+			pdfRoot.setNormalisedSumPDF(pdfRootCopy.getNormalisedSumPDF());
+			pdfRoot.setProdPDF(pdfRootCopy.getProdPDF());
+			pdfRoot.setPDF(pdfRootCopy.getPDF());
+
 			dispose();
+			
+		} else if (e.getSource() == rbInspectFromPDFList){
+			if (rbInspectFromPDFList.isSelected()){
+				rbInspectFromPDFTree.setSelected(false);
+			} 
+			
+		} else if (e.getSource() == rbInspectFromPDFTree){
+			if (rbInspectFromPDFTree.isSelected()){
+				rbInspectFromPDFList.setSelected(false);
+			}
 		}
 	}
 }

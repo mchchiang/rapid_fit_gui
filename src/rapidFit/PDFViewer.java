@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import rapidFit.rpfit.*;
 
@@ -53,7 +54,14 @@ public class PDFViewer extends JPanel implements ActionListener {
 			}
 		};
 		
-		pdfInspectorPanel = new PDFInspectorPanel();		
+		Border border = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+		Border title = BorderFactory.createTitledBorder(
+				"<html><b>PDF Expression</b></html>");
+		pdfTreePanel.setBorder(new CompoundBorder(border, title));
+		
+		title = BorderFactory.createTitledBorder("<html><b>PDF Inspector</b></html>");
+		pdfInspectorPanel = new PDFInspectorPanel();	
+		pdfInspectorPanel.setBorder(new CompoundBorder(border, title));
 		
 		displayPanel = new JPanel();
 		displayPanel.setLayout(new GridLayout(1,2));
