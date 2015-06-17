@@ -7,7 +7,7 @@ import javax.swing.*;
 
 
 @SuppressWarnings("serial")
-public abstract class AbstractDataListPanel<T> extends JPanel implements ActionListener {
+public abstract class AbstractDataListViewer<T> extends JPanel implements ActionListener {
 	
 	//variables for the data list panel
 	
@@ -75,7 +75,7 @@ public abstract class AbstractDataListPanel<T> extends JPanel implements ActionL
 	protected abstract JPanel initDataDisplayPanel(T entry);
 	
 	//constructor
-	public AbstractDataListPanel(Class<T> clazz, List<T> dataRoot, List<T> data,
+	public AbstractDataListViewer(Class<T> clazz, List<T> dataRoot, List<T> data,
 			String listTitle, String tagName){
 		this.dataClass = clazz;
 		this.root = dataRoot;

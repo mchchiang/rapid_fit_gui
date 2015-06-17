@@ -12,14 +12,14 @@ public class OutputScanPanel extends JPanel {
 	private List<ScanParamType> scanList;
 	private List<TwoDScanType> twoDScanList;
 	
-	private DataListPanel<ScanParamType> scanListPanel;
+	private DataListViewer<ScanParamType> scanListPanel;
 	private TwoDScanListPanel twoDScanListPanel;
 	
 	public OutputScanPanel (OutputType output){
 		scanList = output.getScan();
 		twoDScanList = output.getTwoDScan();
 		
-		scanListPanel = new DataListPanel<ScanParamType>(
+		scanListPanel = new DataListViewer<ScanParamType>(
 				ScanParamType.class, scanList, scanList,
 				"Available Scans", "Scan", "Scan Details");
 		

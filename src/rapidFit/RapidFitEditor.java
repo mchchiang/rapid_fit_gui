@@ -22,7 +22,7 @@ public class RapidFitEditor extends JFrame {
 	private FitConstraintPanel fitConstraintPanel;
 	private FitDataSetPanel fitDataSetPanel;
 	private OutputScanPanel outputScanPanel;
-	private DataListPanel<ComponentProjectionType> outputProjectionPanel;
+	private DataListViewer<ComponentProjectionType> outputProjectionPanel;
 	
 	protected RapidFitType root;
 	
@@ -99,7 +99,7 @@ public class RapidFitEditor extends JFrame {
 		outputScanPanel = new OutputScanPanel(root.getOutput());
 		
 		List<ComponentProjectionType> projectionList = root.getOutput().getComponentProjection();
-		outputProjectionPanel = new DataListPanel<ComponentProjectionType>(
+		outputProjectionPanel = new DataListViewer<ComponentProjectionType>(
 				ComponentProjectionType.class, projectionList , projectionList, 
 				"Available Projections", "Comp_Proj", "Projection Details");
 		

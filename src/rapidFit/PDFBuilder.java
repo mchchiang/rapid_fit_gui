@@ -41,7 +41,13 @@ public class PDFBuilder extends JDialog implements ActionListener {
 
 	private List<PhysicsParameterType> parameters;
 	
-	private OldPDFManager pdfManager;
+	private OldPDFManager oldPDFManager;
+	
+	
+	private PDFManager pdfManager;
+	private PDFTreePanel pdfTreePanel;
+	private PDFInspectorPanel pdfInspectorPanel;
+	private JPanel pdfDisplayPanel;
 	
 	public PDFBuilder (List<PhysicsParameterType> params, PDFExpressionType root){
 		
@@ -62,12 +68,12 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		copyOfPDFRoot = (PDFExpressionType) Cloner.deepClone(root);
 		
 		//create a list of tag names for the pdfs
-		pdfManager = new OldPDFManager(copyOfPDFRoot);
+		oldPDFManager = new OldPDFManager(copyOfPDFRoot);
 		
 		//create a data list for displaying the available PDFs
-		listModel = new DataListModel<PDFType>(PDFType.class, pdfManager.getListOfPDFs());
+		listModel = new DataListModel<PDFType>(PDFType.class, oldPDFManager.getListOfPDFs());
 		
-		pdfList = new DataList<PDFType>(listModel, pdfManager.getPDFAsKeyMap());
+		pdfList = new DataList<PDFType>(listModel, oldPDFManager.getPDFAsKeyMap());
 		
 		pdfList.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
@@ -80,8 +86,8 @@ public class PDFBuilder extends JDialog implements ActionListener {
 									pdfList.getSelectedIndex())).setVisible(true);
 							
 							//update tag name for PDFs
-							pdfManager.updateTagName();
-							pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
+							oldPDFManager.updateTagName();
+							pdfTree.updateMap(oldPDFManager.getPDFAsKeyMap());
 						}
 					} catch (Exception ex){
 						ex.printStackTrace();
@@ -119,9 +125,19 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		
 		//create the PDF tree
 		pdfTreeModel = new PDFTreeModel(copyOfPDFRoot);
-		pdfTree = new PDFTree(pdfTreeModel, pdfManager.getPDFAsKeyMap());
+		pdfTree = new PDFTree(pdfTreeModel, oldPDFManager.getPDFAsKeyMap());
 		
 		pdfTreeScrollPane = new JScrollPane(pdfTree);
+		
+		try {
+			pdfManager = new PDFManager(pdfRoot);
+		} catch (TagNameException err) {
+			RapidFitExceptionHandler.handles(err);
+		}
+		
+		pdfTreePanel = new PDFTreePanel(pdfRoot, pdfManager.getNameMap());
+		pdfInspectorPanel = new PDFInspectorPanel();
+		pdfDisplayPanel = new JPanel();
 		
 		btnReplaceWithPDF = new JButton("Replace with Selected PDF");
 		btnReplaceWithPDF.addActionListener(this);
@@ -201,8 +217,8 @@ public class PDFBuilder extends JDialog implements ActionListener {
 			//set the name of the new PDF
 			PDFType pdf = listModel.getElementAt(index);
 			pdf.setName("PDF");
-			pdfManager.addPDF(pdf);
-			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
+			oldPDFManager.addPDF(pdf);
+			pdfTree.updateMap(oldPDFManager.getPDFAsKeyMap());
 			
 			//set the selected PDF in the list to be the new PDF
 			pdfList.setSelectedIndex(index);
@@ -211,15 +227,15 @@ public class PDFBuilder extends JDialog implements ActionListener {
 			new PDFEditor(listModel.getElementAt(index)).setVisible(true);
 			
 			//update tag name for PDFs
-			pdfManager.updateTagName();
-			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
+			oldPDFManager.updateTagName();
+			pdfTree.updateMap(oldPDFManager.getPDFAsKeyMap());
 		
 		//for removing a PDF
 		} else if (e.getSource() == btnRemovePDF &&
 				pdfList.getSelectedIndex() != -1){
 			
 			//remove the selected PDF from the list
-			pdfManager.removePDF(pdfList.getSelectedValue());
+			oldPDFManager.removePDF(pdfList.getSelectedValue());
 			listModel.removeRow(pdfList.getSelectedIndex());
 
 		//for editing a PDF
@@ -230,8 +246,8 @@ public class PDFBuilder extends JDialog implements ActionListener {
 					pdfList.getSelectedIndex())).setVisible(true);
 			
 			//update tag name for PDFs
-			pdfManager.updateTagName();
-			pdfTree.updateMap(pdfManager.getPDFAsKeyMap());
+			oldPDFManager.updateTagName();
+			pdfTree.updateMap(oldPDFManager.getPDFAsKeyMap());
 		
 		/*
 		 * for replacing a selected PDF / composite PDF in the PDF tree 
@@ -255,7 +271,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		} else if (e.getSource() == btnReplaceWithSum){
 			if (pdfTree.getSelectionPath() != null){
 				new PDFSumDialog(parameters, 
-						pdfManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
+						oldPDFManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
 			}
 			
 		/*
@@ -265,7 +281,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		} else if (e.getSource() == btnReplaceWithProd){
 			if (pdfTree.getSelectionPath() != null){
 				new PDFProdDialog(
-						pdfManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
+						oldPDFManager.getTagNameAsKeyMap(), pdfTree).setVisible(true);
 			}
 			
 		} else if (e.getSource() == btnBuildPDF){

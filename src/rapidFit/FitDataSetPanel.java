@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
-public class FitDataSetPanel extends AbstractDataListPanel<ToFitType> {
+public class FitDataSetPanel extends AbstractDataListViewer<ToFitType> {
 	
 	private List<PhysicsParameterType> parameters;
 

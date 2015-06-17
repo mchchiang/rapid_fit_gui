@@ -7,7 +7,7 @@ import javax.swing.*;
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
-public class TwoDScanListPanel extends DataListPanel<TwoDScanType>{
+public class TwoDScanListPanel extends DataListViewer<TwoDScanType>{
 
 	public TwoDScanListPanel(List<TwoDScanType> data) {
 		super(TwoDScanType.class, data, data, "Available 2D Scans", "2D_Scan", null);
