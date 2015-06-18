@@ -32,6 +32,7 @@ public class TagNamePanel<T> extends JPanel implements PropertyChangeListener{
 		txtTagName.setEditable(true);
 		try {
 			tagName = tagNameManager.getTagName(this.entry);
+			System.out.println(tagName);
 			txtTagName.setText(tagName);
 		} catch (TagNameException tne) {
 			RapidFitExceptionHandler.handles(tne);

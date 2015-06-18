@@ -82,6 +82,7 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 			public void mouseClicked(MouseEvent e){
 				int index = dataList.locationToIndex(e.getPoint());
 				if (index != -1 && currentSelectedIndex != index){
+					currentSelectedIndex = index;
 					mouseClickedOnListEntry(
 							listModel.getElementAt(index), e.getClickCount());
 				}
