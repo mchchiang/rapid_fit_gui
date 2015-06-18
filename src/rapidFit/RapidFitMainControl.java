@@ -1,17 +1,20 @@
 package rapidFit;
 
 import java.io.*;
-import java.awt.event.*;
+//import java.awt.event.*;
+import rapidFit.rpfit.*;
 
 //a class to store global settings
-public class RapidFitMainControl implements ActionListener {
+public class RapidFitMainControl {
 
 	private static RapidFitMainControl instance;
 	
 	private boolean enforceSchema = false;
-	private boolean unsaveEdits = false;
+	private boolean unsavedEdits = false;
 	private Table currentEditingTable = null;
+	
 	private File file = null;
+	private RapidFitType root = null;
 	
 	//singleton design
 	private RapidFitMainControl(){}
@@ -25,7 +28,7 @@ public class RapidFitMainControl implements ActionListener {
 	
 	//accessor methods
 	public void setUnsavedEdits(boolean b){
-		unsaveEdits = b;
+		unsavedEdits = b;
 	}
 	public void setEnforceSchema(boolean b){
 		enforceSchema = b;
@@ -36,15 +39,14 @@ public class RapidFitMainControl implements ActionListener {
 	public void setFile(File f){
 		file = f;
 	}
+	public void setRoot(RapidFitType root){
+		this.root = root;
+	}
 	
-	public boolean hasUnsaveEdits(){return unsaveEdits;}
+	public boolean hasUnsavedEdits(){return unsavedEdits;}
 	public boolean isSchemaEnforced(){return enforceSchema;}
 	public Table getCurrentEditingTable(){return currentEditingTable;}
 	public File getFile(){return file;}
+	public RapidFitType getRoot(){return root;}
 	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-
 }

@@ -92,6 +92,7 @@ public class PDFViewer extends JPanel implements ActionListener {
 		if (e.getSource() == btnEditPDF){
 			new PDFBuilder(parameters, pdfRoot, pdfManager).setVisible(true);
 			updatePDFTree();
+			RapidFitMainControl.getInstance().setUnsavedEdits(true);
 		}			
 	}	
 }

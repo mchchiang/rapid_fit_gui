@@ -25,6 +25,7 @@ public class Table extends JTable{
 		getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
 		setSelectAllForEdit(true);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		setFocusable(true);
 		
 		/*
 		 * make sure the edits to a cell is saved when user click on
@@ -138,6 +139,11 @@ public class Table extends JTable{
  				tableColumn.getPreferredWidth()));
  		return component;
  	} 
+ 	
+ 	public Component prepareEditor(TableCellEditor editor, int row, int column){
+ 		RapidFitMainControl.getInstance().setCurrentEditingTable(this);
+ 		return super.prepareEditor(editor,row,column);
+ 	}
 //
 //  Static, convenience methods
 //

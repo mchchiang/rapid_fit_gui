@@ -3,7 +3,6 @@ package rapidFit;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 
-import rapidFit.rpfit.RapidFitType;
 import java.awt.event.*;
 import java.io.File;
 
@@ -19,26 +18,36 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	private JMenuItem mnuExport;
 	private JMenuItem mnuNew;
 	
-	private JFileChooser fc = new JFileChooser();
-	private RapidFitEditor editor;
+	private JFileChooser fc;
 	
-	private File inputFile;//for storing input file path
+	private static RapidFitEditorMenuBar menuBar = null;
 	
+	//prevent outer classes to create a new menu bar (singleton pattern)
+	private RapidFitEditorMenuBar(){
+		initMenuBar();
+	}
 	
+	public static RapidFitEditorMenuBar getInstance(){
+		if (menuBar == null){
+			menuBar = new RapidFitEditorMenuBar();
+		}
+		return menuBar;
+	}
 	
-	public RapidFitEditorMenuBar(RapidFitEditor e){
+	public void initMenuBar(){
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("XML file", "xml");
+		fc = new JFileChooser();
 		fc.setFileFilter(filter);
-		editor = e;
 		
 		mnuImport = new JMenuItem("Open XML");
 		mnuImport.addActionListener(this);
 		
 		mnuExport = new JMenuItem("Save As New XML");
-		mnuExport.setFocusable(true);
+		mnuExport.setEnabled(false);
 		mnuExport.addActionListener(this);
 		
 		mnuSave = new JMenuItem("Save XML");
+		mnuSave.setEnabled(false);
 		mnuSave.addActionListener(this);
 		
 		mnuNew = new JMenuItem("New XML");
@@ -59,22 +68,39 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		this.add(mnuHelp);
 	}
 	
+	public JMenuItem getSaveButton(){return mnuSave;}
+	public JMenuItem getSaveAsButton(){return mnuExport;}
+	public JMenuItem getOpenButton(){return mnuImport;}
+	
 	public void actionPerformed(ActionEvent e) {
+		//stop the active table editing before any menu item action is invoked
+		if (RapidFitMainControl.getInstance().getCurrentEditingTable() != null){
+			RapidFitMainControl.getInstance().
+			getCurrentEditingTable().getCellEditor().stopCellEditing();
+		}
+		
 		if (e.getSource() == mnuImport) {
-			int returnVal = fc.showOpenDialog(this);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fc.getSelectedFile();
-				
-				//read xml
-				try {
-					RapidFitType root = RapidFitFactory.createFitFromFile(file.getAbsolutePath(), 
-							"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
-							+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
-					String fileName = file.getName();
-					inputFile = file;
-					editor.showFit(root, fileName);
-				} catch (XMLIOException xe){
-					RapidFitExceptionHandler.handles(xe);
+			//check if there is unsaved edits
+			if (unsaveEditCheck() == JOptionPane.YES_OPTION){
+				int returnVal = fc.showOpenDialog(this);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					
+					//read xml
+					try {
+						RapidFitMainControl.getInstance().setRoot(
+								RapidFitFactory.createFitFromFile(file.getAbsolutePath(), 
+								"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
+								+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd"));
+						String fileName = file.getName();
+						RapidFitMainControl.getInstance().setFile(file);
+						mnuSave.setEnabled(true);
+						mnuExport.setEnabled(true);
+						RapidFitEditor.getInstance().showFit(
+								RapidFitMainControl.getInstance().getRoot(), fileName);
+					} catch (XMLIOException xe){
+						RapidFitExceptionHandler.handles(xe);
+					}
 				}
 			}
 						
@@ -82,22 +108,49 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 			int returnVal = fc.showSaveDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
-				XMLIO.writeFile(editor.root, file.getAbsolutePath(), "/Users/MichaelChiang/Dropbox/Edinburgh"
+				
+				XMLIO.writeFile(RapidFitMainControl.getInstance().getRoot(), 
+						file.getAbsolutePath(), "/Users/MichaelChiang/Dropbox/Edinburgh"
 						+ "/Courses/Year 2/Summer_Project/"
 						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
+				
+				RapidFitMainControl.getInstance().setFile(file);
+				RapidFitMainControl.getInstance().setUnsavedEdits(false);
 			}
 		
-		} else if (e.getSource() == mnuSave){	
-			XMLIO.writeFile(editor.root, inputFile.getAbsolutePath(), "/Users/MichaelChiang/Dropbox/Edinburgh"
+		} else if (e.getSource() == mnuSave){			
+			//write the file
+			XMLIO.writeFile(RapidFitMainControl.getInstance().getRoot(), 
+					RapidFitMainControl.getInstance().getFile().getAbsolutePath(), 
+					"/Users/MichaelChiang/Dropbox/Edinburgh"
 						+ "/Courses/Year 2/Summer_Project/"
-						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");			
-		} else if (e.getSource() == mnuNew) {
-			editor.showFit(RapidFitFactory.createEmptyFit(), "New Fit");
+						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
 			
+			RapidFitMainControl.getInstance().setUnsavedEdits(false);
+			
+		} else if (e.getSource() == mnuNew) {
+			//check for unsaved edits
+			if (unsaveEditCheck() == JOptionPane.YES_OPTION){
+				RapidFitEditor.getInstance().showFit(RapidFitFactory.createEmptyFit(), "New Fit");
+				mnuExport.setEnabled(true);
+			}
+
 		} else if (e.getSource() == mnuAbout){
 			new AboutDialog().setVisible(true);
 		}
 		
 	}
-
+	
+	private int unsaveEditCheck(){
+		int result = JOptionPane.YES_OPTION;
+		if (RapidFitMainControl.getInstance().hasUnsavedEdits()){
+			result = JOptionPane.showOptionDialog(this, 
+					"There are unsaved edits in the current file.\n"
+					+ "Are you sure you want to open a new file ?\n "
+							+ "All unsaved edits will be lost.", "Unsaved Edits", 
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+							new String [] {"Yes", "No"}, "No");
+		}
+		return result;
+	}
 }

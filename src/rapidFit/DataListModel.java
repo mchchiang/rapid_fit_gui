@@ -17,12 +17,15 @@ public class DataListModel<T> extends AbstractListModel<T> {
 	
 	public void addRow(int row, T entry){
 		data.add(row, entry);
+		RapidFitMainControl.getInstance().setUnsavedEdits(true);
 		fireIntervalAdded(this, row, row);
 	}
 	
 	public void addRow(int row){
 		try{
 			addRow(row, dataClass.newInstance());
+			RapidFitMainControl.getInstance().setUnsavedEdits(true);
+			fireIntervalAdded(this, row, row);
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -31,12 +34,12 @@ public class DataListModel<T> extends AbstractListModel<T> {
 	public void addRow(){
 		try{
 			data.add(dataClass.newInstance());
+			RapidFitMainControl.getInstance().setUnsavedEdits(true);
+			fireIntervalAdded(this, getSize(), getSize());
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		fireIntervalAdded(this, getSize(), getSize());
-		
-	}
+}
 	
 	public void removeRows(int [] rows){
 		//first row is always the smallest index
@@ -44,10 +47,12 @@ public class DataListModel<T> extends AbstractListModel<T> {
 			//need to take into account that removing an element changes the index
 			removeRow(rows[i]-i);
 		}
+		RapidFitMainControl.getInstance().setUnsavedEdits(true);
 	}
 	
 	public void removeRow(int row){
 		data.remove(row);
+		RapidFitMainControl.getInstance().setUnsavedEdits(true);
 		fireIntervalRemoved(this, row, row);
 	}
 	

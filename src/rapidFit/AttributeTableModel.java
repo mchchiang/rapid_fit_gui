@@ -115,6 +115,7 @@ public class AttributeTableModel<T> extends AbstractTableModel {
 					setMethods.get(row).invoke(data, 
 							(getRowClass(row).cast(value)));
 				}
+				RapidFitMainControl.getInstance().setUnsavedEdits(true);
 			} catch (Exception e){
 				e.printStackTrace();
 			}

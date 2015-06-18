@@ -10,9 +10,9 @@ import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
 public class RapidFitEditor extends JFrame {
-	private int width = 1000;
-	private int height = 800;
-	private RapidFitEditorMenuBar menuBar;
+	private final int width = 1000;
+	private final int height = 800;
+	
 	private JTabbedPane tabs;
 	
 	//all panels
@@ -24,13 +24,25 @@ public class RapidFitEditor extends JFrame {
 	private OutputScanPanel outputScanPanel;
 	private DataListViewer<ComponentProjectionType> outputProjectionPanel;
 	
-	protected RapidFitType root;
-	
 	private JTextArea txtNoData;
 	
-	public RapidFitEditor (){
+	private static RapidFitEditor editor = null;
+	
+	private RapidFitEditor(){
+		init();
+	}
+	
+	public static RapidFitEditor getInstance(){
+		if (editor == null){
+			editor = new RapidFitEditor();
+		}
+		return editor;
+	}
+	
+	public void init(){
 		setTitle("Rapid Fit Editor");
-		setSize(width,height);
+		setSize(new Dimension(width, height));
+		setPreferredSize(new Dimension(width, height));
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
@@ -41,13 +53,10 @@ public class RapidFitEditor extends JFrame {
 		txtNoData.setBackground(getBackground());
 		txtNoData.setLineWrap(true);
 		
-		
 		Container content = getContentPane();
 		content.add(txtNoData, BorderLayout.CENTER);
 		
-		menuBar = new RapidFitEditorMenuBar(this);
-		this.setJMenuBar(menuBar);
-		setVisible(true);
+		setJMenuBar(RapidFitEditorMenuBar.getInstance());
 	}
 	
 	public void showFit(RapidFitType root, String fileName){
@@ -57,8 +66,6 @@ public class RapidFitEditor extends JFrame {
 		//remove previously displayed contents
 		Container content = getContentPane();
 		content.removeAll();
-		
-		this.root = root;
 		
 		//create panels
 		paramSetPanel = new DataTablePanel<PhysicsParameterType>(
@@ -114,13 +121,12 @@ public class RapidFitEditor extends JFrame {
 		
 		
 		content.add(tabs, BorderLayout.CENTER);
-		//pack();
 		validate();
 		setVisible(true);
 	}
 	
 	public static void main (String [] args){
-		new RapidFitEditor();
+		RapidFitEditor.getInstance().setVisible(true);;
 	}
 	
 }

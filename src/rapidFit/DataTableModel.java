@@ -189,6 +189,9 @@ public class DataTableModel<T> extends AbstractTableModel {
 					setMethods.get(col).invoke(param, (getColumnClass(col).cast(value)));
 				}
 			}
+			
+			RapidFitMainControl.getInstance().setUnsavedEdits(true);
+			
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -199,6 +202,7 @@ public class DataTableModel<T> extends AbstractTableModel {
 	public void addRow(int row, T entry){
 		data.add(row, entry);
 		fireTableDataChanged();
+		RapidFitMainControl.getInstance().setUnsavedEdits(true);
 	}
 	
 	public void addRow(int row){
@@ -208,6 +212,7 @@ public class DataTableModel<T> extends AbstractTableModel {
 			e.printStackTrace();
 		}
 		fireTableDataChanged();
+		RapidFitMainControl.getInstance().setUnsavedEdits(true);
 	}
 	
 	public void addRow(){
@@ -217,6 +222,7 @@ public class DataTableModel<T> extends AbstractTableModel {
 			e.printStackTrace();
 		}
 		fireTableDataChanged();
+		RapidFitMainControl.getInstance().setUnsavedEdits(true);
 	}
 	
 	public void removeRows(int [] rows){
@@ -225,11 +231,13 @@ public class DataTableModel<T> extends AbstractTableModel {
 			//need to take into account that removing an element changes the index
 			removeRow(rows[i]-i);
 		}
+		RapidFitMainControl.getInstance().setUnsavedEdits(true);
 	}
 	
 	public void removeRow(int row){
 		data.remove(row);
 		fireTableDataChanged();
+		RapidFitMainControl.getInstance().setUnsavedEdits(true);
 	}
 	
 	public ArrayList<Method> getGetterMethods(){return getMethods;}
