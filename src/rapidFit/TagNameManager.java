@@ -20,42 +20,47 @@ public class TagNameManager<T> {
 		nameMap = new HashMap<T, String>();
 	}
 	
-	public TagNameManager(List<T> data, String tag) throws TagNameException{
+	public TagNameManager(List<T> data, String tag) /*throws TagNameException*/{
 		tagName = tag;
 		nameMap = new HashMap<T, String>();
 		addEntries(data);
 	}
 	
-	public void addEntry(T entry) throws TagNameException {
+	public void addEntry(T entry) /*throws TagNameException*/ {
+		/*
 		/*
 		 * ensure there is no duplicate of the same 
 		 * data entry in the map
-		 */
+		 
 		if (nameMap.containsKey(entry)){
 			throw new TagNameException(
 					TagNameException.ErrorType.DUPLICATE_ENTRY);
+		}*/
+		if (!nameMap.containsKey(entry)){
+			counter++;
+			nameMap.put(entry, tagName + "_" + counter);
 		}
-		counter++;
-		nameMap.put(entry, tagName + "_" + counter);
 	}
 	
-	public void addEntry(T entry, String tagName) throws TagNameException {
-		setTagName(entry, tagName);
+	public void addEntry(T entry, String tagName) /*throws TagNameException*/ {
+		if (!nameMap.containsKey(entry) && !nameMap.containsValue(tagName)){
+			nameMap.put(entry, tagName);
+		}
 	}
 	
 	//add multiple entries to the map
-	public void addEntries(List<T> data) throws TagNameException{
+	public void addEntries(List<T> data) /*throws TagNameException*/{
 		for (T entry : data){
 			addEntry(entry);
 		}
 	}
 	
-	public void removeEntry(T entry) throws TagNameException{
-		if (!nameMap.containsKey(entry)){
-			throw new TagNameException(
-					TagNameException.ErrorType.ENTRY_NOT_EXIST);
+	public void removeEntry(T entry) /*throws TagNameException*/{
+		if (nameMap.containsKey(entry)){
+			nameMap.remove(entry);
+			/*throw new TagNameException(
+					TagNameException.ErrorType.ENTRY_NOT_EXIST);*/
 		}
-		nameMap.remove(entry);
 	}
 	
 	public void setTagName(T entry, String tagName) throws TagNameException{
@@ -64,31 +69,27 @@ public class TagNameManager<T> {
 		 * If the entry is not in the map, it will be added
 		 * to the map
 		 */
-		//printNameMap();
-		//System.out.println(tagName + "\t" + nameMap.containsValue(tagName));
 		if (nameMap.containsValue(tagName)){
 			throw new TagNameException(
 					TagNameException.ErrorType.DUPLICATE_TAG_NAME);
 		}
-		nameMap.put(entry, tagName);
-	}
-	
-	public void printNameMap(){
-		System.out.print("[");
-		for (String name : nameMap.values()){
-			System.out.print(name +", ");
-		}
-		System.out.print("]");
-		System.out.println();
-	}
-	
-	public String getTagName(T entry) throws TagNameException{
 		if (!nameMap.containsKey(entry)){
 			throw new TagNameException(
 					TagNameException.ErrorType.ENTRY_NOT_EXIST);
 		}
+		nameMap.put(entry, tagName);
+	}
+	
+	public String getTagName(T entry) /*throws TagNameException*/{
+		/*if (!nameMap.containsKey(entry)){
+			throw new TagNameException(
+					TagNameException.ErrorType.ENTRY_NOT_EXIST);
+		}*/
 		return nameMap.get(entry);
 	}
 	
-	public HashMap<T,String> getNameMap(){return nameMap;}
+	public HashMap<T, String> getNameMap(){return nameMap;}
+	public void setNameMap(HashMap<T, String> map){
+		nameMap = map;
+	}
 }

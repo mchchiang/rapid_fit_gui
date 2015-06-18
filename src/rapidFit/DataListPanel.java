@@ -81,7 +81,9 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 		dataList.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
 				int index = dataList.locationToIndex(e.getPoint());
-				if (index != -1 && currentSelectedIndex != index){
+				if (index != -1 && 
+						((currentSelectedIndex != index && e.getClickCount() == 1) ||
+						(e.getClickCount() == 2))){
 					currentSelectedIndex = index;
 					mouseClickedOnListEntry(
 							listModel.getElementAt(index), e.getClickCount());
@@ -166,11 +168,7 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 			dataList.setSelectedIndex(index);
 			currentSelectedIndex = index;
 			
-			try {
-				tagNameManager.addEntry(entry);
-			} catch (TagNameException err){
-				RapidFitExceptionHandler.handles(err);
-			}
+			tagNameManager.addEntry(entry);
 
 			//update the tag name of the data list
 			dataList.validate();
@@ -192,11 +190,7 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 				listModel.removeRow(index);
 				currentSelectedIndex = -1;
 
-				try {
-					tagNameManager.removeEntry(entry);
-				} catch (TagNameException err){
-
-				}
+				tagNameManager.removeEntry(entry);
 
 				//update the tag name of the data list
 				dataList.validate();
@@ -234,13 +228,9 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 				dataList.setSelectedIndex(index);
 				currentSelectedIndex = index;
 
-				try {
-					tagNameManager.addEntry(copy, 
-							tagNameManager.getTagName(original) + "_copy");
-				} catch (TagNameException err){
-					RapidFitExceptionHandler.handles(err);
-				}
-
+				tagNameManager.addEntry(copy, 
+						tagNameManager.getTagName(original) + "_copy");
+				
 				//update the tag name of the data list
 				dataList.validate();
 				
@@ -261,6 +251,10 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 				Toolkit.getDefaultToolkit().beep();
 			}
 		}
+	}
+	
+	public void updateListPanel(){
+		listModel.update();
 	}
 	
 	/*

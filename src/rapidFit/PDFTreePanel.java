@@ -23,7 +23,7 @@ public class PDFTreePanel extends JPanel {
 			@Override
 			public void valueChanged(TreeSelectionEvent e) {
 				if (e.getNewLeadSelectionPath() != null){
-					treeElementSelectedAction(
+					treeElementSelected(
 							e.getNewLeadSelectionPath().getLastPathComponent());
 				}
 			}
@@ -38,7 +38,7 @@ public class PDFTreePanel extends JPanel {
 	/*
 	 * no action by default when the tree element is selected.
 	 */
-	public void treeElementSelectedAction(Object obj){}
+	public void treeElementSelected(Object obj){}
 	
 	//get methods
 	public PDFTree getPDFTree(){return pdfTree;}

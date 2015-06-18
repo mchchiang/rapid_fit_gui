@@ -9,9 +9,6 @@ public abstract class AbstractDataListViewer<T> extends JPanel {
 	
 	//variables for the data list panel
 	
-	//container for the entire data list panel
-	//private JPanel dataListPanel;
-	
 	//store the display title for the list
 	private String listTitle = "Available Data Sets";
 	
@@ -21,7 +18,7 @@ public abstract class AbstractDataListViewer<T> extends JPanel {
 	private Class<T> dataClass;
 	private TagNameManager<T> tagNameManager;
 	
-	//for display the entries in the data as a list	
+	//for display the entries in the data as a list	panel
 	private DataListPanel<T> dataListPanel;
 	
 	//===================================================================
@@ -61,12 +58,7 @@ public abstract class AbstractDataListViewer<T> extends JPanel {
 		}
 		
 		//set up tag names for the list of data
-		try {
-			tagNameManager = new TagNameManager<T>(this.data, this.tagName);
-		} catch (TagNameException e) {
-			RapidFitExceptionHandler.handles(e);
-		}
-		
+		tagNameManager = new TagNameManager<T>(this.data, this.tagName);
 		
 		initDataListPanel();
 		initMainDisplayPanel();
@@ -125,7 +117,7 @@ public abstract class AbstractDataListViewer<T> extends JPanel {
 			dataDisplayPanel = initDataDisplayPanel(entry);
 			tagNamePanel = new TagNamePanel<T>(tagNameManager, entry){
 				public void tagNameChanged(String newTagName){
-					dataListPanel.validate();
+					dataListPanel.updateListPanel();
 					mainDisplayPanel.setBorder(BorderFactory.createTitledBorder(
 							"<html><h3>" + newTagName + "</h3></html>"));	
 				}

@@ -2,7 +2,6 @@ package rapidFit;
 
 import java.awt.*;
 import java.beans.*;
-
 import javax.swing.*;
 
 @SuppressWarnings("serial")
@@ -27,22 +26,18 @@ public class TagNamePanel<T> extends JPanel implements PropertyChangeListener{
 		this.entry = entry;
 		
 		//initialise the tag name panel
+		tagName = tagNameManager.getTagName(this.entry);
+		
 		lblTagName = new JLabel("<html><b>Tag Name: </b></html>");
+		
 		txtTagName = new JFormattedTextField();
 		txtTagName.setEditable(true);
-		try {
-			tagName = tagNameManager.getTagName(this.entry);
-			System.out.println(tagName);
-			txtTagName.setText(tagName);
-		} catch (TagNameException tne) {
-			RapidFitExceptionHandler.handles(tne);
-		}
+		txtTagName.setText(tagName);
 		txtTagName.addPropertyChangeListener(this);
 		
 		setLayout(new BorderLayout());
 		add(lblTagName, BorderLayout.WEST);
 		add(txtTagName, BorderLayout.CENTER);
-		
 	}
 
 	@Override
@@ -54,12 +49,8 @@ public class TagNamePanel<T> extends JPanel implements PropertyChangeListener{
 				tagNameManager.setTagName(entry, tagName);
 			} catch (TagNameException tne1){
 				RapidFitExceptionHandler.handles(tne1);
-				try {
-					tagName = tagNameManager.getTagName(entry);
-					txtTagName.setText(tagName);
-				} catch (TagNameException tne2) {
-					RapidFitExceptionHandler.handles(tne2);
-				}
+				tagName = tagNameManager.getTagName(entry);
+				txtTagName.setText(tagName);
 			}
 			tagNameChanged(tagName);
 		}

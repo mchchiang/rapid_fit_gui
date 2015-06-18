@@ -35,6 +35,7 @@ public class DataListModel<T> extends AbstractListModel<T> {
 			e.printStackTrace();
 		}
 		fireIntervalAdded(this, getSize(), getSize());
+		
 	}
 	
 	public void removeRows(int [] rows){
@@ -48,6 +49,11 @@ public class DataListModel<T> extends AbstractListModel<T> {
 	public void removeRow(int row){
 		data.remove(row);
 		fireIntervalRemoved(this, row, row);
+	}
+	
+	//refresh the entire list
+	public void update(){
+		this.fireContentsChanged(this, 0, getSize());
 	}
 
 	@Override

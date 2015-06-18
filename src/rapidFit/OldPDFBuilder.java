@@ -82,8 +82,8 @@ public class OldPDFBuilder extends JDialog implements ActionListener {
 					int index = pdfList.locationToIndex(e.getPoint());
 					try{
 						if (index != -1){
-							new PDFEditor(listModel.getElementAt(
-									pdfList.getSelectedIndex())).setVisible(true);
+							/*new PDFEditor(listModel.getElementAt(
+									pdfList.getSelectedIndex())).setVisible(true);*/
 							
 							//update tag name for PDFs
 							oldPDFManager.updateTagName();
@@ -129,11 +129,7 @@ public class OldPDFBuilder extends JDialog implements ActionListener {
 		
 		pdfTreeScrollPane = new JScrollPane(pdfTree);
 		
-		try {
-			pdfManager = new PDFManager(pdfRoot);
-		} catch (TagNameException err) {
-			RapidFitExceptionHandler.handles(err);
-		}
+		pdfManager = new PDFManager(pdfRoot);
 		
 		pdfTreePanel = new PDFTreePanel(pdfRoot, pdfManager.getNameMap());
 		pdfInspectorPanel = new PDFInspectorPanel();
@@ -224,7 +220,7 @@ public class OldPDFBuilder extends JDialog implements ActionListener {
 			pdfList.setSelectedIndex(index);
 			
 			//open the PDF editor to allow user to edit the new PDF
-			new PDFEditor(listModel.getElementAt(index)).setVisible(true);
+			//new PDFEditor(listModel.getElementAt(index)).setVisible(true);
 			
 			//update tag name for PDFs
 			oldPDFManager.updateTagName();
@@ -242,8 +238,8 @@ public class OldPDFBuilder extends JDialog implements ActionListener {
 		} else if (e.getSource() == btnEditPDF && 
 				pdfList.getSelectedIndex() != -1){
 			
-			new PDFEditor(listModel.getElementAt(
-					pdfList.getSelectedIndex())).setVisible(true);
+			/*new PDFEditor(listModel.getElementAt(
+					pdfList.getSelectedIndex())).setVisible(true);*/
 			
 			//update tag name for PDFs
 			oldPDFManager.updateTagName();

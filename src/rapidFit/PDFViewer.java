@@ -36,18 +36,19 @@ public class PDFViewer extends JPanel implements ActionListener {
 	public PDFViewer(PDFExpressionType root, List<PhysicsParameterType> params){
 		pdfRoot = root;
 		parameters = params;
-		
-		try {
-			pdfManager = new PDFManager(pdfRoot);
-		} catch (TagNameException e){
-			RapidFitExceptionHandler.handles(e);
-		}
+
+		pdfManager = new PDFManager(pdfRoot);
 		
 		pdfTreePanel = new PDFTreePanel(pdfRoot, pdfManager.getNameMap()){
-			public void treeElementSelectedAction(Object pdf){
+			public void treeElementSelected(Object pdf){
 				if (pdf != null){
 					displayPanel.remove(pdfInspectorPanel);
-					pdfInspectorPanel = new PDFInspectorPanel(pdf);
+					pdfInspectorPanel = new PDFInspectorPanel(pdf, pdfManager);
+					Border border = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+					Border title = BorderFactory.createTitledBorder(
+							"<html><b>PDF Inspector</b></html>");
+					pdfInspectorPanel.setBorder(new CompoundBorder(border, title));
+					
 					displayPanel.add(pdfInspectorPanel);
 					displayPanel.validate();
 				}
@@ -59,7 +60,8 @@ public class PDFViewer extends JPanel implements ActionListener {
 				"<html><b>PDF Expression</b></html>");
 		pdfTreePanel.setBorder(new CompoundBorder(border, title));
 		
-		title = BorderFactory.createTitledBorder("<html><b>PDF Inspector</b></html>");
+		title = BorderFactory.createTitledBorder(
+				"<html><b>PDF Inspector</b></html>");
 		pdfInspectorPanel = new PDFInspectorPanel();	
 		pdfInspectorPanel.setBorder(new CompoundBorder(border, title));
 		
@@ -82,19 +84,13 @@ public class PDFViewer extends JPanel implements ActionListener {
 
 	//update the pdf tree and pdf tag names
 	public void updatePDFTree(){
-		try {
-			pdfManager = new PDFManager(pdfRoot);
-		} catch (TagNameException e){
-			RapidFitExceptionHandler.handles(e);
-		}
 		pdfTreePanel.updatePDFTree(pdfManager.getNameMap());
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnEditPDF){
-			PDFBuilder pdfBuilder = new PDFBuilder(parameters, pdfRoot);
-			pdfBuilder.setVisible(true);
+			new PDFBuilder(parameters, pdfRoot, pdfManager).setVisible(true);
 			updatePDFTree();
 		}			
 	}	

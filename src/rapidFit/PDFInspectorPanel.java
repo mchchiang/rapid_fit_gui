@@ -28,24 +28,25 @@ public class PDFInspectorPanel extends JPanel {
 	}
 	
 	
-	public PDFInspectorPanel(Object pdf){
+	public PDFInspectorPanel(Object pdf, PDFManager pdfManager){
 		setLayout(new BorderLayout());
 		if (pdf instanceof SumPDFType){
-			setPanelForSumPDF((SumPDFType) pdf);
+			setPanelForSumPDF((SumPDFType) pdf, pdfManager);
 		} else if (pdf instanceof ProdPDFType){
-			setPanelForProdPDF((ProdPDFType) pdf);
+			setPanelForProdPDF((ProdPDFType) pdf, pdfManager);
 		} else if (pdf instanceof PDFType){
-			setPanelForPDF((PDFType) pdf);
+			setPanelForPDF((PDFType) pdf, pdfManager);
 		}
 		add(scrollPane);
 	}
 	
-	private void setPanelForPDF(PDFType pdf){
+	private void setPanelForPDF(PDFType pdf, PDFManager pdfManager){
 		//display all info of the PDF
 		JLabel lblInfo;
 		String info = "<html>"
 				+ "<body>"
 				+ "<h3>PDF Info</h3>"
+				+ "<p><b>Tag Name: </b>" + pdfManager.getTagName(pdf) + "</p><br>"
 				+ "<p><b>Properties</b>"
 				+ "<table border=\"1\">";
 		Method [] getMethods = PDFType.class.getDeclaredMethods();
@@ -64,22 +65,40 @@ public class PDFInspectorPanel extends JPanel {
 		}
 
 		//also display the configuration info
-		info += "</table></p><br><p><b>Configuration Paramereters</h4></b>";
-		for (String config : pdf.getConfigurationParameter()){
-			info += "<li>" + config + "</li>"; 
+		info += "</table></p><br>"
+				+ "<p><b>Configuration Paramereters</b>";
+		if (pdf.getConfigurationParameter().size() == 0){
+			info += "<br>There is no configuration parameter.";
+		} else {
+			info += "<ul>";
+			for (String config : pdf.getConfigurationParameter()){
+				info += "<li>" + config + "</li>"; 
+			}
+			info += "</ul>";
 		}
-		info += "</ul></p></font></body></html>";
+		
+		info += "</p><br><p><b>Parameter Substitutions</b>";
+		if (pdf.getParameterSubstitution().size() == 0){
+			info += "<br>There is no parameter substitution.";
+		} else {
+			info += "<ul>";
+			for (String paramSub : pdf.getParameterSubstitution()){
+				info += "<li>" + paramSub + "</li>"; 
+			}
+			info += "</ul>";
+		}	
+		info += "</p><br></font></body></html>";
 		lblInfo = new JLabel(info);
 		scrollPane = new JScrollPane(lblInfo);
 	}
 	
-	private void setPanelForSumPDF(SumPDFType pdf){
+	private void setPanelForSumPDF(SumPDFType pdf, PDFManager pdfManager){
 		//display all info of the PDF sum
 		JLabel lblInfo;
 		String info = "<html><body><h3>PDF Sum Info</h3><p><b>This is a PDF sum of:</b><ul>";
 		for (Object obj : ((SumPDFType) pdf).getProdPDFOrNormalisedSumPDFOrPDF()){
 			if (obj instanceof PDFType){
-				info += "<li>" + ((PDFType) obj).getName() + "</li>";
+				info += "<li>" + pdfManager.getTagName((PDFType) obj) + "</li>";
 			} else if (obj instanceof SumPDFType){
 				info += "<li>A PDF Sum</li>";
 			} else if (obj instanceof ProdPDFType){
@@ -91,12 +110,12 @@ public class PDFInspectorPanel extends JPanel {
 		scrollPane = new JScrollPane(lblInfo);
 	}
 	
-	private void setPanelForProdPDF(ProdPDFType pdf){
+	private void setPanelForProdPDF(ProdPDFType pdf, PDFManager pdfManager){
 		JLabel lblInfo;
 		String info = "<html><body><h3>PDF Product Info</h3><p><b>This is a PDF product of:</b><ul>";
 		for (Object obj : ((ProdPDFType) pdf).getProdPDFOrNormalisedSumPDFOrPDF()){
 			if (obj instanceof PDFType){
-				info += "<li>" + ((PDFType) obj).getName() + "</li>";
+				info += "<li>" + pdfManager.getTagName((PDFType) obj) + "</li>";
 			} else if (obj instanceof SumPDFType){
 				info += "<li>A PDF Sum</li>";
 			} else if (obj instanceof ProdPDFType){

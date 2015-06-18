@@ -13,7 +13,9 @@ public class PDFEditor extends JDialog implements ActionListener {
 	private final int width = 700;
 	private final int height = 550;
 	
-	private AttributePanel<PDFType> pdfPanel;
+	private AttributePanel<PDFType> pdfInfoPanel;
+	private TagNamePanel<PDFType> tagNamePanel;
+	private JPanel pdfPanel;
 	
 	private DataTablePanel<ConfigParam> configTablePanel;
 	private DataTablePanel<ParameterSubstitution> paramSubTablePanel;
@@ -27,7 +29,7 @@ public class PDFEditor extends JDialog implements ActionListener {
 	private List<ParameterSubstitution> paramSubs;
 	private PDFType pdf;
 	
-	public PDFEditor(PDFType pdf){
+	public PDFEditor(PDFType pdf, PDFManager manager){
 		setTitle("PDF Editor");
 		setResizable(true);
 		setModal(true);
@@ -36,10 +38,17 @@ public class PDFEditor extends JDialog implements ActionListener {
 		
 		this.pdf = pdf;
 		
-		pdfPanel = new AttributePanel<PDFType>
+		pdfInfoPanel = new AttributePanel<PDFType>
 		(PDFType.class, pdf, "PDF Info", null);
+		
+		tagNamePanel = new TagNamePanel<PDFType>(manager, this.pdf);
+		
+		pdfPanel = new JPanel();
+		pdfPanel.setLayout(new BorderLayout());
+		pdfPanel.add(tagNamePanel, BorderLayout.NORTH);
+		pdfPanel.add(pdfInfoPanel, BorderLayout.CENTER);
 		pdfPanel.setBorder(BorderFactory.createTitledBorder(
-				"<html><h3>PDF Info</html></h3>"));
+				"<html><h3>PDF Details</html></h3>"));
 		
 		configs = new ArrayList<ConfigParam>();
 		for (String config : pdf.getConfigurationParameter()){

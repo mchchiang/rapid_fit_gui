@@ -13,7 +13,7 @@ public class PDFManager extends TagNameManager<PDFType> {
 	
 	private HashMap<String, Integer> tagNameCounter;
 	
-	public PDFManager(PDFExpressionType root) throws TagNameException {
+	public PDFManager(PDFExpressionType root){
 
 		super();//for initialising the name map
 		
@@ -30,7 +30,7 @@ public class PDFManager extends TagNameManager<PDFType> {
 	}
 	
 	//a recursive method to find all the PDFs
-	private void getPDFs(Object node) throws TagNameException {
+	private void getPDFs(Object node) {
 		if (node instanceof SumPDFType){
 			getPDFs(((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
 			getPDFs(((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
@@ -45,19 +45,18 @@ public class PDFManager extends TagNameManager<PDFType> {
 	}
 	
 	//only for adding a new entry to the PDF map (not for setting the tag name)
-	public void addEntry(PDFType entry, String name) throws TagNameException{
+	public void addEntry(PDFType entry, String name){
 		//ensure that the map does not contain the entry
-		if (nameMap.containsKey(entry)){
-			throw new TagNameException(TagNameException.ErrorType.DUPLICATE_ENTRY);
+		if (!nameMap.containsKey(entry)){
+			
+			if (tagNameCounter.containsKey(name)){
+				tagNameCounter.put(name, tagNameCounter.get(name)+1);
+			} else {
+				tagNameCounter.put(name, new Integer(1));
+			}
+			
+			nameMap.put(entry, name + "_" + tagNameCounter.get(name));
 		}
-		
-		if (tagNameCounter.containsKey(name)){
-			tagNameCounter.put(name, tagNameCounter.get(name)+1);
-		} else {
-			tagNameCounter.put(name, new Integer(0));
-		}
-		
-		nameMap.put(entry, name + "_" + tagNameCounter.get(name));
 	}
 	
 	public HashMap<String, PDFType> getTagNameAsKeyMap(){
