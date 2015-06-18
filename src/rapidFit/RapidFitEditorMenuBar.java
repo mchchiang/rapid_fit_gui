@@ -24,6 +24,8 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	
 	private File inputFile;//for storing input file path
 	
+	
+	
 	public RapidFitEditorMenuBar(RapidFitEditor e){
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("XML file", "xml");
 		fc.setFileFilter(filter);

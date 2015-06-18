@@ -102,14 +102,20 @@ public class PDFEditor extends JDialog implements ActionListener {
 			//clear old configurations
 			pdf.getConfigurationParameter().clear();
 			for (ConfigParam config : configs){
-				pdf.getConfigurationParameter().add(
-						config.getConfigurationParameter());
+				//only add non-null elements
+				if (config.getConfigurationParameter() != null){
+					pdf.getConfigurationParameter().add(
+							config.getConfigurationParameter());
+				}
 			}
 			
 			pdf.getParameterSubstitution().clear();
 			for (ParameterSubstitution paramSub : paramSubs){
-				pdf.getParameterSubstitution().add(
-						paramSub.getParameterSubstitution());
+				//only add non-null elements
+				if (paramSub.getParameterSubstitution() != null){
+					pdf.getParameterSubstitution().add(
+							paramSub.getParameterSubstitution());
+				}
 			}
 			
 			dispose();	
