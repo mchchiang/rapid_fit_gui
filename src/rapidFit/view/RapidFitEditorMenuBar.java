@@ -128,8 +128,12 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				
-				XMLIO.getInstance().writeFile(RapidFitMainControl.getInstance().getRoot(), 
-						file.getAbsolutePath());
+				try {
+					XMLIO.getInstance().writeFile(RapidFitMainControl.getInstance().getRoot(), 
+							file.getAbsolutePath());
+				} catch (XMLIOException err){
+					RapidFitExceptionHandler.handles(err);
+				}
 				
 				RapidFitMainControl.getInstance().setFile(file);
 				RapidFitMainControl.getInstance().setUnsavedEdits(false);
@@ -139,9 +143,13 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		
 		} else if (e.getSource() == mnuSave){			
 			//write the file
-			XMLIO.getInstance().writeFile(RapidFitMainControl.getInstance().getRoot(), 
-					RapidFitMainControl.getInstance().getFile().getAbsolutePath());
-			
+			try {
+				XMLIO.getInstance().writeFile(RapidFitMainControl.getInstance().getRoot(), 
+						RapidFitMainControl.getInstance().getFile().getAbsolutePath());
+			} catch (XMLIOException err){
+				RapidFitExceptionHandler.handles(err);
+			}
+
 			RapidFitMainControl.getInstance().setUnsavedEdits(false);
 			
 		} else if (e.getSource() == mnuNew) {

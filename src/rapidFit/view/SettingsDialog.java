@@ -11,8 +11,8 @@ import rapidFit.main.RapidFitMainControl;
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog implements ActionListener {
 	
-	private final int width = 400;
-	private final int height = 150;
+	private final int width = 450;
+	private final int height = 200;
 	
 	private JPanel settingPanel;
 	
@@ -29,7 +29,7 @@ public class SettingsDialog extends JDialog implements ActionListener {
 		setModal(true);
 		setSize(new Dimension(width, height));
 		setPreferredSize(new Dimension(width, height));
-		setResizable(false);
+		setResizable(true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		ArrayList<JComponent> components = new ArrayList<JComponent>();
@@ -93,10 +93,10 @@ public class SettingsDialog extends JDialog implements ActionListener {
 				c.ipady = 10;
 				settingPanel.add(component, c);
 			}	
-			
-			this.add(settingPanel, BorderLayout.CENTER);
-			pack();
 		}
+		
+		this.add(settingPanel, BorderLayout.CENTER);
+		pack();
 	}
 	
 	public void actionPerformed(ActionEvent e){

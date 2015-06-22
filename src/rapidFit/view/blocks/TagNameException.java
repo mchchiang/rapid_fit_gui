@@ -1,7 +1,9 @@
 package rapidFit.view.blocks;
 
+import rapidFit.main.RapidFitException;
+
 @SuppressWarnings("serial")
-public class TagNameException extends Exception {
+public class TagNameException extends RapidFitException {
 	
 	public enum ErrorType {
 		DUPLICATE_TAG_NAME,
@@ -12,8 +14,13 @@ public class TagNameException extends Exception {
 	
 	private ErrorType error;
 	
-	public TagNameException(ErrorType type){
-		super(type.toString());
+	public TagNameException(Exception e, ErrorType type){
+		super(e, null);
+		error = type;
+	}
+	
+	public TagNameException(Exception e, ErrorType type, String msg){
+		super(e, msg);
 		error = type;
 	}
 	

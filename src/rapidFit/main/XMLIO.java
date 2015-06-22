@@ -2,30 +2,35 @@ package rapidFit.main;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.URL;
 import java.util.*;
+
 import javax.xml.*;
 import javax.xml.bind.*;
 import javax.xml.bind.util.*;
 import javax.xml.validation.*;
+
 import org.xml.sax.*;
+
 import rapidFit.model.*;
 
 public class XMLIO {
 	
-	private static XMLIO io = null;	
+	private static XMLIO xmlio = null;	
 	private final String tempXMLFileURL = "~temp.xml";
 	private final String jaxbContextPackage = "rapidFit.model";
-	private final String schemaFileURL = XMLIO.class.getClassLoader().
-			getResource("rapidFit/main/RapidFit.xsd").getFile();
+	private final URL schemaFileURL = this.getClass().getClassLoader().
+			getResource("rapidFit/main/RapidFit.xsd");
 	
 	//private constructor to implement singleton pattern
 	private XMLIO() {};
 	
 	public static XMLIO getInstance(){
-		if (io == null){
-			io = new XMLIO();
+		if (xmlio == null){
+			xmlio = new XMLIO();
 		} 
-		return io;
+		
+		return xmlio;
 	}
 	
 	//convert the input XML to a properly formatted XML
@@ -34,7 +39,7 @@ public class XMLIO {
 		BufferedReader reader = null;
 		
 		try {
-			writer = new PrintWriter(new FileWriter(tempXMLFileURL));
+			writer = new PrintWriter(new FileWriter(new File(tempXMLFileURL)));
 			reader = new BufferedReader(new FileReader(fileURL));
 			
 			while (reader.ready()){
@@ -95,12 +100,17 @@ public class XMLIO {
 			writer.close();
 			
 		} catch (IOException e) {
-			throw new XMLIOException(XMLIOException.ErrorType.READ_FILE_ERROR);
+			throw new XMLIOException(e, XMLIOException.ErrorType.READ_FILE_ERROR);
 			
 		} finally {
+			try {
+				reader.close();
+			} catch (IOException e){
+				throw new XMLIOException(e, XMLIOException.ErrorType.INTERNAL_ERROR,
+						"Unable to close file stream from XML input file.");
+			}
 			writer.close();
 		}
-		
 	}
 	
 	private String formatLineToProperXML(String line, String tagName){
@@ -162,7 +172,6 @@ public class XMLIO {
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		//System.out.println("is null");
 		return true;
 	}
 	
@@ -341,11 +350,13 @@ public class XMLIO {
 		
 	}
 	
-	private void postWriteFile(String fileURL){
+	private void postWriteFile(String fileURL) throws XMLIOException {
+		PrintWriter writer = null;
+		BufferedReader reader = null;
+		
 		try {
-			
-			PrintWriter writer = new PrintWriter(new FileWriter(fileURL));
-			BufferedReader reader = new BufferedReader(new FileReader(tempXMLFileURL));
+			writer = new PrintWriter(new FileWriter(fileURL));
+			reader = new BufferedReader(new FileReader(new File(tempXMLFileURL)));
 			
 			while (reader.ready()){
 				/*
@@ -386,7 +397,16 @@ public class XMLIO {
 			writer.close();
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new XMLIOException(e, XMLIOException.ErrorType.WRITE_FILE_ERROR);
+			
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException e){
+				throw new XMLIOException(e, XMLIOException.ErrorType.INTERNAL_ERROR,
+						"Unable to close file stream from temp file.");
+			}
+			writer.close();
 		}
 	}
 	
@@ -405,9 +425,9 @@ public class XMLIO {
 		
 		if (enforceSchema){
 			try {
-				mySchema = sf.newSchema(new File(schemaFileURL));
+				mySchema = sf.newSchema(schemaFileURL);
 			} catch (SAXException saxe){
-				saxe.printStackTrace();
+				throw new XMLIOException(saxe, XMLIOException.ErrorType.READ_SCHEMA_ERROR);
 			}
 		}
 		
@@ -435,37 +455,48 @@ public class XMLIO {
              * file after the file is read
              */
             try {
-            	new File(tempXMLFileURL).delete();
+            	File file = new File(tempXMLFileURL);
+            	if (file.delete() == false){
+            		throw new XMLIOException(null, XMLIOException.ErrorType.INTERNAL_ERROR,
+                			"Unable to delete temp file.");
+            	}
             } catch (Exception e){
-            	e.printStackTrace();
+            	throw new XMLIOException(e, XMLIOException.ErrorType.INTERNAL_ERROR,
+            			"Unable to delete temp file.");
             }
             
         } catch( JAXBException je ) {
         	if (vec != null && vec.hasEvents()){
+        		String errorDetails = "";
         		for (ValidationEvent ve : vec.getEvents()){
         			String msg = ve.getMessage();
         			ValidationEventLocator vel = ve.getLocator();
         			int line = vel.getLineNumber();
         			int column = vel.getColumnNumber();
-        			System.err.println(fileURL + ": " + line + "." +
-        								column + ": " + msg);
+        			errorDetails += "line " + line + " column " +
+        								column + ": " + msg + "\n";
         		}
+        		throw new XMLIOException(je, XMLIOException.ErrorType.READ_XML_SCHEMA_VALIDATION_ERROR,
+        				errorDetails);
         	}
+        	throw new XMLIOException(je, XMLIOException.ErrorType.INTERNAL_ERROR, 
+        			"Error in JAXB marshalling process.");
         	
-        } catch( IOException ioe ) {
-            ioe.printStackTrace();
+        } catch (IOException e) {
+            throw new XMLIOException(e, XMLIOException.ErrorType.INTERNAL_ERROR,
+            		"Temp file " + tempXMLFileURL + " not found.");
             
-        }  catch (Exception e){
-        	e.printStackTrace();
+        } catch (Exception e){
+        	throw new XMLIOException(e, XMLIOException.ErrorType.UNKNOWN_ERROR);
         }
         
         if (root == null){
-        	throw new XMLIOException (XMLIOException.ErrorType.XML_PARSING_ERROR);
+        	throw new XMLIOException(null, XMLIOException.ErrorType.XML_PARSING_ERROR);
         }
         return root;
     }
 	
-	public void writeFile (RapidFitType rpfit, String fileURL){
+	public void writeFile (RapidFitType rpfit, String fileURL) throws XMLIOException {
 		/*
 		 * make a copy of the data (so the edits in the GUI is not
 		 * affected by the removal of empty elements in pre-processing
@@ -485,9 +516,9 @@ public class XMLIO {
 		
 		if (enforceSchema){
 			try {
-				mySchema = sf.newSchema(new File(schemaFileURL));
+				mySchema = sf.newSchema(schemaFileURL);
 			} catch (SAXException saxe){
-				saxe.printStackTrace();
+				throw new XMLIOException(saxe, XMLIOException.ErrorType.READ_SCHEMA_ERROR);
 			}
 		}
 		
@@ -518,24 +549,39 @@ public class XMLIO {
              * delete the temporary file used for generating the output XML file
              */
             try {
-            	new File(tempXMLFileURL).delete();
+            	File file = new File(tempXMLFileURL);
+            	if (file.delete() == false){
+            		throw new XMLIOException(null, XMLIOException.ErrorType.INTERNAL_ERROR,
+                			"Unable to delete temp file.");
+            	}
             } catch (Exception e){
-            	e.printStackTrace();
+            	throw new XMLIOException (e, XMLIOException.ErrorType.INTERNAL_ERROR,
+            			"Unable to delete temp file.");
             }
             
-        } catch( JAXBException je ) {
+        } catch (JAXBException je) {
         	if (vec != null && vec.hasEvents()){
+        		String errorDetails = "";
         		for (ValidationEvent ve : vec.getEvents()){
         			String msg = ve.getMessage();
         			ValidationEventLocator vel = ve.getLocator();
         			int line = vel.getLineNumber();
         			int column = vel.getColumnNumber();
-        			System.err.println(fileURL + ": " + line + "." +
-							column + ": " + msg);
+        			errorDetails += "line " + line + " column " +
+							column + ": " + msg + "\n";
         		}
+        		throw new XMLIOException(je, XMLIOException.ErrorType.WRITE_XML_SCHEMA_VALIDATION_ERROR,
+        				errorDetails);
         	}
-        } catch(IOException e){
-        	e.printStackTrace();
+        	throw new XMLIOException(je, XMLIOException.ErrorType.INTERNAL_ERROR, 
+        			"Error in JAXB marshalling process.");
+        	
+        } catch (IOException e){
+        	throw new XMLIOException(e, XMLIOException.ErrorType.INTERNAL_ERROR,
+        			"Temp file " + tempXMLFileURL + " not found.");
+        	
+        } catch (Exception e){
+        	throw new XMLIOException(e, XMLIOException.ErrorType.UNKNOWN_ERROR);
         }
     }
 }

@@ -70,11 +70,11 @@ public class TagNameManager<T> {
 		 * to the map
 		 */
 		if (nameMap.containsValue(tagName)){
-			throw new TagNameException(
+			throw new TagNameException(null,
 					TagNameException.ErrorType.DUPLICATE_TAG_NAME);
 		}
 		if (!nameMap.containsKey(entry)){
-			throw new TagNameException(
+			throw new TagNameException(null,
 					TagNameException.ErrorType.ENTRY_NOT_EXIST);
 		}
 		nameMap.put(entry, tagName);
