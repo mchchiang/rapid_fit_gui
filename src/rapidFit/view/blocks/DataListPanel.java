@@ -45,6 +45,7 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 	private JButton btnAdd;
 	private JButton btnRemove;
 	private JButton btnCopy;
+	
 	//for extra buttons to be added to the option panel
 	private ArrayList<JButton> extraButtons = null;
 	
@@ -54,6 +55,7 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 	
 	public DataListPanel (Class<T> clazz, List<T> dataRoot, 
 			List<T> data, TagNameManager<T> manager,
+			boolean showAddBtn, boolean showRemoveBtn, boolean showCopyBtn, 
 			ArrayList<JButton> buttons){
 		this.dataClass = clazz;
 		this.root = dataRoot;
@@ -72,7 +74,7 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 		tagNameManager = manager;
 		
 		initDataListPanel();
-		initOptionPanel();
+		initOptionPanel(showAddBtn, showRemoveBtn, showCopyBtn);
 		initMainPanel();
 	}
 	
@@ -97,22 +99,29 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 		scrollPane = new JScrollPane(dataList);
 	}
 	
-	public void initOptionPanel(){
+	public void initOptionPanel(boolean showAddBtn, 
+			boolean showRemoveBtn, boolean showCopyBtn){
 		//initialise the option panel containing the buttons
-		btnAdd = new JButton("Add");
-		btnAdd.addActionListener(this);
-		
-		btnRemove = new JButton("Remove");
-		btnRemove.addActionListener(this);
-		
-		btnCopy = new JButton("Copy");
-		btnCopy.addActionListener(this);
-
 		optionPanel = new JPanel();
 		optionPanel.setLayout(new GridLayout(0,2));
-		optionPanel.add(btnAdd);
-		optionPanel.add(btnRemove);
-		optionPanel.add(btnCopy);
+		
+		if (showAddBtn){
+			btnAdd = new JButton("Add");
+			btnAdd.addActionListener(this);
+			optionPanel.add(btnAdd);
+		}
+		
+		if (showRemoveBtn){
+			btnRemove = new JButton("Remove");
+			btnRemove.addActionListener(this);
+			optionPanel.add(btnRemove);
+		}
+		
+		if (showCopyBtn){
+			btnCopy = new JButton("Copy");
+			btnCopy.addActionListener(this);
+			optionPanel.add(btnCopy);
+		}
 		
 		/*
 		 * add action listener to extra buttons and add the

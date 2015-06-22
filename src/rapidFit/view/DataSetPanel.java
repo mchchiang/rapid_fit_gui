@@ -1,16 +1,15 @@
 package rapidFit.view;
 
-import java.util.ArrayList;
-import java.util.List;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
 import rapidFit.model.*;
-import rapidFit.view.blocks.AttributePanel;
-import rapidFit.view.blocks.DataTablePanel;
-import rapidFit.view.blocks.PDFViewer;
+import rapidFit.view.blocks.*;
 
 @SuppressWarnings("serial")
 public class DataSetPanel extends JPanel implements ActionListener{

@@ -73,7 +73,8 @@ public abstract class AbstractDataListViewer<T> extends JPanel {
 	public void initDataListPanel(){
 		//initialise the list panel
 		dataListPanel = new DataListPanel<T>(
-				dataClass, root, data, tagNameManager, null){
+				dataClass, root, data, tagNameManager, 
+				true, true, true, null){
 			protected void mouseClickedOnListEntry(T entry, int clickCount){
 				changeDataDisplayPanel(entry);
 			}

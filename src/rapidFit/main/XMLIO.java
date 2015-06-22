@@ -1,26 +1,41 @@
 package rapidFit.main;
 
-
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
-
-//import javax.xml.*;
+import javax.xml.*;
 import javax.xml.bind.*;
-
+import javax.xml.bind.util.*;
+import javax.xml.validation.*;
+import org.xml.sax.*;
 import rapidFit.model.*;
 
 public class XMLIO {
 	
-	private final static String tempXMLFileURL = "~temp.xml";
-	private final static String jaxbContextPackage = "rapidFit.model";
+	private static XMLIO io = null;	
+	private final String tempXMLFileURL = "~temp.xml";
+	private final String jaxbContextPackage = "rapidFit.model";
+	private final String schemaFileURL = XMLIO.class.getClassLoader().
+			getResource("rapidFit/main/RapidFit.xsd").getFile();
+	
+	//private constructor to implement singleton pattern
+	private XMLIO() {};
+	
+	public static XMLIO getInstance(){
+		if (io == null){
+			io = new XMLIO();
+		} 
+		return io;
+	}
 	
 	//convert the input XML to a properly formatted XML
-	private static void preReadFile(String fileURL) throws XMLIOException {
+	private void preReadFile(String fileURL) throws XMLIOException {
+		PrintWriter writer = null;
+		BufferedReader reader = null;
+		
 		try {
-			
-			PrintWriter writer = new PrintWriter(new FileWriter(tempXMLFileURL));
-			BufferedReader reader = new BufferedReader(new FileReader(fileURL));
+			writer = new PrintWriter(new FileWriter(tempXMLFileURL));
+			reader = new BufferedReader(new FileReader(fileURL));
 			
 			while (reader.ready()){
 				/*
@@ -36,36 +51,44 @@ public class XMLIO {
 				line = line.replaceAll("True", "true");
 				line = line.replaceAll("False", "false");
 				
-				if (line.trim().startsWith("#")){
-					//ignore line
-				} else if (line.indexOf("<Minimiser>") != -1 && line.indexOf("</Minimiser>") != -1){
-					int startIndex = line.indexOf("<Minimiser>");
-					int endIndex = line.indexOf("</Minimiser>");
+				//ignore line starts with #
+				if (!line.trim().startsWith("#")){
+					/*
+					 * fix the problem that some XML files specify the name of the minimiser
+					 * and the fit function in the main container tag instead of in the "name"
+					 * tag within the container tag
+					 */
+					if (line.indexOf("<Minimiser>") != -1 && line.indexOf("</Minimiser>") != -1){
+						int startIndex = line.indexOf("<Minimiser>");
+						int endIndex = line.indexOf("</Minimiser>");
+						
+						writer.println(line.substring(0, startIndex) + "<Minimiser>");
+						String text = line.substring(startIndex + "<Minimiser>".length(), endIndex);
+						writer.println(line.substring(0, startIndex) + "\t" +
+								"<MinimiserName>" + text + "</MinimiserName>");
+						writer.println(line.substring(0, startIndex) + "</Minimiser>");
 					
-					writer.println(line.substring(0, startIndex) + "<Minimiser>");
-					String text = line.substring(startIndex + "<Minimiser>".length(), endIndex);
-					writer.println(line.substring(0, startIndex) + "\t" +
-							"<MinimiserName>" + text + "</MinimiserName>");
-					writer.println(line.substring(0, startIndex) + "</Minimiser>");
-				
-				} else if (line.indexOf("<FitFunction>") != -1 && line.indexOf("</FitFunction>") != -1){
-					int startIndex = line.indexOf("<FitFunction>");
-					int endIndex = line.indexOf("</FitFunction>");
+					} else if (line.indexOf("<FitFunction>") != -1 && line.indexOf("</FitFunction>") != -1){
+						int startIndex = line.indexOf("<FitFunction>");
+						int endIndex = line.indexOf("</FitFunction>");
+						
+						writer.println(line.substring(0, startIndex) + "<FitFunction>");
+						String text = line.substring(startIndex + "<FitFunction>".length(), endIndex);
+						writer.println(line.substring(0, startIndex) + "\t" +
+								"<FunctionName>" + text + "</FunctionName>");
+						writer.println(line.substring(0, startIndex) + "</FitFunction>");
 					
-					writer.println(line.substring(0, startIndex) + "<FitFunction>");
-					String text = line.substring(startIndex + "<FitFunction>".length(), endIndex);
-					writer.println(line.substring(0, startIndex) + "\t" +
-							"<FunctionName>" + text + "</FunctionName>");
-					writer.println(line.substring(0, startIndex) + "</FitFunction>");
-				
-					
-				} else if (line.indexOf("<CutString>") != -1 && line.indexOf("</CutString>") != -1){
-					writer.println(formatLineToProperXML(line, "CutString"));
-				} else if (line.indexOf("<TF1>") != -1 && line.indexOf("</TF1>") != -1){
-					writer.println(formatLineToProperXML(line, "TF1"));
-				} else {
-					writer.println(line);
-				}
+						
+					} else if (line.indexOf("<CutString>") != -1 && line.indexOf("</CutString>") != -1){
+						writer.println(formatLineToProperXML(line, "CutString"));
+						
+					} else if (line.indexOf("<TF1>") != -1 && line.indexOf("</TF1>") != -1){
+						writer.println(formatLineToProperXML(line, "TF1"));
+						
+					} else {
+						writer.println(line);
+					}
+				} 
 			}
 			
 			reader.close();
@@ -73,11 +96,14 @@ public class XMLIO {
 			
 		} catch (IOException e) {
 			throw new XMLIOException(XMLIOException.ErrorType.READ_FILE_ERROR);
+			
+		} finally {
+			writer.close();
 		}
 		
 	}
 	
-	private static String formatLineToProperXML(String line, String tagName){
+	private String formatLineToProperXML(String line, String tagName){
 		int startIndex = line.indexOf("<" + tagName + ">");
 		int endIndex = line.indexOf("</" + tagName + ">");
 		String output = line.substring(0, startIndex) + "<" + tagName + ">";
@@ -91,7 +117,7 @@ public class XMLIO {
 		return output;
 	}
 	
-	private static String formatLineToRapidFitXML(String line, String tagName){
+	private String formatLineToRapidFitXML(String line, String tagName){
 		int startIndex = line.indexOf("<" + tagName + ">");
 		int endIndex = line.indexOf("</" + tagName + ">");
 		String output = line.substring(0, startIndex) + "<" + tagName + ">";
@@ -105,7 +131,8 @@ public class XMLIO {
 		return output;
 	}
 	
-	private static void removeNullElements(Iterator<?> it){
+	//remove objects in a List that have null properties
+	private void removeNullElements(Iterator<?> it){
 		while (it.hasNext()){
 			if (isNull(it.next())){
 				it.remove();
@@ -118,7 +145,7 @@ public class XMLIO {
 	 * the object that can be accessed by getter methods are null. If the field 
 	 * is a List, it will be treated as null if it contains no element.
 	 */
-	private static boolean isNull (Object obj){
+	private boolean isNull (Object obj){
 		try {
 			for (Method m : obj.getClass().getDeclaredMethods()){
 				//if the field is a List
@@ -139,7 +166,7 @@ public class XMLIO {
 		return true;
 	}
 	
-	private static void preWriteFile(RapidFitType root){
+	private void preWriteFile(RapidFitType root){
 		//remove all empty components before writing file
 		
 		//ParameterSet
@@ -314,7 +341,7 @@ public class XMLIO {
 		
 	}
 	
-	private static void postWriteFile(String fileURL){
+	private void postWriteFile(String fileURL){
 		try {
 			
 			PrintWriter writer = new PrintWriter(new FileWriter(fileURL));
@@ -322,7 +349,9 @@ public class XMLIO {
 			
 			while (reader.ready()){
 				/*
-				 * format the text in <CutString> tag to make the file well-formed
+				 * convert the text in <CutString> and <TF1> tag to the format recognised
+				 * by the RapidFit programme (i.e. convert all special characters in XML
+				 * to their original form)
 				 */
 				String line = reader.readLine();
 				
@@ -361,22 +390,26 @@ public class XMLIO {
 		}
 	}
 	
-	public static RapidFitType readFile (String fileURL, String schemaURL) throws XMLIOException {
+	public RapidFitType readFile (String fileURL) throws XMLIOException {
 		preReadFile(fileURL);
 		
 		RapidFitType root = null;
 		
 		//validate xml document
-		//Schema mySchema = null;
-		//SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		boolean enforceSchema = RapidFitMainControl.getInstance().isSchemaEnforced();
+		Schema mySchema = null;
+		SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		JAXBContext jc = null;
 		Unmarshaller u = null;
-		/*ValidationEventCollector vec = new ValidationEventCollector();
-		try {
-			mySchema = sf.newSchema(new File(schemaURL));
-		} catch (SAXException saxe){
-			saxe.printStackTrace();
-		}*/
+		ValidationEventCollector vec = new ValidationEventCollector();
+		
+		if (enforceSchema){
+			try {
+				mySchema = sf.newSchema(new File(schemaFileURL));
+			} catch (SAXException saxe){
+				saxe.printStackTrace();
+			}
+		}
 		
         try {
         	
@@ -386,8 +419,11 @@ public class XMLIO {
             
             // create an Unmarshaller
             u = jc.createUnmarshaller();
-           // u.setSchema(mySchema);
-            //u.setEventHandler(vec);
+            
+            if (enforceSchema){
+            	u.setSchema(mySchema);
+                u.setEventHandler(vec);
+            }
             
             // unmarshal a po instance document into a tree of Java content
             // objects composed of classes from the primer.po package.
@@ -405,7 +441,7 @@ public class XMLIO {
             }
             
         } catch( JAXBException je ) {
-        	/*if (vec != null && vec.hasEvents()){
+        	if (vec != null && vec.hasEvents()){
         		for (ValidationEvent ve : vec.getEvents()){
         			String msg = ve.getMessage();
         			ValidationEventLocator vel = ve.getLocator();
@@ -414,7 +450,7 @@ public class XMLIO {
         			System.err.println(fileURL + ": " + line + "." +
         								column + ": " + msg);
         		}
-        	}*/
+        	}
         	
         } catch( IOException ioe ) {
             ioe.printStackTrace();
@@ -429,7 +465,7 @@ public class XMLIO {
         return root;
     }
 	
-	public static void writeFile (RapidFitType rpfit, String fileURL, String schemaURL){
+	public void writeFile (RapidFitType rpfit, String fileURL){
 		/*
 		 * make a copy of the data (so the edits in the GUI is not
 		 * affected by the removal of empty elements in pre-processing
@@ -439,19 +475,21 @@ public class XMLIO {
 		
 		preWriteFile(copyOfFit);
 		
-		//System.out.println("Writing File...");
-		
 		//validate xml document
-		//Schema mySchema = null;
-		//SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		boolean enforceSchema = RapidFitMainControl.getInstance().isSchemaEnforced();
+		Schema mySchema = null;
+		SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		JAXBContext jc = null;
 		Marshaller m = null;
-		//ValidationEventCollector vec = new ValidationEventCollector();
-		/*try {
-			mySchema = sf.newSchema(new File(schemaURL));
-		} catch (SAXException saxe){
-			saxe.printStackTrace();
-		}*/
+		ValidationEventCollector vec = new ValidationEventCollector();
+		
+		if (enforceSchema){
+			try {
+				mySchema = sf.newSchema(new File(schemaFileURL));
+			} catch (SAXException saxe){
+				saxe.printStackTrace();
+			}
+		}
 		
         try {
             // create a JAXBContext capable of handling classes generated into
@@ -460,9 +498,12 @@ public class XMLIO {
             
             // create an Unmarshaller
             m = jc.createMarshaller();
-           // u.setSchema(mySchema);
-            //u.setEventHandler(vec);
-            
+           
+            if (enforceSchema){
+            	m.setSchema(mySchema);
+                m.setEventHandler(vec);
+            }
+             
             // unmarshal a po instance document into a tree of Java content
             // objects composed of classes from the primer.po package.
             ObjectFactory of = new ObjectFactory();
@@ -483,16 +524,16 @@ public class XMLIO {
             }
             
         } catch( JAXBException je ) {
-        	/*if (vec != null && vec.hasEvents()){
+        	if (vec != null && vec.hasEvents()){
         		for (ValidationEvent ve : vec.getEvents()){
         			String msg = ve.getMessage();
         			ValidationEventLocator vel = ve.getLocator();
         			int line = vel.getLineNumber();
         			int column = vel.getColumnNumber();
-        			System.err.println(file + ": " + line + "." +
-        								column + ": " + msg);
+        			System.err.println(fileURL + ": " + line + "." +
+							column + ": " + msg);
         		}
-        	}*/
+        	}
         } catch(IOException e){
         	e.printStackTrace();
         }

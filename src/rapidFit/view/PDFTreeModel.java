@@ -1,4 +1,4 @@
-package rapidFit.view.blocks;
+package rapidFit.view;
 
 import java.io.Serializable;
 

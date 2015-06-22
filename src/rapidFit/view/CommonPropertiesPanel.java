@@ -6,8 +6,7 @@ import java.util.List;
 import javax.swing.*;
 
 import rapidFit.model.*;
-import rapidFit.view.blocks.DataTablePanel;
-import rapidFit.view.blocks.PDFViewer;
+import rapidFit.view.blocks.*;
 
 @SuppressWarnings("serial")
 public class CommonPropertiesPanel extends JPanel {

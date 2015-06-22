@@ -38,8 +38,8 @@ public class RapidFitFactory {
 	}
 	
 	//create a fit from file
-	public static RapidFitType createFitFromFile(String fileURL, String schemaURL) throws XMLIOException {
-		RapidFitType root = XMLIO.readFile(fileURL, schemaURL);
+	public static RapidFitType createFitFromFile(String fileURL) throws XMLIOException {
+		RapidFitType root = XMLIO.getInstance().readFile(fileURL);
 		
 		//check that all components/classes of the fit are initialised
 		if (root.getParameterSet() == null) root.setParameterSet(new ParameterSetType());
@@ -60,7 +60,6 @@ public class RapidFitFactory {
 		
 		if (root.getOutput() == null){
 			OutputType output = new OutputType();
-			
 			root.setOutput(output);
 		}
 		

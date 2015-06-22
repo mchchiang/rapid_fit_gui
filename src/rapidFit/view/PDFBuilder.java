@@ -1,4 +1,4 @@
-package rapidFit.view.blocks;
+package rapidFit.view;
 
 import java.util.List;
 import java.util.*;
@@ -9,6 +9,8 @@ import javax.swing.*;
 
 import rapidFit.main.Cloner;
 import rapidFit.model.*;
+import rapidFit.view.blocks.DataList;
+import rapidFit.view.blocks.DataListPanel;
 
 
 @SuppressWarnings("serial")
@@ -81,7 +83,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
 				int result = JOptionPane.showOptionDialog(thisPanel, 
 						"Are you sure to close this window without saving?\n "
-								+ "All edits on the PDFs will be lost.", "Really Closing?", 
+								+ "All edits on the PDF expression and the PDFs will be lost.", "Really Closing?", 
 								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 								new String [] {"Yes", "No"}, "No");
 				if (result == JOptionPane.YES_OPTION){
@@ -102,7 +104,8 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		buttons.add(btnEditPDF);
 		ArrayList<PDFType> pdfList = pdfManager.getListOfPDFs();
 		pdfListPanel = new DataListPanel<PDFType>(
-				PDFType.class, pdfList, pdfList, pdfManager, buttons){
+				PDFType.class, pdfList, pdfList, pdfManager, 
+				true, false, true, buttons){
 
 			protected void mouseClickedOnListEntry(PDFType pdf, int clickCount){
 				if (clickCount == 1 && rbInspectFromPDFList.isSelected()){

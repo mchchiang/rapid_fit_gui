@@ -1,8 +1,9 @@
-package rapidFit.view.blocks;
+package rapidFit.view;
 
 import java.util.*;
 
 import rapidFit.model.*;
+import rapidFit.view.blocks.TagNameManager;
 
 /*
  * a class to handle tag names for PDFs. This is needed as it is possible

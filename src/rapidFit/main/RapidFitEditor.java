@@ -20,9 +20,9 @@ import rapidFit.view.blocks.DataTablePanel;
 public class RapidFitEditor extends JFrame {
 	private final int width = 1000;
 	private final int height = 800;
-	
+
 	private JTabbedPane tabs;
-	
+
 	//all panels
 	private DataTablePanel<PhysicsParameterType> paramSetPanel;
 	private CommonPropertiesPanel commonPhaseSpacePanel;
@@ -31,50 +31,50 @@ public class RapidFitEditor extends JFrame {
 	private FitDataSetPanel fitDataSetPanel;
 	private OutputScanPanel outputScanPanel;
 	private DataListViewer<ComponentProjectionType> outputProjectionPanel;
-	
+
 	private JTextArea txtNoData;
-	
+
 	private static RapidFitEditor editor = null;
-	
+
 	private RapidFitEditor(){
 		init();
 	}
-	
+
 	public static RapidFitEditor getInstance(){
 		if (editor == null){
 			editor = new RapidFitEditor();
 		}
 		return editor;
 	}
-	
+
 	public void init(){
 		setTitle("Rapid Fit Editor");
 		setSize(new Dimension(width, height));
 		setPreferredSize(new Dimension(width, height));
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
+
 		txtNoData = new JTextArea("No data is loaded. Choose File/Import "
 				+ "in the menu bar to import a RapidFit XML file or "
 				+ "choose File/New to create a new RapidFit XML file.");
 		txtNoData.setEditable(false);
 		txtNoData.setBackground(getBackground());
 		txtNoData.setLineWrap(true);
-		
+
 		Container content = getContentPane();
 		content.add(txtNoData, BorderLayout.CENTER);
-		
+
 		setJMenuBar(RapidFitEditorMenuBar.getInstance());
 	}
-	
+
 	public void showFit(RapidFitType root, String fileName){
 		//set title
 		setDisplayFileName(fileName);
-		
+
 		//remove previously displayed contents
 		Container content = getContentPane();
 		content.removeAll();
-		
+
 		//create panels
 		paramSetPanel = new DataTablePanel<PhysicsParameterType>(
 				PhysicsParameterType.class,
@@ -92,16 +92,16 @@ public class RapidFitEditor extends JFrame {
 		List<ToFitType> toFits = root.getToFit();
 		ToFitType constraintFit = null;
 		ArrayList<ToFitType> actualFits = new ArrayList<ToFitType>();
-		
+
 		for (ToFitType fit : toFits){
 			if (fit.getConstraintFunction() == null){
 				actualFits.add(fit);
-				
-			/*
-			 * there should only be one constraint function. All constraint
-			 * functions are combined into a single constraint function in 
-			 * the factory
-			 */
+
+				/*
+				 * there should only be one constraint function. All constraint
+				 * functions are combined into a single constraint function in 
+				 * the factory
+				 */
 			} else {
 				constraintFit = fit;
 			}
@@ -112,12 +112,12 @@ public class RapidFitEditor extends JFrame {
 				root.getParameterSet().getPhysicsParameter(),
 				toFits, actualFits, "Available Data Sets", "Data_Set");
 		outputScanPanel = new OutputScanPanel(root.getOutput());
-		
+
 		List<ComponentProjectionType> projectionList = root.getOutput().getComponentProjection();
 		outputProjectionPanel = new DataListViewer<ComponentProjectionType>(
 				ComponentProjectionType.class, projectionList , projectionList, 
 				"Available Projections", "Comp_Proj", "Projection Details");
-		
+
 		tabs = new JTabbedPane();
 		tabs.addTab("Parameter Set", paramSetPanel);
 		tabs.addTab("Fitting Options", fitPanel);
@@ -126,19 +126,24 @@ public class RapidFitEditor extends JFrame {
 		tabs.addTab("Data Sets", fitDataSetPanel);
 		tabs.addTab("Output - Scans", outputScanPanel);
 		tabs.addTab("Output - Projections", outputProjectionPanel);
-		
-		
+
+
 		content.add(tabs, BorderLayout.CENTER);
 		validate();
 		setVisible(true);
 	}
-	
+
 	public void setDisplayFileName(String fileName){
 		setTitle("Rapid Fit Editor - " + fileName);
 	}
-	
-	public static void main (String [] args){
-		RapidFitEditor.getInstance().setVisible(true);;
-	}
-	
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				RapidFitEditor.getInstance().setVisible(true);
+			}
+
+		});
+	} 
+
 }

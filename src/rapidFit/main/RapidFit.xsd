@@ -21,7 +21,7 @@
 
 	<xs:complexType name="RapidFitType">
 		<xs:sequence>
-			<xs:element name="ParameterSet" type="ParameterSetType" />
+			<xs:element name="ParameterSet" type="ParameterSetType"/>
 			<xs:element name="Minimiser" type="MinimiserType" />
 			<xs:element name="FitFunction" type="FitFunctionType" />
 			<xs:element name="NumberRepeats" type="xs:integer"/>
@@ -30,7 +30,7 @@
 			<xs:element name="Precalculator" type="PrecalculatorType" minOccurs ="0"/>
 			<xs:element name="Seed" type="xs:integer" minOccurs="0"/>
 			<xs:element name="ToFit" type="ToFitType" maxOccurs="unbounded"/>
-			<xs:element name="Output" type="OutputType"/>
+			<xs:element name="Output" type="OutputType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -43,14 +43,11 @@
 
 	<xs:complexType name="MinimiserType">
 		<xs:sequence>
-			<xs:element name="MinimiserName" type="xs:string"
-				minOccurs="0" />
+			<xs:element name="MinimiserName" type="xs:string"/>
 			<xs:element name="NSigma" type="xs:integer" minOccurs="0" />
 			<xs:element name="MaxSteps" type="xs:integer" minOccurs="0" />
-			<xs:element name="GradTolerance" type="xs:double"
-				minOccurs="0" />
-			<xs:element name="ConfigureMinimiser" type="xs:string"
-				minOccurs="0" />
+			<xs:element name="GradTolerance" type="xs:double" minOccurs="0" />
+			<xs:element name="ConfigureMinimiser" type="xs:string" minOccurs="0" />
 			<xs:element name="Quality" type="xs:integer" minOccurs="0" />
 			<xs:element name="MultiMini" type="xs:boolean" minOccurs="0" />
 		</xs:sequence>
@@ -58,26 +55,19 @@
 
 	<xs:complexType name="FitFunctionType">
 		<xs:sequence>
-			<xs:element name="FunctionName" type="xs:string"
-				minOccurs="0" /> <!-- minimum = 0 for old style -->
-			<xs:element name="UseGSLNumericalIntegration" type="xs:boolean"
-				minOccurs="0" />
-			<xs:element name="FixedIntegrationPoints" type="xs:integer"
-				minOccurs="0" />
+			<xs:element name="FunctionName" type="xs:string"/>
+			<xs:element name="UseGSLNumericalIntegration" type="xs:boolean"	minOccurs="0" />
+			<xs:element name="FixedIntegrationPoints" type="xs:integer"	minOccurs="0" />
 			<xs:element name="WeightName" type="xs:string" minOccurs="0" />
 			<xs:element name="AlphaName" type="xs:string" minOccurs="0" />
 			<xs:element name="Trace" type="xs:string" minOccurs="0" />
 			<xs:element name="Strategy" type="xs:string" minOccurs="0" />
 			<xs:element name="Threads" type="xs:integer" minOccurs="0" />
-			<xs:element name="SetIntegratorTest" type="xs:boolean"
-				minOccurs="0" />
-			<xs:element name="NormaliseWeights" type="xs:boolean"
-				minOccurs="0" />
-			<xs:element name="SingleNormaliseWeights" type="xs:boolean"
-				minOccurs="0" />
+			<xs:element name="SetIntegratorTest" type="xs:boolean" minOccurs="0" />
+			<xs:element name="NormaliseWeights" type="xs:boolean" minOccurs="0" />
+			<xs:element name="SingleNormaliseWeights" type="xs:boolean"	minOccurs="0" />
 			<xs:element name="OffSetNLL" type="xs:boolean" minOccurs="0" />
-			<xs:element name="RequiredParameterOrder" type="xs:string"
-				minOccurs="0" />
+			<xs:element name="RequiredParameterOrder" type="xs:string" minOccurs="0" />
 		</xs:sequence>
 	</xs:complexType>
 	
@@ -111,9 +101,9 @@
 	<xs:complexType name="PrecalculatorType">
 		<xs:sequence>
 			<xs:element name="Name" type="xs:string"/>
-			<xs:element name="WeightName" type="xs:string"/>
-			<xs:element name="Config" type="xs:integer"/>
-			<xs:element name="OutputFile" type="xs:string"/>
+			<xs:element name="WeightName" type="xs:string" minOccurs="0"/>
+			<xs:element name="Config" type="xs:integer" minOccurs="0"/>
+			<xs:element name="OutputFile" type="xs:string" minOccurs="0"/>
 			<xs:element name="UseAlpha" type="xs:boolean" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -177,7 +167,7 @@
 		<xs:sequence>
 			<xs:element name="Source" type="xs:string"/>
 			<xs:element name="CutString" type="xs:string" minOccurs="0"/>
-			<xs:element name="FileName" type="xs:string"/>
+			<xs:element name="FileName" type="xs:string" minOccurs="0"/>
 			<xs:element name="NTuplePath" type="xs:string" minOccurs="0" />
 			<xs:element name="NumberEvents" type="xs:integer" minOccurs="0" />
 			<xs:element name="StartingEntry" type="xs:integer" minOccurs="0"/>
@@ -266,10 +256,8 @@
 	
 	<xs:complexType name="ConstraintFunctionType">
 		<xs:sequence>
-			<xs:element name="ExternalConstraint" type="ExternalConstraintType" 
-				minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="ExternalConstMatrix" type="ExternalConstMatrixType"
-				minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ExternalConstraint" type="ExternalConstraintType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ExternalConstMatrix" type="ExternalConstMatrixType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	
@@ -305,11 +293,11 @@
 			<xs:element name="PDFPoints" type="xs:integer" minOccurs="0"/>
 			<xs:element name="LogY" type="xs:boolean" minOccurs="0"/>
 			<xs:element name="LogX" type="xs:boolean" minOccurs="0"/>
-			<xs:element name="Name" type="xs:string"/>
+			<xs:element name="Name" type="xs:string" minOccurs="0"/>
 			<xs:element name="WidthKey" type="xs:string" minOccurs="0"/>
 			<xs:element name="ColorKey" type="xs:string" minOccurs="0"/>
 			<xs:element name="StyleKey" type="xs:string" minOccurs="0"/>
-			<xs:element name="Title" type="xs:string"/>
+			<xs:element name="Title" type="xs:string" minOccurs="0"/>
 			<xs:element name="CompNames" type="xs:string" minOccurs="0"/>
 			<xs:element name="ComponentNames" type="xs:string" minOccurs="0"/>
 			<xs:element name="CombinationNames" type="xs:string" minOccurs="0"/>

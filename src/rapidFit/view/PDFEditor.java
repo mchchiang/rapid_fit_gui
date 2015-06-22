@@ -1,4 +1,4 @@
-package rapidFit.view.blocks;
+package rapidFit.view;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -8,6 +8,9 @@ import java.util.List;
 import javax.swing.*;
 
 import rapidFit.model.*;
+import rapidFit.view.blocks.AttributePanel;
+import rapidFit.view.blocks.DataTablePanel;
+import rapidFit.view.blocks.TagNamePanel;
 
 @SuppressWarnings("serial")
 public class PDFEditor extends JDialog implements ActionListener {
@@ -32,10 +35,12 @@ public class PDFEditor extends JDialog implements ActionListener {
 	private PDFType pdf;
 	
 	public PDFEditor(PDFType pdf, PDFManager manager){
+		
+		//set window properties
 		setTitle("PDF Editor");
 		setResizable(true);
 		setModal(true);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setPreferredSize(new Dimension(width, height));
 		
 		this.pdf = pdf;
@@ -91,6 +96,24 @@ public class PDFEditor extends JDialog implements ActionListener {
 		content.add(mainPanel, BorderLayout.CENTER);
 		content.add(btnSave, BorderLayout.SOUTH);
 		
+		//for warning before closing the window
+		final PDFEditor thisPanel = this;
+		thisPanel.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				int result = JOptionPane.showOptionDialog(thisPanel, 
+						"Are you sure to close this window without saving?\n "
+								+ "All edits on this PDF will be lost.", "Really Closing?", 
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+								new String [] {"Yes", "No"}, "No");
+				if (result == JOptionPane.YES_OPTION){
+					dispose();
+				} else {
+					setVisible(true);
+				}
+			}
+		});
+
 		pack();
 	}
 

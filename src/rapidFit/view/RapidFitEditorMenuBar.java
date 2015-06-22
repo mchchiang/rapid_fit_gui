@@ -25,6 +25,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	private JMenuItem mnuSave;
 	private JMenuItem mnuExport;
 	private JMenuItem mnuNew;
+	private JMenuItem mnuSettings;
 	private JMenuItem mnuQuit;
 	
 	private JFileChooser fc;
@@ -62,6 +63,9 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		mnuNew = new JMenuItem("New XML");
 		mnuNew.addActionListener(this);
 		
+		mnuSettings = new JMenuItem("Settings and File Info");
+		mnuSettings.addActionListener(this);
+		
 		mnuQuit = new JMenuItem("Quit");
 		mnuQuit.addActionListener(this);
 		
@@ -70,6 +74,8 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		mnuFile.add(mnuSave);
 		mnuFile.add(mnuExport);
 		mnuFile.add(mnuNew);
+		mnuFile.add(new JSeparator());
+		mnuFile.add(mnuSettings);
 		mnuFile.add(new JSeparator());
 		mnuFile.add(mnuQuit);
 		
@@ -103,9 +109,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 					
 					//read xml
 					try {
-						RapidFitType root = RapidFitFactory.createFitFromFile(file.getAbsolutePath(), 
-								"/Users/MichaelChiang/Dropbox/Edinburgh/Courses/Year 2/Summer_Project/"
-								+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
+						RapidFitType root = RapidFitFactory.createFitFromFile(file.getAbsolutePath());
 						RapidFitMainControl.getInstance().setRoot(root);
 								
 						String fileName = file.getName();
@@ -124,10 +128,8 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				
-				XMLIO.writeFile(RapidFitMainControl.getInstance().getRoot(), 
-						file.getAbsolutePath(), "/Users/MichaelChiang/Dropbox/Edinburgh"
-						+ "/Courses/Year 2/Summer_Project/"
-						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
+				XMLIO.getInstance().writeFile(RapidFitMainControl.getInstance().getRoot(), 
+						file.getAbsolutePath());
 				
 				RapidFitMainControl.getInstance().setFile(file);
 				RapidFitMainControl.getInstance().setUnsavedEdits(false);
@@ -137,11 +139,8 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		
 		} else if (e.getSource() == mnuSave){			
 			//write the file
-			XMLIO.writeFile(RapidFitMainControl.getInstance().getRoot(), 
-					RapidFitMainControl.getInstance().getFile().getAbsolutePath(), 
-					"/Users/MichaelChiang/Dropbox/Edinburgh"
-						+ "/Courses/Year 2/Summer_Project/"
-						+ "rapid_fit_gui/src/rapidFit/RapidFit.xsd");
+			XMLIO.getInstance().writeFile(RapidFitMainControl.getInstance().getRoot(), 
+					RapidFitMainControl.getInstance().getFile().getAbsolutePath());
 			
 			RapidFitMainControl.getInstance().setUnsavedEdits(false);
 			
@@ -150,11 +149,14 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 			if (unsaveEditCheck() == JOptionPane.YES_OPTION){
 				RapidFitType root = RapidFitFactory.createEmptyFit();
 				RapidFitMainControl.getInstance().setRoot(root);
+				RapidFitMainControl.getInstance().setFile(new File("New Fit"));
 				RapidFitEditor.getInstance().showFit(root, "New Fit");
 				RapidFitEditorMenuBar.getInstance().getSaveButton().setEnabled(false);
 				mnuExport.setEnabled(true);
 			}
-
+		} else if (e.getSource() == mnuSettings){
+			new SettingsDialog().setVisible(true);
+			
 		} else if (e.getSource() == mnuAbout){
 			new AboutDialog().setVisible(true);
 			
