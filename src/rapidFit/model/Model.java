@@ -41,5 +41,9 @@ public class Model implements AbstractModel {
 	public Object get(String field) throws Exception {
 		return modelClass.getDeclaredMethod(
 					"get" + field, (Class<?>) null).invoke(model, (Class<?>) null);
-	}	
+	}
+	
+	public Class<?> getFieldClass(String field) throws Exception {
+		return null;
+	}
 }
