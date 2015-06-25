@@ -1,20 +1,45 @@
 package rapidFit.model;
 
-import java.lang.reflect.Method;
+import java.util.ArrayList;
 
-public class Model<T> extends AbstractModel {
-	private T type;
+public class Model implements AbstractModel {
 	
-	private Method [] setters;
-	private Method [] getters;
+	private ArrayList<Observer> observers = new ArrayList<Observer>();
+	private Object model;
+	private Class<?> modelClass;
 	
-	public Model(T obj){
-		type = obj;
-		
-		//find all getter and setter methods
-		setters = type.getClass().getDeclaredMethods();
+	public Model (Object model){
+		this.model = model;
+		this.modelClass = model.getClass();
+	}
+
+	@Override
+	public void addObserver(Observer o) {
+		observers.add(o);
+	}
+
+	@Override
+	public void removeObserver(Observer o) {
+		if (observers.contains(o)){
+			observers.remove(o);
+		}
+	}
+
+	@Override
+	public void notifyObserver() {
+		for (Observer o : observers){
+			o.update();
+		}
 	}
 	
+	public void set(String field, Object value) throws Exception {
+		Class<?> type = value.getClass();
+		modelClass.getDeclaredMethod("set" + field, type).invoke(model, value);
+		notifyObserver();
+	}
 	
-	
+	public Object get(String field) throws Exception {
+		return modelClass.getDeclaredMethod(
+					"get" + field, (Class<?>) null).invoke(model, (Class<?>) null);
+	}	
 }

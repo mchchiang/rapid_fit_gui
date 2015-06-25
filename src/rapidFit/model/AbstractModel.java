@@ -1,25 +1,11 @@
 package rapidFit.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
-public abstract class AbstractModel {
-
-	protected PropertyChangeSupport propertyChangeSupport;
-
-	public AbstractModel(){
-		propertyChangeSupport = new PropertyChangeSupport(this);
-	}
-
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.addPropertyChangeListener(listener);
-	}
-
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(listener);
-	}
-
-	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-		propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
-	}
+public interface AbstractModel {
+	
+	public void addObserver(Observer o);
+	public void removeObserver(Observer o);
+	public void notifyObserver();
+	public void set(String field, Object value) throws Exception;
+	public Object get(String field) throws Exception;
+	
 }
