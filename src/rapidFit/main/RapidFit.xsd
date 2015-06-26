@@ -79,7 +79,7 @@
 	
 	<xs:complexType name="PhaseSpaceBoundaryType">
 		<xs:sequence>
-			<xs:element name="Observable" type="ObservableType" maxOccurs="unbounded"/>
+			<xs:element name="Observable" type="ObservableType" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	
@@ -93,7 +93,7 @@
 				</xs:sequence>
 				<xs:element name="Value" type="xs:double" maxOccurs="unbounded"/>
 			</xs:choice>
-			<xs:element name="Unit" type="xs:string"/>
+			<xs:element name="Unit" type="xs:string" minOccurs="0"/>
 			<xs:element name="TF1" type="xs:string" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -115,7 +115,7 @@
 			<xs:element name="Minimum" type="xs:double" minOccurs="0" />
 			<xs:element name="Maximum" type="xs:double" minOccurs="0" />
 			<xs:element name="Type" type="ParamType"/>
-			<xs:element name="Unit" type="xs:string" />
+			<xs:element name="Unit" type="xs:string" minOccurs="0"/>
 			<xs:element name="BlindString" type="xs:string" minOccurs="0" />
 			<xs:element name="BlindScale" type="xs:double" minOccurs="0" />
 			<xs:element name="StepSize" type="xs:double" minOccurs="0" />

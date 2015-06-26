@@ -54,6 +54,11 @@ public class DataSetPanel extends JPanel implements ActionListener{
 			fit.setCommonPDF(true);
 			fit.setPDFConfigurator(new PDFConfiguratorType());
 			fit.getDataSet().setCommonPhaseSpace(new PhaseSpaceBoundaryType());
+		} else {
+			if (fit.getDataSet().getCommonPhaseSpace() == null &&
+				fit.getDataSet().getPhaseSpaceBoundary() == null){
+				fit.getDataSet().setCommonPhaseSpace(new PhaseSpaceBoundaryType());
+			}
 		}
 		
 		dataSet = fit.getDataSet();
@@ -79,6 +84,7 @@ public class DataSetPanel extends JPanel implements ActionListener{
 		//display observables in phase space panel
 		//using common phase space
 		if (dataSet.getCommonPhaseSpace() != null){
+			cbCommonPhaseSpace.setSelected(true);
 			phaseSpaceDataPanel = new DataTablePanel<ObservableType>(
 					ObservableType.class, dataSet.getCommonPhaseSpace().getObservable(), null,
 					"Add Observable", "Remove Observable(s)", "Duplicate Observable(s)");

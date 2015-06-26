@@ -256,7 +256,8 @@ public class XMLIO {
 				// it is a data set
 				} else {
 					//for data set that uses common PDF
-					if (fit.isCommonPDF() != null && fit.isCommonPDF()){ 
+					if (fit.isCommonPDF() != null && fit.isCommonPDF() 
+							&& fit.getPDFConfigurator() != null){ 
 						if (isNull(fit.getPDFConfigurator())){
 							fit.setPDFConfigurator(null);
 						}
