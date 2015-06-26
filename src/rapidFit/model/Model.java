@@ -1,5 +1,6 @@
 package rapidFit.model;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class Model implements AbstractModel {
@@ -7,10 +8,14 @@ public class Model implements AbstractModel {
 	private ArrayList<Observer> observers = new ArrayList<Observer>();
 	private Object model;
 	private Class<?> modelClass;
+	private ArrayList<String> fields = new ArrayList<String>();
+	private ArrayList<Method> getMethods = new ArrayList<Method>();
+	private ArrayList<Method> setMethods = new ArrayList<Method>();
 	
 	public Model (Object model){
 		this.model = model;
 		this.modelClass = model.getClass();
+		
 	}
 
 	@Override
