@@ -278,4 +278,9 @@ public class DataListPanel<T> extends JPanel implements ActionListener {
 	protected void removeButtonClicked(){}
 	protected void copyButtonClicked(T entry){}
 	protected void otherButtonsClicked(T entry, Object source){}
+	
+	public void deselectListElement(){
+		dataList.clearSelection();
+		currentSelectedIndex = -1;
+	}
 }

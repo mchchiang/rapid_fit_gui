@@ -2,6 +2,7 @@ package rapidFit.main;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.*;
 
@@ -29,7 +30,6 @@ public class XMLIO {
 		if (xmlio == null){
 			xmlio = new XMLIO();
 		} 
-		
 		return xmlio;
 	}
 	
@@ -156,23 +156,35 @@ public class XMLIO {
 	 * is a List, it will be treated as null if it contains no element.
 	 */
 	private boolean isNull (Object obj){
-		try {
-			for (Method m : obj.getClass().getDeclaredMethods()){
-				//if the field is a List
-				if (m.getName().startsWith("get") && m.getReturnType() == List.class &&
-						m.invoke(obj, (Object[]) null) != null &&
-						((List<?>) m.invoke(obj, (Object[]) null)).size() != 0){
-					return false;
-					
-				} else if ((m.getName().startsWith("get") || m.getName().startsWith("is")) &&
-					m.getReturnType() != List.class && m.invoke(obj, (Object []) null) != null){
-					return false;
-				}
+		if (obj instanceof String){
+			if (obj == null || obj.equals("")){
+				return true;
+			} else {
+				return false;
 			}
-		} catch (Exception e){
-			e.printStackTrace();
+		} else if (obj instanceof BigInteger ||
+				obj instanceof Double ||
+				obj instanceof Boolean){
+			return obj == null;
+		} else {
+			try {
+				for (Method m : obj.getClass().getDeclaredMethods()){
+					//if the field is a List
+					if (m.getName().startsWith("get") && m.getReturnType() == List.class &&
+							m.invoke(obj, (Object[]) null) != null &&
+							((List<?>) m.invoke(obj, (Object[]) null)).size() != 0){
+						return false;
+						
+					} else if ((m.getName().startsWith("get") || m.getName().startsWith("is")) &&
+						m.getReturnType() != List.class && m.invoke(obj, (Object []) null) != null){
+						return false;
+					}
+				}
+			} catch (Exception e){
+				e.printStackTrace();
+			}
+			return true;
 		}
-		return true;
 	}
 	
 	private void preWriteFile(RapidFitType root){
@@ -258,6 +270,12 @@ public class XMLIO {
 					//for data set that uses common PDF
 					if (fit.isCommonPDF() != null && fit.isCommonPDF() 
 							&& fit.getPDFConfigurator() != null){ 
+						if (fit.getPDFConfigurator().getConfigurationParameter() != null){
+							removeNullElements(fit.getPDFConfigurator().getConfigurationParameter().iterator());
+						}
+						if (fit.getPDFConfigurator().getParameterSubstitution() != null){
+							removeNullElements(fit.getPDFConfigurator().getParameterSubstitution().iterator());
+						}
 						if (isNull(fit.getPDFConfigurator())){
 							fit.setPDFConfigurator(null);
 						}
@@ -448,14 +466,17 @@ public class XMLIO {
             
             // unmarshal a po instance document into a tree of Java content
             // objects composed of classes from the primer.po package.
-            JAXBElement<?> jbe = (JAXBElement<?>) u.unmarshal(new FileInputStream(tempXMLFileURL));
+            FileInputStream inputStream = new FileInputStream(tempXMLFileURL);
+            JAXBElement<?> jbe = (JAXBElement<?>) u.unmarshal(inputStream);
             root = (RapidFitType) jbe.getValue();
+            
+            inputStream.close();
             
             /*
              * delete the temporary file used for pre-processing the input XML
              * file after the file is read
              */
-            try {
+           try {
             	File file = new File(tempXMLFileURL);
             	if (file.delete() == false){
             		throw new XMLIOException(null, XMLIOException.ErrorType.INTERNAL_ERROR,
@@ -501,7 +522,7 @@ public class XMLIO {
 		/*
 		 * make a copy of the data (so the edits in the GUI is not
 		 * affected by the removal of empty elements in pre-processing
-		 * the data for exporting them to an XML file
+		 * the data for exporting them to an XML file)
 		 */
 		RapidFitType copyOfFit = (RapidFitType) Cloner.deepClone(rpfit);
 		
@@ -541,8 +562,12 @@ public class XMLIO {
             ObjectFactory of = new ObjectFactory();
             JAXBElement<RapidFitType> root = of.createRapidFit(copyOfFit);
             
+            FileOutputStream outputStream = new FileOutputStream(tempXMLFileURL);
+            
             m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-            m.marshal(root, new FileOutputStream(tempXMLFileURL));
+            m.marshal(root, outputStream);
+            
+            outputStream.close();
             
             postWriteFile(fileURL);
             

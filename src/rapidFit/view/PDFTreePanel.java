@@ -51,4 +51,8 @@ public class PDFTreePanel extends JPanel {
 		pdfTreeModel.updateEntireTree();
 		pdfTree.expandAllRows();
 	}
+	
+	public void deselectTreeElement(){
+		pdfTree.clearSelection();
+	}
 }

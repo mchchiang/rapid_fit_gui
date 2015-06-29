@@ -2,11 +2,12 @@ package rapidFit.view;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import java.util.List;
+import java.util.Iterator;
 
 import javax.swing.*;
 
+import rapidFit.main.RapidFitMainControl;
 import rapidFit.model.*;
 import rapidFit.view.blocks.AttributePanel;
 import rapidFit.view.blocks.DataTablePanel;
@@ -22,16 +23,13 @@ public class PDFEditor extends JDialog implements ActionListener {
 	private TagNamePanel<PDFType> tagNamePanel;
 	private JPanel pdfPanel;
 	
-	private DataTablePanel<ConfigParam> configTablePanel;
-	private DataTablePanel<ParameterSubstitution> paramSubTablePanel;
+	private DataTablePanel<String> configTablePanel;
+	private DataTablePanel<String> paramSubTablePanel;
 	
 	private JPanel configAndParamSubPanel;
 	private JPanel mainPanel;
 	
 	private JButton btnSave;
-	
-	private List<ConfigParam> configs;
-	private List<ParameterSubstitution> paramSubs;
 	private PDFType pdf;
 	
 	public PDFEditor(PDFType pdf, PDFManager manager){
@@ -48,7 +46,7 @@ public class PDFEditor extends JDialog implements ActionListener {
 		pdfInfoPanel = new AttributePanel<PDFType>
 		(PDFType.class, pdf, "PDF Info", null);
 		
-		tagNamePanel = new TagNamePanel<PDFType>(manager, this.pdf);
+		tagNamePanel = new TagNamePanel<PDFType>(manager, pdf);
 		
 		pdfPanel = new JPanel();
 		pdfPanel.setLayout(new BorderLayout());
@@ -57,24 +55,14 @@ public class PDFEditor extends JDialog implements ActionListener {
 		pdfPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>PDF Details</html></h3>"));
 		
-		configs = new ArrayList<ConfigParam>();
-		for (String config : pdf.getConfigurationParameter()){
-			configs.add(new ConfigParam(config));
-		}
-		
-		configTablePanel = new DataTablePanel<ConfigParam>(
-				ConfigParam.class, configs, null,
+		configTablePanel = new DataTablePanel<String>(
+				String.class, pdf.getConfigurationParameter(), null,
 				"Add Config", "Remove Config", "Copy Config");
 		configTablePanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Configuration Parameters</html></h3>"));
 		
-		paramSubs = new ArrayList<ParameterSubstitution>();
-		for (String paramSub : pdf.getParameterSubstitution()){
-			paramSubs.add(new ParameterSubstitution(paramSub));
-		}
-		
-		paramSubTablePanel = new DataTablePanel<ParameterSubstitution>(
-				ParameterSubstitution.class, paramSubs, null,
+		paramSubTablePanel = new DataTablePanel<String>(
+				String.class, pdf.getParameterSubstitution(), null,
 				"Add Param Sub", "Remove Param Sub", "Copy Param Sub");
 		paramSubTablePanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Parameter Substitutions</html></h3>"));
@@ -96,53 +84,41 @@ public class PDFEditor extends JDialog implements ActionListener {
 		content.add(mainPanel, BorderLayout.CENTER);
 		content.add(btnSave, BorderLayout.SOUTH);
 		
-		//for warning before closing the window
-		final PDFEditor thisPanel = this;
-		thisPanel.addWindowListener(new java.awt.event.WindowAdapter() {
+		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-				int result = JOptionPane.showOptionDialog(thisPanel, 
-						"Are you sure to close this window without saving?\n "
-								+ "All edits on this PDF will be lost.", "Really Closing?", 
-								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-								new String [] {"Yes", "No"}, "No");
-				if (result == JOptionPane.YES_OPTION){
-					dispose();
-				} else {
-					setVisible(true);
-				}
+			public void windowClosing(WindowEvent windowEvent) {
+				RapidFitMainControl.getInstance().stopTableEditing();
+				savePDF();
+				dispose();
 			}
 		});
-
 		pack();
 	}
-
+	
+	private void removeNullString(List<String> data){
+		Iterator<String> it = data.iterator();
+		while (it.hasNext()){
+			String value = it.next();
+		
+			if (value == null || value.equals("")){
+				it.remove();
+			}
+		}
+	}
+	
+	private void savePDF(){
+		/*
+		 * remove any null String in configuration parameter and
+		 * parameter substitution
+		 */
+		removeNullString(pdf.getConfigurationParameter());
+		removeNullString(pdf.getParameterSubstitution());
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnSave){
-			/*
-			 * need to retrieve all the new configs from
-			 * the table and save it to the pdf
-			 */
-			//clear old configurations
-			pdf.getConfigurationParameter().clear();
-			for (ConfigParam config : configs){
-				//only add non-null elements
-				if (config.getConfigurationParameter() != null){
-					pdf.getConfigurationParameter().add(
-							config.getConfigurationParameter());
-				}
-			}
-			
-			pdf.getParameterSubstitution().clear();
-			for (ParameterSubstitution paramSub : paramSubs){
-				//only add non-null elements
-				if (paramSub.getParameterSubstitution() != null){
-					pdf.getParameterSubstitution().add(
-							paramSub.getParameterSubstitution());
-				}
-			}
-			
+			savePDF();
 			dispose();	
 		} 
 	}

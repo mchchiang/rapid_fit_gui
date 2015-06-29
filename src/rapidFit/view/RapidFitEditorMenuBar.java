@@ -94,11 +94,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	
 	public void actionPerformed(ActionEvent e) {
 		//stop the active table editing before any menu item action is invoked
-		if (RapidFitMainControl.getInstance().getCurrentEditingTable() != null &&
-				RapidFitMainControl.getInstance().getCurrentEditingTable().getCellEditor() != null){
-			RapidFitMainControl.getInstance().
-			getCurrentEditingTable().getCellEditor().stopCellEditing();
-		}
+		RapidFitMainControl.getInstance().stopTableEditing();
 		
 		if (e.getSource() == mnuImport) {
 			//check if there is unsaved edits

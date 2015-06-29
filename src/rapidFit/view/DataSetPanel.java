@@ -31,7 +31,8 @@ public class DataSetPanel extends JPanel implements ActionListener{
 	
 	private JPanel pdfPanel;
 	private JPanel pdfOptionPanel;
-	private AttributePanel<PDFConfiguratorType> pdfConfigPanel;
+	private PDFConfiguratorPanel pdfConfigPanel;
+	private JScrollPane pdfConfigPanelScrollPane;
 	
 	private JLabel lblUseCommonPhaseSpace;
 	private JLabel lblUseCommonPDF;
@@ -218,19 +219,19 @@ public class DataSetPanel extends JPanel implements ActionListener{
 			fit.setPDFConfigurator(new PDFConfiguratorType());
 		}
 		
-		pdfConfigPanel = new AttributePanel<PDFConfiguratorType>(
-				PDFConfiguratorType.class, fit.getPDFConfigurator(),
-				"PDF Configurator", null);	
-		pdfConfigPanel.setBorder(BorderFactory.createTitledBorder(
-				"PDF Configurator"));
-		pdfPanel.add(pdfConfigPanel, BorderLayout.CENTER);
+		pdfConfigPanel = new PDFConfiguratorPanel(fit.getPDFConfigurator());
+		pdfConfigPanel.setPreferredSize(new Dimension(pdfPanel.getWidth(), 300));
+		
+		pdfConfigPanelScrollPane = new JScrollPane();
+		pdfConfigPanelScrollPane.setViewportView(pdfConfigPanel);
+		pdfPanel.add(pdfConfigPanelScrollPane, BorderLayout.CENTER);
 	}
 	
 	public void removeCommonPDF(){
 		fit.setCommonPDF(false);
 		cbCommonPDF.setSelected(false);
 		//remove the PDF config panel
-		pdfPanel.remove(pdfConfigPanel);
+		pdfPanel.remove(pdfConfigPanelScrollPane);
 	}
 	
 	public void removeIndividualPDF(){

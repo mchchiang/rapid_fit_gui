@@ -69,13 +69,13 @@ public class TagNameManager<T> {
 		 * If the entry is not in the map, it will be added
 		 * to the map
 		 */
-		if (nameMap.containsValue(tagName)){
-			throw new TagNameException(null,
-					TagNameException.ErrorType.DUPLICATE_TAG_NAME);
-		}
 		if (!nameMap.containsKey(entry)){
 			throw new TagNameException(null,
 					TagNameException.ErrorType.ENTRY_NOT_EXIST);
+		}
+		if (nameMap.containsValue(tagName) && !nameMap.get(entry).equals(tagName)){
+			throw new TagNameException(null,
+					TagNameException.ErrorType.DUPLICATE_TAG_NAME);
 		}
 		nameMap.put(entry, tagName);
 	}

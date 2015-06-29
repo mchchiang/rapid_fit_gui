@@ -49,4 +49,11 @@ public class RapidFitMainControl {
 	public File getFile(){return file;}
 	public RapidFitType getRoot(){return root;}
 	
+	public void stopTableEditing(){
+		if (currentEditingTable != null && 
+			currentEditingTable.getCellEditor() != null){
+			currentEditingTable.getCellEditor().stopCellEditing();
+		}
+	}
+	
 }

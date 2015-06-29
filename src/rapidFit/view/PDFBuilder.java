@@ -78,9 +78,9 @@ public class PDFBuilder extends JDialog implements ActionListener {
 
 		//for warning before closing the window
 		final PDFBuilder thisPanel = this;
-		thisPanel.addWindowListener(new java.awt.event.WindowAdapter() {
+		thisPanel.addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+			public void windowClosing(WindowEvent windowEvent) {
 				int result = JOptionPane.showOptionDialog(thisPanel, 
 						"Are you sure to close this window without saving?\n "
 								+ "All edits on the PDF expression and the PDFs will be lost.", "Really Closing?", 
@@ -111,28 +111,32 @@ public class PDFBuilder extends JDialog implements ActionListener {
 				if (clickCount == 1 && rbInspectFromPDFList.isSelected()){
 					updatePDFInspector(pdf);
 				} else if (clickCount == 2){
-					new PDFEditor(pdf, pdfManager).setVisible(true);
-					pdfListPanel.validate();
+					editPDF(pdf);
 				}
 			}
 			protected void addButtonClicked(PDFType pdf){
-				new PDFEditor(pdf, pdfManager).setVisible(true);
-				pdfListPanel.validate();
+				editPDF(pdf);
 			}
 			protected void copyButtonClicked(PDFType pdf){
-				new PDFEditor(pdf, pdfManager).setVisible(true);
-				pdfListPanel.validate();
+				editPDF(pdf);
 			}
 			protected void otherButtonsClicked(PDFType pdf, Object source){
 				if (source == btnEditPDF){
-					new PDFEditor(pdf, pdfManager).setVisible(true);
-					pdfListPanel.validate();
+					editPDF(pdf);
 				}
 			}
 		};
 
 		pdfListPanel.setBorder(BorderFactory.createTitledBorder(
 				"<html><h3>Available PDFs</h3></html>"));
+	}
+	
+	public void editPDF(PDFType pdf){
+		new PDFEditor(pdf, pdfManager).setVisible(true);
+		pdfListPanel.validate();
+		pdfListPanel.deselectListElement();
+		pdfTreePanel.deselectTreeElement();
+		updatePDFInspector(null);
 	}
 
 	public void initViewerPanel(){
@@ -206,7 +210,11 @@ public class PDFBuilder extends JDialog implements ActionListener {
 
 	public void updatePDFInspector(Object pdf){
 		pdfInspectorPanel.remove(pdfInspector);
-		pdfInspector = new PDFInspectorPanel(pdf, pdfManager);
+		if (pdf == null){
+			pdfInspector = new PDFInspectorPanel();
+		} else {
+			pdfInspector = new PDFInspectorPanel(pdf, pdfManager);
+		}
 		pdfInspectorPanel.add(pdfInspector, BorderLayout.CENTER);
 		pdfInspectorPanel.validate();
 	}
