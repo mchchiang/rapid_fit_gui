@@ -2,6 +2,8 @@ package rapidFit.main;
 
 import java.io.*;
 
+import javax.swing.SwingUtilities;
+
 import rapidFit.model.*;
 import rapidFit.view.blocks.Table;
 
@@ -56,4 +58,12 @@ public class RapidFitMainControl {
 		}
 	}
 	
+	public static void main (String [] args){
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				RapidFitEditor.getInstance().setVisible(true);
+			}
+
+		});
+	}
 }

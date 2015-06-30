@@ -135,14 +135,4 @@ public class RapidFitEditor extends JFrame {
 	public void setDisplayFileName(String fileName){
 		setTitle("Rapid Fit Editor - " + fileName);
 	}
-
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				RapidFitEditor.getInstance().setVisible(true);
-			}
-
-		});
-	} 
-
 }
