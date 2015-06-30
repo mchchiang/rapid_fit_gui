@@ -1,15 +1,11 @@
-package rapidFit.view;
+package rapidFit.main;
 
 import javax.swing.*;
 import javax.swing.filechooser.*;
 
-import rapidFit.main.RapidFitEditor;
-import rapidFit.main.RapidFitExceptionHandler;
-import rapidFit.main.RapidFitFactory;
-import rapidFit.main.RapidFitMainControl;
-import rapidFit.main.XMLIO;
-import rapidFit.main.XMLIOException;
 import rapidFit.model.*;
+import rapidFit.view.AboutDialog;
+import rapidFit.view.SettingsDialog;
 
 import java.awt.event.*;
 import java.io.File;
@@ -110,6 +106,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 								
 						String fileName = file.getName();
 						RapidFitMainControl.getInstance().setFile(file);
+						RapidFitMainControl.getInstance().setUnsavedEdits(false);
 						mnuSave.setEnabled(true);
 						mnuExport.setEnabled(true);
 						RapidFitEditor.getInstance().showFit(root, fileName);
@@ -127,14 +124,14 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 				try {
 					XMLIO.getInstance().writeFile(RapidFitMainControl.getInstance().getRoot(), 
 							file.getAbsolutePath());
+					RapidFitMainControl.getInstance().setFile(file);
+					RapidFitMainControl.getInstance().setUnsavedEdits(false);
+					RapidFitEditor.getInstance().setDisplayFileName(file.getName());
+					RapidFitEditorMenuBar.getInstance().getSaveButton().setEnabled(true);
+					
 				} catch (XMLIOException err){
 					RapidFitExceptionHandler.handles(err);
-				}
-				
-				RapidFitMainControl.getInstance().setFile(file);
-				RapidFitMainControl.getInstance().setUnsavedEdits(false);
-				RapidFitEditor.getInstance().setDisplayFileName(file.getName());
-				RapidFitEditorMenuBar.getInstance().getSaveButton().setEnabled(true);
+				}				
 			}
 		
 		} else if (e.getSource() == mnuSave){			
@@ -142,11 +139,10 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 			try {
 				XMLIO.getInstance().writeFile(RapidFitMainControl.getInstance().getRoot(), 
 						RapidFitMainControl.getInstance().getFile().getAbsolutePath());
+				RapidFitMainControl.getInstance().setUnsavedEdits(false);
 			} catch (XMLIOException err){
 				RapidFitExceptionHandler.handles(err);
 			}
-
-			RapidFitMainControl.getInstance().setUnsavedEdits(false);
 			
 		} else if (e.getSource() == mnuNew) {
 			//check for unsaved edits
@@ -154,6 +150,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 				RapidFitType root = RapidFitFactory.createEmptyFit();
 				RapidFitMainControl.getInstance().setRoot(root);
 				RapidFitMainControl.getInstance().setFile(new File("New Fit"));
+				RapidFitMainControl.getInstance().setUnsavedEdits(false);
 				RapidFitEditor.getInstance().showFit(root, "New Fit");
 				RapidFitEditorMenuBar.getInstance().getSaveButton().setEnabled(false);
 				mnuExport.setEnabled(true);

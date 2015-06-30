@@ -20,7 +20,7 @@ public class AboutDialog extends JDialog implements ActionListener {
 			"<html>"
 			+"<body>" 
 			+"<h2> Rapid Fit Editor </h2>"
-			+"<p> Version 1.0.1 (Beta) </p>"
+			+"<p> Version 1.0.2 (Beta) </p>"
 			+"<p> Created by Michael Chiang </p>"
 			+"</body>"
 			+"</html>");

@@ -12,7 +12,6 @@ import rapidFit.view.FitConstraintPanel;
 import rapidFit.view.FitDataSetPanel;
 import rapidFit.view.FittingPanel;
 import rapidFit.view.OutputScanPanel;
-import rapidFit.view.RapidFitEditorMenuBar;
 import rapidFit.view.blocks.DataListViewer;
 import rapidFit.view.blocks.DataTablePanel;
 
