@@ -22,28 +22,56 @@ public class PDFManager extends TagNameManager<PDFType> {
 		tagNameCounter = new HashMap<String, Integer>();
 		
 		//find all the PDFs
-		if (root.getNormalisedSumPDF() != null){
-			getPDFs(root.getNormalisedSumPDF());
-		} else if (root.getProdPDF() != null){
-			getPDFs(root.getProdPDF());
-		} else if (root.getPDF() != null){
-			getPDFs(root.getPDF());
+		for (PDFType pdf : getListOfPDFs(root)){
+			addEntry(pdf, pdf.getName());
 		}
 	}
 	
+	//a constructor for creating a copy of a PDF manager
+	public PDFManager(PDFExpressionType root, PDFExpressionType rootCopy, PDFManager originalManager){
+		super();//for initialising the name map
+		
+		tagNameCounter = new HashMap<String, Integer>();
+		
+		//find all the PDFs
+		ArrayList<PDFType> pdfList = getListOfPDFs(root);
+		ArrayList<PDFType> pdfListCopy = getListOfPDFs(rootCopy);
+		
+		for (int i = 0; i < pdfList.size(); i++){
+			nameMap.put(pdfListCopy.get(i), originalManager.getTagName(pdfList.get(i)));
+		}
+		
+	}
+	
+	private ArrayList<PDFType> getListOfPDFs(PDFExpressionType root){
+		ArrayList<PDFType> pdfList = new ArrayList<PDFType>();
+		if (root.getNormalisedSumPDF() != null){
+			getPDFs(pdfList, root.getNormalisedSumPDF());
+		} else if (root.getProdPDF() != null){
+			getPDFs(pdfList, root.getProdPDF());
+		} else if (root.getPDF() != null){
+			getPDFs(pdfList, root.getPDF());
+		}
+		return pdfList;
+	}
+	
 	//a recursive method to find all the PDFs
-	private void getPDFs(Object node) {
+	private void getPDFs(ArrayList<PDFType> pdfList, Object node) {
 		if (node instanceof SumPDFType){
-			getPDFs(((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
-			getPDFs(((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
+			getPDFs(pdfList, ((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
+			getPDFs(pdfList, ((SumPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
 			
 		} else if (node instanceof ProdPDFType){
-			getPDFs(((ProdPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
-			getPDFs(((ProdPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
+			getPDFs(pdfList, ((ProdPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(0));
+			getPDFs(pdfList, ((ProdPDFType) node).getProdPDFOrNormalisedSumPDFOrPDF().get(1));
 			
-		} else if (node instanceof PDFType && !nameMap.containsKey((PDFType) node)){
+		/*} else if (node instanceof PDFType && !nameMap.containsKey((PDFType) node)){
 			addEntry((PDFType) node, ((PDFType) node).getName());
+		}*/
+		} else if (node instanceof PDFType && !pdfList.contains((PDFType) node)){
+			pdfList.add((PDFType) node);
 		}
+		
 	}
 	
 	//only for adding a new entry to the PDF map (not for setting the tag name)

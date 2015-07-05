@@ -70,7 +70,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 
 		//create a list of tag names for the pdfs
 		rootPDFManager = manager;
-		pdfManager = new PDFManager(pdfRootCopy);
+		pdfManager = new PDFManager(pdfRoot, pdfRootCopy, manager);
 
 		initListPanel();
 		initViewerPanel();
