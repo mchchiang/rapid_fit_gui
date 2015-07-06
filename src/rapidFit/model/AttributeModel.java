@@ -1,5 +1,5 @@
 package rapidFit.model;
 
-public interface AttributeModel {
+public interface AttributeModel extends Observable {
 	
 }

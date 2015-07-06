@@ -5,11 +5,11 @@ import javax.swing.table.AbstractTableModel;
 import rapidFit.controller.DataTableController;
 
 @SuppressWarnings("serial")
-public class DataTableModel extends AbstractTableModel {
+public class DataTableView extends AbstractTableModel {
 	
 	private DataTableController controller;
 	
-	public DataTableModel(DataTableController controller){
+	public DataTableView(DataTableController controller){
 		this.controller = controller;
 	}
 	
@@ -26,6 +26,10 @@ public class DataTableModel extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		return controller.getValueAt(rowIndex, columnIndex);
+	}
+	
+	public void setValueAt(Object value, int row, int col){
+		controller.setValueAt(value, row, col);
 	}
 	
 	public String getColumnName(int col){

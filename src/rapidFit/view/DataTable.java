@@ -1,21 +1,10 @@
 package rapidFit.view;
 
 import rapidFit.controller.DataTableController;
-import rapidFit.model.Observer;
 
 @SuppressWarnings("serial")
-public class DataTable extends Table implements Observer {
-	
-	private DataTableModel model;
-	
+public class DataTable extends Table {
 	public DataTable(DataTableController controller) {
-		super(new DataTableModel(controller));
-		model = (DataTableModel) getModel();
+		super(new DataTableView(controller));
 	}
-
-	@Override
-	public void update() {
-		model.fireTableStructureChanged();
-	}
-
 }
