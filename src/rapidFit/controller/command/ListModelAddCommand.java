@@ -6,10 +6,12 @@ public class ListModelAddCommand implements UndoableCommand {
 	
 	private AbstractListModel<?> model;
 	private int index;
+	private String description;
 	
-	public ListModelAddCommand(AbstractListModel<?> model, int index){
+	public ListModelAddCommand(AbstractListModel<?> model, int index, String description){
 		this.model = model;
 		this.index = index;
+		this.description = description;
 	}
 	
 	@Override
@@ -26,6 +28,10 @@ public class ListModelAddCommand implements UndoableCommand {
 	public boolean undo() {
 		model.remove(index);
 		return true;
+	}
+	
+	public String toString(){
+		return description;
 	}
 
 }

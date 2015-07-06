@@ -65,6 +65,7 @@ public class RapidFitEditor extends JFrame {
 		setJMenuBar(RapidFitEditorMenuBar.getInstance());
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void showFit(RapidFitType root, String fileName){
 		//set title
 		setTitle("Rapid Fit Editor - " + fileName);

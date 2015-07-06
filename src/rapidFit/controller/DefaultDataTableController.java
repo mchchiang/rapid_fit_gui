@@ -93,7 +93,8 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 
 	@Override
 	public void addRow(int row) {
-		mainController.setCommand(new ListModelAddCommand(listModel, row));
+		mainController.setCommand(new ListModelAddCommand(listModel, row,
+				"Added a new row"));
 	}
 
 	@Override
