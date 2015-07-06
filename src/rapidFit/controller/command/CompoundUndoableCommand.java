@@ -4,9 +4,9 @@ import java.util.List;
 
 public class CompoundUndoableCommand implements UndoableCommand {
 	
-	private List<UndoableCommand> commands;
+	private List<? extends UndoableCommand> commands;
 	
-	public CompoundUndoableCommand(List<UndoableCommand> commands){
+	public CompoundUndoableCommand(List<? extends UndoableCommand> commands){
 		this.commands = commands;
 	}
 	

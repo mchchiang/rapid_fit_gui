@@ -8,10 +8,10 @@ public class ListModelRemoveCommand<T> implements UndoableCommand {
 	private T oldObject;
 	private int index;
 	
-	public ListModelRemoveCommand(AbstractListModel<T> model, int index){
+	public ListModelRemoveCommand(AbstractListModel<T> model, int currentIndex, int removeIndex){
 		this.model = model;
-		this.index = index;
-		oldObject = model.get(index);
+		this.index = removeIndex;
+		oldObject = model.get(currentIndex);
 	}
 	
 	@Override

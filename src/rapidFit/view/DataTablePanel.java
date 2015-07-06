@@ -106,7 +106,7 @@ public class DataTablePanel extends JPanel implements ActionListener {
 		//for clicking the remove entry button
 		} else if (e.getSource() == btnRemove){
 			if (table.getSelectedRows().length != 0){
-				controller.removeRow(table.getSelectedRow());
+				controller.removeRows(table.getSelectedRows());
 			} else {
 				Toolkit.getDefaultToolkit().beep();
 			}

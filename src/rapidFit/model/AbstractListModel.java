@@ -1,6 +1,7 @@
 package rapidFit.model;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.List;
 
 public interface AbstractListModel<T> {	
@@ -11,6 +12,9 @@ public interface AbstractListModel<T> {
 	public void addObserver(ListObserver lo);
 	public void removeObserver(ListObserver lo);
 	public void notifyObserver();
+	public void setUpdateType(UpdateType t);
+	public void setUpdateField(String field);
+	public void setUpdateIndex(int index);
 	
 	public T get(int index);
 	public Object get(int index, String fieldName) 
@@ -18,7 +22,7 @@ public interface AbstractListModel<T> {
 	public int getNumOfFields();
 	public List<String> getFieldNames();
 	public List<Class<?>> getFieldClasses();
-	
+	public List<Type> getFieldTypes();
 	public void set(int index, T object);
 	public void set(int index, String fieldName, Object value) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;

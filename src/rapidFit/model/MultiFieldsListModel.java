@@ -2,6 +2,7 @@ package rapidFit.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 //import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 	private ArrayList<Method> getMethods;
 	private ArrayList<Method> setMethods;
 	private ArrayList<String> fieldNames;
+	private ArrayList<Type> fieldTypes;
 	private ArrayList<Class<?>> fieldClasses;
 	
 	private ArrayList<ListObserver> observers;
@@ -29,6 +31,7 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 		setMethods = new ArrayList<Method>();
 		fieldNames = new ArrayList<String>();
 		fieldClasses = new ArrayList<Class<?>>();
+		fieldTypes = new ArrayList<Type>();
 		
 		observers = new ArrayList<ListObserver>();
 		
@@ -94,7 +97,7 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 		int fieldIndex = fieldNames.indexOf(fieldName);
 		if (fieldIndex != -1 && setMethods.get(fieldIndex) != null){
 			setMethods.get(fieldIndex).invoke(data.get(index), 
-					fieldClasses.get(fieldIndex).cast(value));
+					(fieldClasses.get(fieldIndex)).cast(value));
 			updateType = UpdateType.EDIT;
 			updateField = fieldName;
 			updateIndex = index;
@@ -187,9 +190,37 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 	public List<Class<?>> getFieldClasses() {
 		return fieldClasses;
 	}
+	
+	@Override
+	public List<Type> getFieldTypes() {
+		return fieldTypes;
+	}
 
 	@Override
 	public int size() {
 		return data.size();
+	}
+
+	@Override
+	public void setUpdateType(UpdateType t) {
+		updateType = t;
+	}
+
+	@Override
+	public void setUpdateField(String field) {
+		if (fieldNames.contains(field)){
+			updateField = field;
+		} else {
+			updateField = null;
+		}
+	}
+
+	@Override
+	public void setUpdateIndex(int index) {
+		if (index >= 0 && index < data.size()){
+			updateIndex = index;
+		} else {
+			updateIndex = -1;
+		}
 	}
 }

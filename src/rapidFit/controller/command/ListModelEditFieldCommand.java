@@ -2,7 +2,7 @@ package rapidFit.controller.command;
 
 import rapidFit.model.AbstractListModel;
 
-public class ListModelEditCommand implements UndoableCommand {
+public class ListModelEditFieldCommand implements UndoableCommand {
 	
 	private AbstractListModel<?> model;
 	private String field;
@@ -11,7 +11,7 @@ public class ListModelEditCommand implements UndoableCommand {
 	private Object newValue;
 	private String description;
 	
-	public ListModelEditCommand(AbstractListModel<?> model,
+	public ListModelEditFieldCommand(AbstractListModel<?> model,
 			int index, String field, Object oldValue, Object newValue, String description) {
 		this.model = model;
 		this.field = field;

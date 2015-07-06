@@ -1,7 +1,10 @@
 package rapidFit.model;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+
+import rapidFit.model.AbstractListModel.UpdateType;
 
 public class SingleFieldListModel<T> implements AbstractListModel<T> {
 	
@@ -108,5 +111,29 @@ public class SingleFieldListModel<T> implements AbstractListModel<T> {
 		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 		classes.add(dataClass);
 		return classes;
+	}
+	
+	@Override
+	public List<Type> getFieldTypes() {
+		ArrayList<Type> types = new ArrayList<Type>();
+		types.add(dataClass);
+		return types;
+	}
+	
+	@Override
+	public void setUpdateType(UpdateType t) {
+		updateType = t;
+	}
+
+	@Override
+	public void setUpdateField(String field) {}
+
+	@Override
+	public void setUpdateIndex(int index) {
+		if (index >= 0 && index < data.size()){
+			updateIndex = index;
+		} else {
+			updateIndex = -1;
+		}
 	}
 }
