@@ -83,6 +83,9 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 		if (index >= 0 && index < data.size()){
 			data.set(index, object);
 			updateType = UpdateType.EDIT;
+			updateField = null;
+			updateIndex = index;
+			notifyObserver();
 		}
 	}
 	
@@ -92,6 +95,10 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 		if (fieldIndex != -1 && setMethods.get(fieldIndex) != null){
 			setMethods.get(fieldIndex).invoke(data.get(index), 
 					fieldClasses.get(fieldIndex).cast(value));
+			updateType = UpdateType.EDIT;
+			updateField = fieldName;
+			updateIndex = index;
+			notifyObserver();
 		}
 	}
 	
@@ -117,6 +124,10 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 	public void add(int index) throws InstantiationException, IllegalAccessException{
 		if (index >= 0 && index <= data.size()){
 			data.add(index, dataClass.newInstance());
+			updateType = UpdateType.ADD;
+			updateField = null;
+			updateIndex = index;
+			notifyObserver();
 		}
 	}
 	
@@ -124,6 +135,10 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 	public void add(int index, T object) {
 		if (index >= 0 && index <= data.size()){
 			data.add(index, object);
+			updateType = UpdateType.ADD;
+			updateField = null;
+			updateIndex = index;
+			notifyObserver();
 		}
 	}
 	
@@ -131,6 +146,10 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 	public void remove(int index) {
 		if (index >= 0 && index < data.size()){	
 			data.remove(index);
+			updateType = UpdateType.REMOVE;
+			updateField = null;
+			updateIndex = index;
+			notifyObserver();
 		}
 	}
 

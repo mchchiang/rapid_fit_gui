@@ -6,6 +6,10 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import rapidFit.controller.DataTableController;
+import rapidFit.controller.DefaultDataTableController;
+import rapidFit.controller.MainController;
+import rapidFit.model.MultiFieldsListModel;
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
@@ -27,6 +31,8 @@ public class RapidFitEditor extends JFrame {
 	private JTextArea txtNoData;
 	
 	private static RapidFitEditor editor = null;
+	
+	private MainController mainController;
 	
 	private RapidFitEditor(){
 		init();
@@ -110,6 +116,14 @@ public class RapidFitEditor extends JFrame {
 				ComponentProjectionType.class, projectionList , projectionList, 
 				"Available Projections", "Comp_Proj", "Projection Details");
 		
+		mainController = new MainController();
+		MultiFieldsListModel<PhysicsParameterType> physicsParamListModel = 
+				new MultiFieldsListModel<PhysicsParameterType>(PhysicsParameterType.class, 
+						root.getParameterSet().getPhysicsParameter(), null);
+		DataTableController tableController = new 
+				DefaultDataTableController<PhysicsParameterType>(mainController, physicsParamListModel);
+		RapidFitEditorMenuBar.getInstance().setMainController(mainController);
+		
 		tabs = new JTabbedPane();
 		tabs.addTab("Parameter Set", paramSetPanel);
 		tabs.addTab("Fitting Options", fitPanel);
@@ -118,7 +132,8 @@ public class RapidFitEditor extends JFrame {
 		tabs.addTab("Data Sets", fitDataSetPanel);
 		tabs.addTab("Output - Scans", outputScanPanel);
 		tabs.addTab("Output - Projections", outputProjectionPanel);
-		
+		tabs.addTab("Trial Parameter Set", 
+				((DefaultDataTableController<PhysicsParameterType>) tableController).getTablePanel());
 		
 		content.add(tabs, BorderLayout.CENTER);
 		validate();

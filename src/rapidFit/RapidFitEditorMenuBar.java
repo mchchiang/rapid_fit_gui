@@ -3,6 +3,8 @@ package rapidFit;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 
+import rapidFit.controller.MainController;
+
 import java.awt.event.*;
 import java.io.File;
 
@@ -10,6 +12,7 @@ import java.io.File;
 public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	private JMenu mnuFile;
 	private JMenu mnuHelp;
+	private JMenu mnuEdit;
 	
 	private JMenuItem mnuAbout;
 	
@@ -18,9 +21,14 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	private JMenuItem mnuExport;
 	private JMenuItem mnuNew;
 	
+	private JMenuItem mnuUndo;
+	private JMenuItem mnuRedo;
+	
 	private JFileChooser fc;
 	
 	private static RapidFitEditorMenuBar menuBar = null;
+	
+	private MainController controller;
 	
 	//prevent outer classes to create a new menu bar (singleton pattern)
 	private RapidFitEditorMenuBar(){
@@ -34,7 +42,11 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		return menuBar;
 	}
 	
-	public void initMenuBar(){
+	public void setMainController(MainController controller){
+		this.controller = controller;
+	}
+	
+	private void initMenuBar(){
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("XML file", "xml");
 		fc = new JFileChooser();
 		fc.setFileFilter(filter);
@@ -59,18 +71,33 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		mnuFile.add(mnuExport);
 		mnuFile.add(mnuNew);
 		
+		mnuUndo = new JMenuItem("Undo");
+		mnuUndo.addActionListener(this);
+		mnuUndo.setEnabled(false);
+		
+		mnuRedo = new JMenuItem("Redo");
+		mnuRedo.addActionListener(this);
+		mnuRedo.setEnabled(false);
+		
+		mnuEdit = new JMenu("Edit");
+		mnuEdit.add(mnuUndo);
+		mnuEdit.add(mnuRedo);
+		
 		mnuAbout = new JMenuItem("About");
 		mnuAbout.addActionListener(this);
 		mnuHelp = new JMenu("Help");
 		mnuHelp.add(mnuAbout);
 
 		this.add(mnuFile);
+		this.add(mnuEdit);
 		this.add(mnuHelp);
 	}
 	
 	public JMenuItem getSaveButton(){return mnuSave;}
 	public JMenuItem getSaveAsButton(){return mnuExport;}
 	public JMenuItem getOpenButton(){return mnuImport;}
+	public JMenuItem getUndoButton(){return mnuUndo;}
+	public JMenuItem getRedoButton(){return mnuRedo;}
 	
 	public void actionPerformed(ActionEvent e) {
 		//stop the active table editing before any menu item action is invoked
@@ -137,6 +164,12 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 
 		} else if (e.getSource() == mnuAbout){
 			new AboutDialog().setVisible(true);
+		
+		} else if (e.getSource() == mnuUndo){
+			controller.undo();
+			
+		} else if (e.getSource() == mnuRedo){
+			controller.redo();
 		}
 		
 	}
