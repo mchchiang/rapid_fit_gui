@@ -5,6 +5,7 @@ import javax.swing.filechooser.*;
 
 import rapidFit.controller.MainController;
 
+import java.awt.Toolkit;
 import java.awt.event.*;
 import java.io.File;
 
@@ -74,10 +75,16 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		mnuUndo = new JMenuItem("Undo");
 		mnuUndo.addActionListener(this);
 		mnuUndo.setEnabled(false);
+		mnuUndo.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_Z, 
+		        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		
 		mnuRedo = new JMenuItem("Redo");
 		mnuRedo.addActionListener(this);
 		mnuRedo.setEnabled(false);
+		mnuRedo.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_Z, 
+		        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()| InputEvent.SHIFT_DOWN_MASK));
 		
 		mnuEdit = new JMenu("Edit");
 		mnuEdit.add(mnuUndo);

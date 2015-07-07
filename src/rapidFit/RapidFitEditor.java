@@ -6,9 +6,14 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import rapidFit.controller.AbstractAttributeTableController;
+import rapidFit.controller.AbstractDataTableController;
+import rapidFit.controller.AttributeTableController;
 import rapidFit.controller.DataTableController;
-import rapidFit.controller.DefaultDataTableController;
 import rapidFit.controller.MainController;
+import rapidFit.model.AbstractClassModel;
+import rapidFit.model.AbstractListModel;
+import rapidFit.model.ClassModel;
 import rapidFit.model.MultiFieldsListModel;
 import rapidFit.rpfit.*;
 
@@ -65,7 +70,7 @@ public class RapidFitEditor extends JFrame {
 		setJMenuBar(RapidFitEditorMenuBar.getInstance());
 	}
 	
-	@SuppressWarnings("unchecked")
+	
 	public void showFit(RapidFitType root, String fileName){
 		//set title
 		setTitle("Rapid Fit Editor - " + fileName);
@@ -117,12 +122,47 @@ public class RapidFitEditor extends JFrame {
 				ComponentProjectionType.class, projectionList , projectionList, 
 				"Available Projections", "Comp_Proj", "Projection Details");
 		
+		//new MVC design part
 		mainController = new MainController();
-		MultiFieldsListModel<ObservableType> physicsParamListModel = 
+		
+		//create the parameter set panel
+		AbstractListModel<PhysicsParameterType> physicsParams = 
+				new MultiFieldsListModel<PhysicsParameterType>(PhysicsParameterType.class,
+						root.getParameterSet().getPhysicsParameter(), null);
+		AbstractDataTableController physicsParamsTableController = new 
+				DataTableController<PhysicsParameterType>(mainController, physicsParams,
+						"Add Parameter", "Remove Parameter(s)", "Duplicate Parameter(s)");
+		
+		//create the fit option panel
+		AbstractClassModel<FitFunctionType> fitFunction = 
+				new ClassModel<FitFunctionType>(FitFunctionType.class,
+						root.getFitFunction(), null);
+		AbstractClassModel<MinimiserType> minimiser = 
+				new ClassModel<MinimiserType>(MinimiserType.class,
+						root.getMinimiser(), null);
+		AbstractClassModel<PrecalculatorType> precalculator = 
+				new ClassModel<PrecalculatorType>(PrecalculatorType.class,
+						root.getPrecalculator(), null);
+		AbstractAttributeTableController fitFunctionTableController = 
+				new AttributeTableController<FitFunctionType>(mainController, fitFunction, "Fit Function");
+		AbstractAttributeTableController minimiserTableController = 
+				new AttributeTableController<MinimiserType>(mainController, minimiser, "Miminiser");
+		AbstractAttributeTableController precalculatorTableController = 
+				new AttributeTableController<PrecalculatorType>(mainController, precalculator, "Precalculator");
+		
+		JPanel fitOptionsPanel = new JPanel();
+		fitOptionsPanel.setLayout(new GridLayout(2,2));
+		fitOptionsPanel.add(fitFunctionTableController.getViewComponent());
+		fitOptionsPanel.add(minimiserTableController.getViewComponent());
+		fitOptionsPanel.add(precalculatorTableController.getViewComponent());
+		
+		AbstractListModel<ObservableType> observables = 
 				new MultiFieldsListModel<ObservableType>(ObservableType.class, 
 						root.getCommonPhaseSpace().getPhaseSpaceBoundary().getObservable(), null);
-		DataTableController tableController = new 
-				DefaultDataTableController<ObservableType>(mainController, physicsParamListModel);
+		AbstractDataTableController observablesTableController = new 
+				DataTableController<ObservableType>(mainController, observables,
+						"Add Observable", "Remove Observable(s)", "Duplicate Observable(s)");
+		
 		RapidFitEditorMenuBar.getInstance().setMainController(mainController);
 		
 		tabs = new JTabbedPane();
@@ -133,8 +173,9 @@ public class RapidFitEditor extends JFrame {
 		tabs.addTab("Data Sets", fitDataSetPanel);
 		tabs.addTab("Output - Scans", outputScanPanel);
 		tabs.addTab("Output - Projections", outputProjectionPanel);
-		tabs.addTab("Trial Parameter Set", 
-				((DefaultDataTableController<PhysicsParameterType>) tableController).getTablePanel());
+		tabs.addTab("Trial Parameter Set", physicsParamsTableController.getViewComponent());
+		tabs.addTab("Trial Fitting Options", fitOptionsPanel);
+		tabs.addTab("Trial Parameter Set", observablesTableController.getViewComponent());
 		
 		content.add(tabs, BorderLayout.CENTER);
 		validate();

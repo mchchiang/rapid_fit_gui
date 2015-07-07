@@ -21,6 +21,8 @@ public class ClassModel<T> implements AbstractClassModel<T>{
 		this.data = data;
 		this.dataClass = clazz;
 		
+		observers = new ArrayList<ClassObserver>();
+		
 		fields = new HashMap<String, Field>();
 		
 		//get setter and getter methods

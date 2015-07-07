@@ -2,18 +2,22 @@ package rapidFit.controller.command;
 
 import rapidFit.model.AbstractClassModel;
 
-public class ClassModelEditFieldCommand<T> implements UndoableCommand {
+public class ClassModelEditFieldCommand implements UndoableCommand {
 	
 	private AbstractClassModel<?> model;
 	private String field;
-	private T oldValue;
-	private T newValue;
+	private Object oldValue;
+	private Object newValue;
+	private String description;
 	
-	public ClassModelEditFieldCommand (AbstractClassModel<?> model, String field, T oldValue, T newValue){
+	public ClassModelEditFieldCommand (
+			AbstractClassModel<?> model, String field, 
+			Object oldValue, Object newValue, String description){
 		this.model = model;
 		this.field = field;
 		this.oldValue = oldValue;
 		this.newValue = newValue;
+		this.description = description;
 	}
 	
 	@Override
@@ -36,6 +40,10 @@ public class ClassModelEditFieldCommand<T> implements UndoableCommand {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	public String toString(){
+		return description;
 	}
 	
 }

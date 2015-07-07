@@ -1,4 +1,4 @@
-package rapidFit.view;
+package rapidFit.view.bldblocks;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -6,14 +6,14 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import rapidFit.RowNumberTable;
-import rapidFit.controller.DataTableController;
+import rapidFit.controller.AbstractDataTableController;
 
 @SuppressWarnings("serial")
 public class DataTablePanel extends JPanel implements ActionListener {
 	
 	//variables for the table panel
 	private DataTable table;
-	private DataTableView viewModel;
+	private DataTableViewModel viewModel;
 	private JScrollPane scrollPane;
 	private JTable rowTable; //make row numbers next to table
 
@@ -36,12 +36,23 @@ public class DataTablePanel extends JPanel implements ActionListener {
 	//container for all the buttons 
 	protected JPanel controlPanel;
 		
-	private DataTableController controller;
+	private AbstractDataTableController controller;
 	
-	public DataTablePanel (DataTableController controller, DataTableView viewModel){
+	public DataTablePanel (AbstractDataTableController controller, DataTableViewModel viewModel,
+			String btnAddName, String btnRemoveName, String btnCopyName){
 		
 		this.controller = controller;
 		this.viewModel = viewModel;
+		
+		if (btnAddName != null){
+			this.btnAddName = btnAddName;
+		}
+		if (btnRemoveName != null){
+			this.btnRemoveName = btnRemoveName;
+		}
+		if (btnCopyName != null){
+			this.btnCopyName = btnCopyName;
+		}
 		
 		initTablePanel();
 		initControlPanel();

@@ -1,4 +1,4 @@
-package rapidFit.view;
+package rapidFit.view.bldblocks;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
@@ -7,7 +7,7 @@ import javax.swing.JComboBox;
 @SuppressWarnings("serial")
 public class DataTable extends Table {
 	@SuppressWarnings("unchecked")
-	public DataTable(DataTableView viewModel) {
+	public DataTable(DataTableViewModel viewModel) {
 		super(viewModel);
 
 		//display enum attributes as combo box

@@ -1,4 +1,4 @@
-package rapidFit.view;
+package rapidFit.view.bldblocks;
 
 import java.awt.*;
 import java.awt.event.*;

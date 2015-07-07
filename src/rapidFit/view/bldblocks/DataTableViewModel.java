@@ -1,15 +1,15 @@
-package rapidFit.view;
+package rapidFit.view.bldblocks;
 
 import javax.swing.table.AbstractTableModel;
 
-import rapidFit.controller.DataTableController;
+import rapidFit.controller.AbstractDataTableController;
 
 @SuppressWarnings("serial")
-public class DataTableView extends AbstractTableModel {
+public class DataTableViewModel extends AbstractTableModel {
 	
-	private DataTableController controller;
+	private AbstractDataTableController controller;
 	
-	public DataTableView(DataTableController controller){
+	public DataTableViewModel(AbstractDataTableController controller){
 		this.controller = controller;
 	}
 	
