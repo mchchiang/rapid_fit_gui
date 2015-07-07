@@ -13,7 +13,6 @@ import rapidFit.controller.command.ListModelCopyCommand;
 import rapidFit.controller.command.ListModelEditFieldCommand;
 import rapidFit.controller.command.ListModelEditListCommand;
 import rapidFit.controller.command.ListModelRemoveCommand;
-import rapidFit.controller.command.UndoableCommand;
 import rapidFit.model.AbstractListModel;
 import rapidFit.model.AbstractListModel.UpdateType;
 import rapidFit.model.ListObserver;
@@ -27,6 +26,7 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 	private DataTablePanel tablePanel;
 	private MainController mainController;
 	private HashMap<Integer, Class<?>> listMap;
+	private List<String> fieldNames;
 	
 	public DefaultDataTableController(
 			MainController controller, AbstractListModel<T> model){
@@ -34,16 +34,35 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 		this.listModel = model;
 		listModel.addObserver(this);
 		
+		/*
+		 * get the list of names of the fields to be
+		 * displayed on separate columns
+		 */
+		fieldNames = listModel.getFieldNames();
+
 		//store a list of columns where the data type is a List
 		listMap = new HashMap<Integer, Class<?>>();
-		for (int col = 0; col < listModel.getFieldTypes().size(); col++){
+		
+		for (int col = 0; col < fieldNames.size(); col++){
+			if (listModel.getFieldClass(fieldNames.get(col)) == List.class){
+				Type type = listModel.getFieldType(fieldNames.get(col));
+				if (type instanceof ParameterizedType){
+					listMap.put(col, (Class<?>) 
+							((ParameterizedType) type).getActualTypeArguments()[0]);
+				} else {
+					listMap.put(col, null);
+				}
+			}
+		}
+		
+		/*for (int col = 0; col < listModel.getFieldTypes().size(); col++){
 			Type type = listModel.getFieldTypes().get(col);
 			if (type instanceof Class<?> && (Class<?>) type == List.class &&
 					type instanceof ParameterizedType){
 				listMap.put(col, (Class<?>) 
 						((ParameterizedType) type).getActualTypeArguments()[0]);
 			}
-		}
+		}*/
 		
 		//create the view
 		this.tableView = new DataTableView(this);
@@ -58,18 +77,18 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 
 	@Override
 	public int getColumnCount() {
-		return listModel.getNumOfFields();
+		return fieldNames.size();
 	}
 
 	@Override
 	public String getColumnName(int col) {
-		return listModel.getFieldNames().get(col);
+		return fieldNames.get(col);
 	}
 	
 	@Override
 	public Class<?> getColumnClass(int col) {
 		if (listMap.containsKey(col)) return String.class;
-		return listModel.getFieldClasses().get(col);
+		return listModel.getFieldClass(fieldNames.get(col));
 	}
 
 	@Override
@@ -85,35 +104,35 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 				if (listMap.get(col) == Double.class){
 					mainController.setCommand(
 							new ListModelEditListCommand<Double>(
-									listModel, row, listModel.getFieldNames().get(col),
+									listModel, row, fieldNames.get(col),
 									Double.class, (String) value));
 				} else if (listMap.get(col) == BigInteger.class){
 					mainController.setCommand(
 							new ListModelEditListCommand<BigInteger>(
-									listModel, row, listModel.getFieldNames().get(col),
+									listModel, row, fieldNames.get(col),
 									BigInteger.class, (String) value));
 				} else if (listMap.get(col) == String.class){
 					mainController.setCommand(
 							new ListModelEditListCommand<String>(
-									listModel, row, listModel.getFieldNames().get(col),
+									listModel, row, fieldNames.get(col),
 									String.class, (String) value));
 				}
+			} else {
+				/*
+				 * for empty String input (i.e. ""), set the string to null.
+				 * This is needed to ensure there is no empty tag <></> generated
+				 */
+				if (getColumnClass(col) == String.class && 
+						((String) value).equals("")){
+					value = null;
+				}
+
+				Object oldValue = listModel.get(row, fieldNames.get(col));
+				mainController.setCommand(new ListModelEditFieldCommand
+						(listModel, row, fieldNames.get(col), 
+								oldValue, value, "Changed field " + fieldNames.get(col) + 
+								" from \"" + oldValue + "\" to \"" + value + "\""));
 			}
-			/*
-			 * for empty String input (i.e. ""), set the string to null.
-			 * This is needed to ensure there is no empty tag <></> generated
-			 */
-			if (getColumnClass(col) == String.class && 
-					((String) value).equals("")){
-				value = null;
-			}
-			
-			Object oldValue = listModel.get(row, listModel.getFieldNames().get(col));
-			mainController.setCommand(new ListModelEditFieldCommand
-					(listModel, row, listModel.getFieldNames().get(col), 
-					oldValue, value, "Changed field " + listModel.getFieldNames().get(col) + 
-					" from \"" + oldValue + "\" to \"" + value + "\""));
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -125,9 +144,9 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 			//for the case that the cell contains a List
 			if (listMap.containsKey(col)){
 				return ((List<?>) listModel.get(row, 
-						listModel.getFieldNames().get(col))).toString();
+						fieldNames.get(col))).toString();
 			}
-			return listModel.get(row, listModel.getFieldNames().get(col));
+			return listModel.get(row, fieldNames.get(col));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -148,7 +167,6 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 			
 			return false;
 		} 
-		System.out.println("OK");
 		return true;
 	}
 
@@ -156,7 +174,7 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 	public void update(int index, UpdateType t, String fieldName) {
 		if (t == UpdateType.EDIT){
 			 tableView.fireTableCellUpdated(index, 
-					 listModel.getFieldNames().indexOf(fieldName));
+					 fieldNames.indexOf(fieldName));
 		} else if (t == UpdateType.ADD || t == UpdateType.REMOVE){
 			tableView.fireTableDataChanged();
 		}

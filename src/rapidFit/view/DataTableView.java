@@ -37,9 +37,11 @@ public class DataTableView extends AbstractTableModel {
 	}
 	
 	public void setValueAt(Object value, int row, int col){
-		if (!value.equals(controller.getValueAt(row, col))){
+		//only set a new value if it is different from the old one
+		if (value != null && !value.equals(controller.getValueAt(row, col)) ||
+			value == null && getValueAt(row, col) != null){
 			controller.setValueAt(value, row, col);
-		}
+		} 
 	}
 	
 	public String getColumnName(int col){

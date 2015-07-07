@@ -35,7 +35,7 @@ public class ListModelEditListCommand<T> implements UndoableCommand {
 			
 			this.newList = new ArrayList<T>();
 			
-			StringTokenizer st = new StringTokenizer("[, ]", newList);
+			StringTokenizer st = new StringTokenizer(newList, "[, ]");
 			
 			if (listType == Double.class){
 				while(st.hasMoreElements()){

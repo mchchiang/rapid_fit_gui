@@ -118,11 +118,11 @@ public class RapidFitEditor extends JFrame {
 				"Available Projections", "Comp_Proj", "Projection Details");
 		
 		mainController = new MainController();
-		MultiFieldsListModel<PhysicsParameterType> physicsParamListModel = 
-				new MultiFieldsListModel<PhysicsParameterType>(PhysicsParameterType.class, 
-						root.getParameterSet().getPhysicsParameter(), null);
+		MultiFieldsListModel<ObservableType> physicsParamListModel = 
+				new MultiFieldsListModel<ObservableType>(ObservableType.class, 
+						root.getCommonPhaseSpace().getPhaseSpaceBoundary().getObservable(), null);
 		DataTableController tableController = new 
-				DefaultDataTableController<PhysicsParameterType>(mainController, physicsParamListModel);
+				DefaultDataTableController<ObservableType>(mainController, physicsParamListModel);
 		RapidFitEditorMenuBar.getInstance().setMainController(mainController);
 		
 		tabs = new JTabbedPane();

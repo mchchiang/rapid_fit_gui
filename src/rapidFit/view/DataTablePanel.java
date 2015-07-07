@@ -5,7 +5,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import rapidFit.Cloner;
 import rapidFit.RowNumberTable;
 import rapidFit.controller.DataTableController;
 

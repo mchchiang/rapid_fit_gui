@@ -21,8 +21,10 @@ public interface AbstractListModel<T> {
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 	public int getNumOfFields();
 	public List<String> getFieldNames();
-	public List<Class<?>> getFieldClasses();
-	public List<Type> getFieldTypes();
+	public Class<?> getFieldClass(String fieldName);
+	public Type getFieldType(String fieldName);
+	/*public List<Class<?>> getFieldClasses();
+	public List<Type> getFieldTypes();*/
 	public void set(int index, T object);
 	public void set(int index, String fieldName, Object value) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;

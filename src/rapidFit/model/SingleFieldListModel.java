@@ -106,7 +106,7 @@ public class SingleFieldListModel<T> implements AbstractListModel<T> {
 		return fields;
 	}
 	
-	@Override
+	/*@Override
 	public List<Class<?>> getFieldClasses() {
 		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 		classes.add(dataClass);
@@ -118,7 +118,7 @@ public class SingleFieldListModel<T> implements AbstractListModel<T> {
 		ArrayList<Type> types = new ArrayList<Type>();
 		types.add(dataClass);
 		return types;
-	}
+	}*/
 	
 	@Override
 	public void setUpdateType(UpdateType t) {
@@ -135,5 +135,17 @@ public class SingleFieldListModel<T> implements AbstractListModel<T> {
 		} else {
 			updateIndex = -1;
 		}
+	}
+
+	@Override
+	public Class<?> getFieldClass(String fieldName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Type getFieldType(String fieldName) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
