@@ -13,12 +13,6 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 	private Class<T> dataClass;
 	private List<T> data;
 	
-	/*private ArrayList<Method> getMethods;
-	private ArrayList<Method> setMethods;
-	private ArrayList<String> fieldNames;
-	private ArrayList<Type> fieldTypes;
-	private ArrayList<Class<?>> fieldClasses;*/
-	
 	private HashMap<String, Field> fields;
 	
 	private ArrayList<ListObserver> observers;
@@ -30,11 +24,6 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 		this.data = data;
 		this.dataClass = clazz;
 		
-		/*getMethods = new ArrayList<Method>();
-		setMethods = new ArrayList<Method>();
-		fieldNames = new ArrayList<String>();
-		fieldClasses = new ArrayList<Class<?>>();
-		fieldTypes = new ArrayList<Type>();*/
 		fields = new HashMap<String, Field>();
 		
 		observers = new ArrayList<ListObserver>();
@@ -61,25 +50,6 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 										 "set" + fieldName, m.getReturnType())));
 					}
 					
-					/*//add get method
-					getMethods.add(m);
-					
-					fieldClasses.add(m.getReturnType());
-					fieldTypes.add(m.getGenericReturnType());
-
-					//add field name
-					fieldNames.add(m.getName().substring(3));//remove "get"
-					
-
-					//check if the return type is a List object and add set methods
-					if (m.getReturnType() == List.class){
-						setMethods.add(null);
-
-					} else {
-						setMethods.add(dataClass.getMethod(
-								"set" + m.getName().substring(3), m.getReturnType()));
-					}*/
-					
 				//for boolean data types (jaxb by default makes the method name is<AttributeName>)
 				} else if (m.getName().startsWith("is") && !(ignoreAttributes != null &&
 						ignoreAttributes.contains(m.getName().substring(2)))){
@@ -90,16 +60,6 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 							 m.getReturnType(), m, 
 							 dataClass.getMethod(
 									 "set" + fieldName, m.getReturnType())));
-					/*//add get method
-					getMethods.add(m);	
-					fieldClasses.add(m.getReturnType());
-					fieldTypes.add(m.getGenericReturnType());
-
-					//add field name
-					fieldNames.add(m.getName().substring(2));//remove "is"
-					
-					setMethods.add(dataClass.getMethod(
-								"set" + m.getName().substring(2), m.getReturnType()));*/
 				}
 				
 			} catch (Exception e) {
@@ -121,16 +81,6 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 	
 	public void set(int index, String fieldName, Object value) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
-		/*int fieldIndex = fieldNames.indexOf(fieldName);
-		if (fieldIndex != -1 && setMethods.get(fieldIndex) != null){
-			setMethods.get(fieldIndex).invoke(data.get(index), 
-					(fieldClasses.get(fieldIndex)).cast(value));
-			updateType = UpdateType.EDIT;
-			updateField = fieldName;
-			updateIndex = index;
-			notifyObserver();
-		}*/
-		
 		if (fields.containsKey(fieldName)){
 			fields.get(fieldName).getSetter().invoke(
 					data.get(index), fields.get(fieldName).getFieldClass().cast(value));
@@ -152,10 +102,6 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 	@Override
 	public Object get(int index, String fieldName) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
-		/*int fieldIndex = fieldNames.indexOf(fieldName);
-		if (fieldIndex != -1){
-			return getMethods.get(fieldIndex).invoke(data.get(index), (Object []) null);
-		}*/
 		if (fields.containsKey(fieldName)){
 			return fields.get(fieldName).getGetter().invoke(data.get(index), (Object []) null);
 		}
@@ -217,7 +163,6 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 
 	@Override
 	public int getNumOfFields() {
-		//return fieldNames.size();
 		return fields.size();
 	}
 
@@ -243,16 +188,6 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 		}
 		return null;
 	}
-	
-	/*@Override
-	public List<Class<?>> getFieldClasses() {
-		return fieldClasses;
-	}
-	
-	@Override
-	public List<Type> getFieldTypes() {
-		return fieldTypes;
-	}*/
 
 	@Override
 	public int size() {

@@ -4,8 +4,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import rapidFit.model.AbstractListModel.UpdateType;
-
 public class SingleFieldListModel<T> implements AbstractListModel<T> {
 	
 	private List<T> data;
@@ -106,20 +104,6 @@ public class SingleFieldListModel<T> implements AbstractListModel<T> {
 		return fields;
 	}
 	
-	/*@Override
-	public List<Class<?>> getFieldClasses() {
-		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
-		classes.add(dataClass);
-		return classes;
-	}
-	
-	@Override
-	public List<Type> getFieldTypes() {
-		ArrayList<Type> types = new ArrayList<Type>();
-		types.add(dataClass);
-		return types;
-	}*/
-	
 	@Override
 	public void setUpdateType(UpdateType t) {
 		updateType = t;
@@ -139,13 +123,14 @@ public class SingleFieldListModel<T> implements AbstractListModel<T> {
 
 	@Override
 	public Class<?> getFieldClass(String fieldName) {
-		// TODO Auto-generated method stub
+		if (fieldName.equals(FIELD_NAME)){
+			return dataClass;
+		}
 		return null;
 	}
 
 	@Override
 	public Type getFieldType(String fieldName) {
-		// TODO Auto-generated method stub
-		return null;
+		return getFieldClass(fieldName);
 	}
 }

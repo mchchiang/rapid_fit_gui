@@ -2,7 +2,9 @@ package rapidFit.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ClassModel<T> implements AbstractClassModel<T>{
@@ -10,10 +12,7 @@ public class ClassModel<T> implements AbstractClassModel<T>{
 	private T data;
 	private Class<T> dataClass;
 	
-	private ArrayList<Method> getMethods;
-	private ArrayList<Method> setMethods;
-	private ArrayList<Class<?>> fieldClasses;
-	private ArrayList<String> fieldNames;
+	private HashMap<String, Field> fields;
 	
 	private ArrayList<ClassObserver> observers;
 	private String updateField;
@@ -22,47 +21,46 @@ public class ClassModel<T> implements AbstractClassModel<T>{
 		this.data = data;
 		this.dataClass = clazz;
 		
+		fields = new HashMap<String, Field>();
+		
 		//get setter and getter methods
 		Method [] methods = dataClass.getDeclaredMethods();
 
 		for (Method m: methods){
 			try {
-				if ((m.getName().startsWith("get") && 
-						!m.getReturnType().equals(List.class)) &&
-						!(ignoreAttributes != null && 
+				if (m.getName().startsWith("get") && !(ignoreAttributes != null &&
 						ignoreAttributes.contains(m.getName().substring(3)))){
-
-					//add get method
-					getMethods.add(dataClass.getMethod(m.getName(), (Class<?>[]) null));
 					
-					fieldClasses.add(m.getReturnType());
+					String fieldName = m.getName().substring(3);
 					
-					//set label name
-					fieldNames.add(m.getName().substring(3));//remove "get"
-
-					//add set method
-					setMethods.add(dataClass.getMethod(
-							"set" + m.getName().substring(3), m.getReturnType()));
-
-				} else if (m.getName().startsWith("is") &&
-						!(ignoreAttributes != null && 
-						ignoreAttributes.contains(m.getName().substring(2)))){ 
-					//add get method
-					getMethods.add(dataClass.getMethod(m.getName(), (Class<?>[]) null));
-
-					fieldClasses.add(m.getReturnType());
+					if (m.getReturnType() == List.class){
+						fields.put(fieldName, new Field 
+								(fieldName, m.getGenericReturnType(), 
+								 m.getReturnType(), m, null));
+					} else {
+						fields.put(fieldName, new Field 
+								(fieldName, m.getGenericReturnType(), 
+								 m.getReturnType(), m, 
+								 dataClass.getMethod(
+										 "set" + fieldName, m.getReturnType())));
+					}
 					
-					//set label name
-					fieldNames.add(m.getName().substring(2));//remove "is"
-
-					//add set method
-					setMethods.add(dataClass.getMethod(
-							"set" + m.getName().substring(2), m.getReturnType()));
+				//for boolean data types (jaxb by default makes the method name is<AttributeName>)
+				} else if (m.getName().startsWith("is") && !(ignoreAttributes != null &&
+						ignoreAttributes.contains(m.getName().substring(2)))){
+					String fieldName = m.getName().substring(2);
+					
+					fields.put(fieldName, new Field 
+							(fieldName, m.getGenericReturnType(), 
+							 m.getReturnType(), m, 
+							 dataClass.getMethod(
+									 "set" + fieldName, m.getReturnType())));
 				}
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}		
+		}
 	}
 	
 	@Override
@@ -85,9 +83,8 @@ public class ClassModel<T> implements AbstractClassModel<T>{
 	@Override
 	public Object get(String fieldName) throws IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
-		int fieldIndex = fieldNames.indexOf(fieldName);
-		if (fieldIndex != -1){
-			return getMethods.get(fieldIndex).invoke(data, (Object []) null);
+		if (fields.containsKey(fieldName)){
+			return fields.get(fieldName).getGetter().invoke(data, (Object []) null);
 		}
 		return null;
 	}
@@ -96,11 +93,9 @@ public class ClassModel<T> implements AbstractClassModel<T>{
 	public void set(String fieldName, Object value)
 			throws IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException {
-		
-		int fieldIndex = fieldNames.indexOf(fieldName);
-		if (fieldIndex != -1 && setMethods.get(fieldIndex) != null){
-			setMethods.get(fieldIndex).invoke(
-					data, fieldClasses.get(fieldIndex).cast(value));
+		if (fields.containsKey(fieldName)){
+			fields.get(fieldName).getSetter().invoke(
+					data, fields.get(fieldName).getFieldClass().cast(value));
 			updateField = fieldName;
 			notifyObserver();
 		}
@@ -108,16 +103,39 @@ public class ClassModel<T> implements AbstractClassModel<T>{
 
 	@Override
 	public int getNumOfFields() {
-		return fieldNames.size();
+		return fields.size();
 	}
 
 	@Override
 	public List<String> getFieldNames() {
+		ArrayList<String> fieldNames = new ArrayList<String>();
+		fieldNames.addAll(fields.keySet());
 		return fieldNames;
 	}
 
 	@Override
-	public List<Class<?>> getFieldClasses() {
-		return fieldClasses;
+	public void setUpdateField(String field) {
+		if (fields.containsKey(field)){
+			updateField = field;
+		} else {
+			updateField = null;
+		}
 	}
+
+	@Override
+	public Class<?> getFieldClass(String fieldName) {
+		if (fields.containsKey(fieldName)){
+			return fields.get(fieldName).getFieldClass();
+		}
+		return null;
+	}
+
+	@Override
+	public Type getFieldType(String fieldName) {
+		if (fields.containsKey(fieldName)){
+			return fields.get(fieldName).getType();
+		}
+		return null;
+	}
+
 }

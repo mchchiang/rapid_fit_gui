@@ -113,11 +113,7 @@ public class DataTablePanel extends JPanel implements ActionListener {
 		//for clicking the copy button
 		} else if (e.getSource() == btnCopy){
 			if (table.getSelectedRows().length != 0){
-				int rowShift = 0;
-				for (int row : table.getSelectedRows()){
-					controller.copyRow(row+rowShift);
-					rowShift++;
-				}
+				controller.copyRows(table.getSelectedRows());
 			} else {
 				Toolkit.getDefaultToolkit().beep();
 			}

@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -54,15 +55,6 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 				}
 			}
 		}
-		
-		/*for (int col = 0; col < listModel.getFieldTypes().size(); col++){
-			Type type = listModel.getFieldTypes().get(col);
-			if (type instanceof Class<?> && (Class<?>) type == List.class &&
-					type instanceof ParameterizedType){
-				listMap.put(col, (Class<?>) 
-						((ParameterizedType) type).getActualTypeArguments()[0]);
-			}
-		}*/
 		
 		//create the view
 		this.tableView = new DataTableView(this);
@@ -200,6 +192,7 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 	public void removeRows(int [] rows){
 		ArrayList<ListModelRemoveCommand<T>> commands = 
 				new ArrayList<ListModelRemoveCommand<T>>();
+		Arrays.sort(rows);//need to be sure that the rows are sorted from smallest to largest
 		for (int i = 0; i < rows.length; i++){
 			commands.add(new ListModelRemoveCommand<T>(listModel, rows[i], rows[i]-i));
 		}		
@@ -213,7 +206,13 @@ public class DefaultDataTableController<T> implements DataTableController, ListO
 	
 	@Override
 	public void copyRows(int [] rows){
-		
+		ArrayList<ListModelCopyCommand<T>> commands =
+				new ArrayList<ListModelCopyCommand<T>>();
+		Arrays.sort(rows);//need to be sure that the rows are sorted from smallest to largest
+		for (int i = 0; i < rows.length; i++){
+			commands.add(new ListModelCopyCommand<T>(listModel, rows[i]+i));
+		}
+		mainController.setCommand(new CompoundUndoableCommand(commands));
 	}
 	
 	public DataTablePanel getTablePanel(){return tablePanel;}
