@@ -17,6 +17,7 @@ public interface IClassModel {
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 	public Object get(String fieldName) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+	
 	public int getNumOfFields();
 	public List<String> getFieldNames();
 	public Class<?> getFieldClass(String fieldName);

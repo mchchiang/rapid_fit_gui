@@ -17,9 +17,9 @@ import rapidFit.model.IClassModel;
 import rapidFit.model.IListModel;
 import rapidFit.model.ClassModel;
 import rapidFit.model.ITagNameListModel;
-import rapidFit.model.MultiFieldsListModel;
+import rapidFit.model.DataModel;
 import rapidFit.model.NullClassModel;
-import rapidFit.model.SingleFieldListModel;
+import rapidFit.model.ListModel;
 import rapidFit.model.TagNameListModel;
 import rapidFit.rpfit.*;
 
@@ -133,7 +133,7 @@ public class RapidFitEditor extends JFrame {
 		
 		//create the parameter set panel
 		IListModel<PhysicsParameterType> physicsParams = 
-				new MultiFieldsListModel<PhysicsParameterType>(PhysicsParameterType.class,
+				new DataModel<PhysicsParameterType>(PhysicsParameterType.class,
 						root.getParameterSet().getPhysicsParameter(), null);
 		IDataTableController<PhysicsParameterType> physicsParamsTableController = new 
 				DataTableController<PhysicsParameterType>(mainController, physicsParams,
@@ -157,7 +157,7 @@ public class RapidFitEditor extends JFrame {
 		fitOptionsPanel.add(precalculatorTableController.getViewComponent());
 		
 		IListModel<ObservableType> observables = 
-				new MultiFieldsListModel<ObservableType>(ObservableType.class, 
+				new DataModel<ObservableType>(ObservableType.class, 
 						root.getCommonPhaseSpace().getPhaseSpaceBoundary().getObservable(), null);
 		IDataTableController<ObservableType> observablesTableController = new 
 				DataTableController<ObservableType>(mainController, observables,
@@ -165,7 +165,7 @@ public class RapidFitEditor extends JFrame {
 		
 		ITagNameListModel<ComponentProjectionType> projections = 
 				new TagNameListModel<ComponentProjectionType>(
-						new SingleFieldListModel<ComponentProjectionType>(
+						new ListModel<ComponentProjectionType>(
 						ComponentProjectionType.class, root.getOutput().getComponentProjection()), "Comp_Proj");		
 		
 		IAttributeTableController projectionTableController = 

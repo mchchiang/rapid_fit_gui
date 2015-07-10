@@ -1,71 +1,27 @@
 package rapidFit.model;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-//import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-public class MultiFieldsListModel<T> implements IListModel<T> {
+public class DataModel<T> implements IListModel<T> {
 	
+	private ClassAgent classAgent;
 	private Class<T> dataClass;
 	private List<T> data;
-	
-	private HashMap<String, Field> fields;
 	
 	private ArrayList<IListObserver> observers;
 	private UpdateType updateType;
 	private String updateField;
 	private int updateIndex;
 	
-	public MultiFieldsListModel(Class<T> clazz, List<T> data, ArrayList<String> ignoreAttributes) {
+	public DataModel(Class<T> clazz, List<T> data, ArrayList<String> ignoreAttributes) {
 		this.data = data;
 		this.dataClass = clazz;
 		
-		fields = new HashMap<String, Field>();
-		
+		classAgent = new ClassAgent(clazz, ignoreAttributes);	
 		observers = new ArrayList<IListObserver>();
-		
-		//get setter and getter methods
-		Method [] methods = dataClass.getDeclaredMethods();
-		
-		for (Method m: methods){
-			try {
-				if (m.getName().startsWith("get") && !(ignoreAttributes != null &&
-						ignoreAttributes.contains(m.getName().substring(3)))){
-					
-					String fieldName = m.getName().substring(3);
-					
-					if (m.getReturnType() == List.class){
-						fields.put(fieldName, new Field 
-								(fieldName, m.getGenericReturnType(), 
-								 m.getReturnType(), m, null));
-					} else {
-						fields.put(fieldName, new Field 
-								(fieldName, m.getGenericReturnType(), 
-								 m.getReturnType(), m, 
-								 dataClass.getMethod(
-										 "set" + fieldName, m.getReturnType())));
-					}
-					
-				//for boolean data types (jaxb by default makes the method name is<AttributeName>)
-				} else if (m.getName().startsWith("is") && !(ignoreAttributes != null &&
-						ignoreAttributes.contains(m.getName().substring(2)))){
-					String fieldName = m.getName().substring(2);
-					
-					fields.put(fieldName, new Field 
-							(fieldName, m.getGenericReturnType(), 
-							 m.getReturnType(), m, 
-							 dataClass.getMethod(
-									 "set" + fieldName, m.getReturnType())));
-				}
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 	}
 	
 	@Override
@@ -86,9 +42,9 @@ public class MultiFieldsListModel<T> implements IListModel<T> {
 	
 	public void set(int index, String fieldName, Object value) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
-		if (fields.containsKey(fieldName)){
-			fields.get(fieldName).getSetter().invoke(
-					data.get(index), fields.get(fieldName).getFieldClass().cast(value));
+		if (classAgent.getSetter(fieldName) != null){
+			classAgent.getSetter(fieldName).invoke(
+					data.get(index), classAgent.getFieldClass(fieldName).cast(value));
 			updateType = UpdateType.EDIT;
 			updateField = fieldName;
 			updateIndex = index;
@@ -107,8 +63,8 @@ public class MultiFieldsListModel<T> implements IListModel<T> {
 	@Override
 	public Object get(int index, String fieldName) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
-		if (fields.containsKey(fieldName)){
-			return fields.get(fieldName).getGetter().invoke(data.get(index), (Object []) null);
+		if (classAgent.getGetter(fieldName) != null){
+			return classAgent.getGetter(fieldName).invoke(data.get(index), (Object []) null);
 		}
 		return null;
 	}
@@ -168,30 +124,22 @@ public class MultiFieldsListModel<T> implements IListModel<T> {
 
 	@Override
 	public int getNumOfFields() {
-		return fields.size();
+		return classAgent.getNumOfFields();
 	}
 
 	@Override
 	public List<String> getFieldNames() {
-		ArrayList<String> fieldNames = new ArrayList<String>();
-		fieldNames.addAll(fields.keySet());
-		return fieldNames;
+		return classAgent.getFieldNames();
 	}
 	
 	@Override
 	public Class<?> getFieldClass(String fieldName){
-		if (fields.containsKey(fieldName)){
-			return fields.get(fieldName).getFieldClass();
-		}
-		return null;
+		return classAgent.getFieldClass(fieldName);
 	}
 	
 	@Override
 	public Type getFieldType(String fieldName){
-		if (fields.containsKey(fieldName)){
-			return fields.get(fieldName).getType();
-		}
-		return null;
+		return classAgent.getFieldType(fieldName);
 	}
 
 	@Override
@@ -206,7 +154,7 @@ public class MultiFieldsListModel<T> implements IListModel<T> {
 
 	@Override
 	public void setUpdateField(String field) {
-		if (fields.containsKey(field)){
+		if (classAgent.getFieldNames().contains(field)){
 			updateField = field;
 		} else {
 			updateField = null;

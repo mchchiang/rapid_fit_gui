@@ -50,6 +50,7 @@ public class ListPanelController<T> implements IListPanelController<T>, IListObs
 			listModel.removeListObserver(this);
 		}
 		listModel = newModel;
+		listModel.addListObserver(this);
 		viewModel.fireContentsChanged(0, getListSize());
 	}
 	

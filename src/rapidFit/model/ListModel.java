@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SingleFieldListModel<T> implements IListModel<T> {
+public class ListModel<T> implements IListModel<T> {
 	
 	private List<T> data;
 	private Class<T> dataClass;
@@ -17,7 +17,7 @@ public class SingleFieldListModel<T> implements IListModel<T> {
 	private boolean hasDefaultConstructor = false;
 	
 	
-	public SingleFieldListModel (Class<T> clazz, List<T> data){
+	public ListModel (Class<T> clazz, List<T> data){
 		this.data = data;
 		this.dataClass = clazz;
 		observers = new ArrayList<IListObserver>();
