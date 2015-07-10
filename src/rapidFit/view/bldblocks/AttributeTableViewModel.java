@@ -2,14 +2,14 @@ package rapidFit.view.bldblocks;
 
 import javax.swing.table.*;
 
-import rapidFit.controller.AbstractAttributeTableController;
+import rapidFit.controller.IAttributeTableController;
 
 @SuppressWarnings("serial")
 public class AttributeTableViewModel extends AbstractTableModel {
 	
-	private AbstractAttributeTableController controller;
+	private IAttributeTableController controller;
 	
-	public AttributeTableViewModel(AbstractAttributeTableController controller){
+	public AttributeTableViewModel(IAttributeTableController controller){
 		this.controller = controller;
 	}
 	

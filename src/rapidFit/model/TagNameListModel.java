@@ -4,19 +4,21 @@ import java.util.HashMap;
 
 import rapidFit.TagNameException;
 
-public class TagNameListModel<T> extends AbstractTagNameListModel<T> {
+public class TagNameListModel<T> extends ITagNameListModel<T> {
 	
 	/*
 	 * a map that associates each object in the data list with
 	 * a unique tag name
 	 */
 	private HashMap<T, String> nameMap;
+	private String tagName;
 	private int counter = 0;
 	
-	public TagNameListModel(AbstractListModel<T> model, String tagName) {
-		super(model, tagName);
-		
+	public TagNameListModel(IListModel<T> model, String tagName) {
+		super(model);
+		this.tagName = tagName;
 		nameMap = new HashMap<T, String>();
+		super.initTagNames();
 	}
 	
 	@Override
@@ -24,6 +26,13 @@ public class TagNameListModel<T> extends AbstractTagNameListModel<T> {
 		if (!nameMap.containsKey(entry)){
 			counter++;
 			nameMap.put(entry, tagName + "_" + counter);
+		}
+	}
+	
+	@Override
+	public void addEntry(T entry, String tagName){
+		if (!nameMap.containsKey(entry) && !nameMap.containsValue(tagName)){
+			nameMap.put(entry, tagName);
 		}
 	}
 	

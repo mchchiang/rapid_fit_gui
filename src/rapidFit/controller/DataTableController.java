@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.swing.JComponent;
 
@@ -16,15 +17,15 @@ import rapidFit.controller.command.ListModelCopyCommand;
 import rapidFit.controller.command.ListModelEditFieldCommand;
 import rapidFit.controller.command.ListModelEditListCommand;
 import rapidFit.controller.command.ListModelRemoveCommand;
-import rapidFit.model.AbstractListModel;
-import rapidFit.model.AbstractListModel.UpdateType;
-import rapidFit.model.ListObserver;
+import rapidFit.model.IListModel;
+import rapidFit.model.IListModel.UpdateType;
+import rapidFit.model.IListObserver;
 import rapidFit.view.bldblocks.DataTablePanel;
 import rapidFit.view.bldblocks.DataTableViewModel;
 
-public class DataTableController<T> implements AbstractDataTableController, ListObserver {
+public class DataTableController<T> implements IDataTableController<T>, IListObserver {
 	
-	private AbstractListModel<T> listModel;
+	private IListModel<T> listModel;
 	private DataTableViewModel tableViewModel;
 	private DataTablePanel tablePanel;
 	private MainController mainController;
@@ -32,11 +33,11 @@ public class DataTableController<T> implements AbstractDataTableController, List
 	private List<String> fieldNames;
 	
 	public DataTableController(
-			MainController controller, AbstractListModel<T> model,
+			MainController controller, IListModel<T> model,
 			String btnAddName, String btnRemoveName, String btnCopyName){
 		this.mainController = controller;
 		this.listModel = model;
-		listModel.addObserver(this);
+		listModel.addListObserver(this);
 		
 		/*
 		 * get the list of names of the fields to be
@@ -44,9 +45,19 @@ public class DataTableController<T> implements AbstractDataTableController, List
 		 */
 		fieldNames = listModel.getFieldNames();
 
+		setListMap();
+		
+		//create the view
+		this.tableViewModel = new DataTableViewModel(this);
+		this.tablePanel = new DataTablePanel(this, tableViewModel,
+				btnAddName, btnRemoveName, btnCopyName);
+		
+	}
+	
+	private void setListMap(){
 		//store a list of columns where the data type is a List
 		listMap = new HashMap<Integer, Class<?>>();
-		
+
 		for (int col = 0; col < fieldNames.size(); col++){
 			if (listModel.getFieldClass(fieldNames.get(col)) == List.class){
 				Type type = listModel.getFieldType(fieldNames.get(col));
@@ -58,12 +69,18 @@ public class DataTableController<T> implements AbstractDataTableController, List
 				}
 			}
 		}
-		
-		//create the view
-		this.tableViewModel = new DataTableViewModel(this);
-		this.tablePanel = new DataTablePanel(this, tableViewModel,
-				btnAddName, btnRemoveName, btnCopyName);
-		
+	}
+	
+	@Override
+	public void setModel(IListModel<T> newModel){
+		if (listModel != null){
+			listModel.removeListObserver(this);
+		}
+		listModel = newModel;
+		listModel.addListObserver(this);
+		fieldNames = newModel.getFieldNames();
+		setListMap();
+		tableViewModel.fireTableDataChanged();
 	}
 
 	@Override
@@ -89,8 +106,51 @@ public class DataTableController<T> implements AbstractDataTableController, List
 
 	@Override
 	public void setValueAt(Object value, int row, int col) {
-		try {
+		
+		Object oldValue = getValueAt(row, col);
+		
+		//for setting a list or array of values
+		/*
+		 * error checking is handled in a customised cell editor in
+		 * the DataTable class
+		 */
+		if (listMap.containsKey(col)){
+			try {
+				StringTokenizer st = new StringTokenizer((String) value, "[, ]");
+				Class<?> clazz = listMap.get(col);
+				if (clazz == Double.class){
+					ArrayList<Double> list = new ArrayList<Double>();
+					while (st.hasMoreElements()){
+						list.add(Double.parseDouble(st.nextToken()));
+					}
+					if (!list.toString().equals(oldValue)){
+						mainController.setCommand(new ListModelEditListCommand<Double>(
+								listModel, row, fieldNames.get(col), list));
+					}
+				} else if (clazz == BigInteger.class){
+					ArrayList<BigInteger> list = new ArrayList<BigInteger>();
+					while (st.hasMoreElements()){
+						list.add(new BigInteger(st.nextToken()));
+					}
+					if (!list.toString().equals(oldValue)){
+						mainController.setCommand(new ListModelEditListCommand<BigInteger>(
+								listModel, row, fieldNames.get(col), list));
+					}
+				} else if (clazz == String.class){
+					ArrayList<String> list = new ArrayList<String>();
+					while (st.hasMoreElements()){
+						list.add(st.nextToken());
+					}
+					if (!list.toString().equals(oldValue)){
+						mainController.setCommand(new ListModelEditListCommand<String>(
+								listModel, row, fieldNames.get(col), list));
+					}
+				}
+			} catch (Exception e){
+				e.printStackTrace();
+			}
 			
+		} else {
 			/*
 			 * for empty String input (i.e. ""), set the string to null.
 			 * This is needed to ensure there is no empty tag <></> generated
@@ -98,41 +158,15 @@ public class DataTableController<T> implements AbstractDataTableController, List
 			if (getColumnClass(col) == String.class && 
 					((String) value).equals("")){
 				value = null;
-			}
+			} 
 			
-			//for setting a list or array of values
-			/*
-			 * error checking is handled in a customised cell editor in
-			 * the DataTable class
-			 */
-			
-			if (listMap.containsKey(col)){
-				if (listMap.get(col) == Double.class){
-					mainController.setCommand(
-							new ListModelEditListCommand<Double>(
-									listModel, row, fieldNames.get(col),
-									Double.class, (String) value));
-				} else if (listMap.get(col) == BigInteger.class){
-					mainController.setCommand(
-							new ListModelEditListCommand<BigInteger>(
-									listModel, row, fieldNames.get(col),
-									BigInteger.class, (String) value));
-				} else if (listMap.get(col) == String.class){
-					mainController.setCommand(
-							new ListModelEditListCommand<String>(
-									listModel, row, fieldNames.get(col),
-									String.class, (String) value));
-				}
-			} else {
-
-				Object oldValue = listModel.get(row, fieldNames.get(col));
-				mainController.setCommand(new ListModelEditFieldCommand
-						(listModel, row, fieldNames.get(col), 
-								oldValue, value, "Changed field " + fieldNames.get(col) + 
-								" from \"" + oldValue + "\" to \"" + value + "\""));
+			if (value != null && !value.equals(oldValue) ||
+					value == null && oldValue != null){
+			mainController.setCommand(new ListModelEditFieldCommand
+					(listModel, row, fieldNames.get(col), 
+							oldValue, value, "Changed field " + fieldNames.get(col) + 
+							" from \"" + oldValue + "\" to \"" + value + "\""));
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -185,7 +219,7 @@ public class DataTableController<T> implements AbstractDataTableController, List
 
 	@Override
 	public void addRow(int row) {
-		mainController.setCommand(new ListModelAddCommand(listModel, row,
+		mainController.setCommand(new ListModelAddCommand<T>(listModel, row,
 				"Added a new row"));
 	}
 
@@ -198,7 +232,10 @@ public class DataTableController<T> implements AbstractDataTableController, List
 	public void removeRows(int [] rows){
 		ArrayList<ListModelRemoveCommand<T>> commands = 
 				new ArrayList<ListModelRemoveCommand<T>>();
-		Arrays.sort(rows);//need to be sure that the rows are sorted from smallest to largest
+		
+		//need to be sure that the rows are sorted from smallest to largest
+		Arrays.sort(rows);
+		
 		for (int i = 0; i < rows.length; i++){
 			commands.add(new ListModelRemoveCommand<T>(listModel, rows[i], rows[i]-i));
 		}		
@@ -214,7 +251,10 @@ public class DataTableController<T> implements AbstractDataTableController, List
 	public void copyRows(int [] rows){
 		ArrayList<ListModelCopyCommand<T>> commands =
 				new ArrayList<ListModelCopyCommand<T>>();
-		Arrays.sort(rows);//need to be sure that the rows are sorted from smallest to largest
+		
+		//need to be sure that the rows are sorted from smallest to largest
+		Arrays.sort(rows);
+		
 		for (int i = 0; i < rows.length; i++){
 			commands.add(new ListModelCopyCommand<T>(listModel, rows[i]+i));
 		}

@@ -4,22 +4,28 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class ExternalRootListModel<T> implements AbstractListModel<T> {
+public class ExternalRootListModel<T> implements IListModel<T> {
 	
-	private AbstractListModel<T> model;
+	private IListModel<T> model;
+	private IListModel<T> externalModel;
 	
-	public ExternalRootListModel (AbstractListModel<T> model){
+	public ExternalRootListModel (IListModel<T> model, IListModel<T> externalModel){
 		this.model = model;
+		this.externalModel = externalModel;
 	}
 	
-	public void addObserver(ListObserver lo){
-		model.addObserver(lo);
+	public void setList(List<T> data){
+		model.setList(data);
 	}
-	public void removeObserver(ListObserver lo){
-		model.removeObserver(lo);
+	
+	public void addListObserver(IListObserver lo){
+		model.addListObserver(lo);
 	}
-	public void notifyObserver(){
-		model.notifyObserver();
+	public void removeListObserver(IListObserver lo){
+		model.removeListObserver(lo);
+	}
+	public void notifyListObserver(){
+		model.notifyListObserver();
 	}
 	public void setUpdateType(UpdateType t){
 		model.setUpdateType(t);
@@ -65,11 +71,14 @@ public class ExternalRootListModel<T> implements AbstractListModel<T> {
 	}
 	public void add(int index) throws InstantiationException, IllegalAccessException{
 		model.add(index);
+		externalModel.add(index);
 	}
 	public void add(int index, T object){
 		model.add(index, object);
+		externalModel.add(index, object);
 	}
 	public void remove(int index){
 		model.remove(index);
+		externalModel.remove(index);
 	}
 }

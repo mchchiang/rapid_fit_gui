@@ -1,14 +1,14 @@
 package rapidFit.controller.command;
 
 import rapidFit.Cloner;
-import rapidFit.model.AbstractListModel;
+import rapidFit.model.IListModel;
 
 public class ListModelCopyCommand<T> implements UndoableCommand {
 
-	private AbstractListModel<T> model;
+	private IListModel<T> model;
 	private int index;
 	
-	public ListModelCopyCommand(AbstractListModel<T> model, int index){
+	public ListModelCopyCommand(IListModel<T> model, int index){
 		this.model = model;
 		this.index = index;		
 	}

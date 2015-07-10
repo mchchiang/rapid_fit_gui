@@ -2,7 +2,7 @@ package rapidFit.controller;
 
 import javax.swing.JComponent;
 
-public interface TableController {
+public interface ITableController {
 	
 	public int getRowCount();
 	public int getColumnCount();

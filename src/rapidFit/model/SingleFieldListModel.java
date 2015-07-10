@@ -1,39 +1,55 @@
 package rapidFit.model;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SingleFieldListModel<T> implements AbstractListModel<T> {
+public class SingleFieldListModel<T> implements IListModel<T> {
 	
 	private List<T> data;
 	private Class<T> dataClass;
-	private ArrayList<ListObserver> observers;
+	private ArrayList<IListObserver> observers;
 	private int updateIndex;
 	private UpdateType updateType;
 	private String updateField;
 	private final String FIELD_NAME = "Value";
+	private boolean hasDefaultConstructor = false;
 	
 	
 	public SingleFieldListModel (Class<T> clazz, List<T> data){
 		this.data = data;
 		this.dataClass = clazz;
-		observers = new ArrayList<ListObserver>();
+		observers = new ArrayList<IListObserver>();
+		
+		//check if class has default constructor
+		for (Constructor<?> constructor : dataClass.getConstructors()){
+			if (constructor.getParameterTypes().length == 0){
+				hasDefaultConstructor = true;
+				break;
+			}
+		}
 	}
+	
+	@Override
+	public void setList(List<T> data){
+		this.data = data;
+	}
+	
 
 	@Override
-	public void addObserver(ListObserver lo) {
+	public void addListObserver(IListObserver lo) {
 		observers.add(lo);
 	}
 
 	@Override
-	public void removeObserver(ListObserver lo) {
+	public void removeListObserver(IListObserver lo) {
 		observers.remove(lo);
 	}
 
 	@Override
-	public void notifyObserver() {
-		for (ListObserver lo : observers){
+	public void notifyListObserver() {
+		for (IListObserver lo : observers){
 			lo.update(updateIndex, updateType, updateField);
 		}
 	}
@@ -59,6 +75,9 @@ public class SingleFieldListModel<T> implements AbstractListModel<T> {
 		if (index >= 0 && index < data.size()){
 			data.set(index, object);
 			updateType = UpdateType.EDIT;
+			updateField = null;
+			updateIndex = index;
+			notifyListObserver();
 		}
 	}
 
@@ -71,19 +90,36 @@ public class SingleFieldListModel<T> implements AbstractListModel<T> {
 	}
 	
 	@Override
-	public void add(int index) {
-		data.add(index, null);	
+	public void add(int index) throws InstantiationException, IllegalAccessException{
+		if (hasDefaultConstructor){
+			data.add(index, dataClass.newInstance());
+		} else {
+			data.add(index, null);
+		}
+		
+		updateType = UpdateType.ADD;
+		updateField = null;
+		updateIndex = index;
+		notifyListObserver();
 	}
 	
 	@Override
 	public void add(int index, T object){
 		data.add(index, object);
+		updateType = UpdateType.ADD;
+		updateField = null;
+		updateIndex = index;
+		notifyListObserver();
 	}
 
 	@Override
 	public void remove(int index) {
 		if (index >= 0 && index < data.size()){	
 			data.remove(index);
+			updateType = UpdateType.REMOVE;
+			updateField = null;
+			updateIndex = index;
+			notifyListObserver();
 		}
 	}
 

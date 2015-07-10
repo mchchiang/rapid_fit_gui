@@ -7,21 +7,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ClassModel<T> implements AbstractClassModel<T>{
+public class ClassModel implements IClassModel{
 	
-	private T data;
-	private Class<T> dataClass;
+	private Object data;
+	private Class<?> dataClass;
 	
 	private HashMap<String, Field> fields;
 	
-	private ArrayList<ClassObserver> observers;
+	private ArrayList<IClassObserver> observers;
 	private String updateField;
 	
-	public ClassModel (Class<T> clazz, T data, ArrayList<String> ignoreAttributes){
+	public ClassModel (Class<?> clazz, Object data, ArrayList<String> ignoreAttributes){
 		this.data = data;
 		this.dataClass = clazz;
 		
-		observers = new ArrayList<ClassObserver>();
+		observers = new ArrayList<IClassObserver>();
 		
 		fields = new HashMap<String, Field>();
 		
@@ -66,18 +66,28 @@ public class ClassModel<T> implements AbstractClassModel<T>{
 	}
 	
 	@Override
-	public void addObserver(ClassObserver co) {
+	public void setModelledData(Object data){
+		this.data = data;
+		for (String fieldName : fields.keySet()){
+			System.out.println(fieldName);
+			updateField = fieldName;
+			notifyObserver();
+		}
+	}
+	
+	@Override
+	public void addObserver(IClassObserver co) {
 		observers.add(co);
 	}
 
 	@Override
-	public void removeObserver(ClassObserver co) {
+	public void removeObserver(IClassObserver co) {
 		observers.remove(co);
 	}
 
 	@Override
 	public void notifyObserver() {
-		for (ClassObserver co : observers){
+		for (IClassObserver co : observers){
 			co.update(updateField);
 		}
 	}

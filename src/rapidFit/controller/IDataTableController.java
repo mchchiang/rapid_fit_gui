@@ -1,6 +1,10 @@
 package rapidFit.controller;
 
-public interface AbstractDataTableController extends TableController {
+import rapidFit.model.IListModel;
+
+public interface IDataTableController<T> extends ITableController {
+	
+	public void setModel(IListModel<T> model);
 	
 	public Class<?> getColumnClass(int col);
 	

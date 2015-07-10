@@ -4,10 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public interface AbstractClassModel<T> {
+public interface IClassModel {
 	
-	public void addObserver(ClassObserver co);
-	public void removeObserver(ClassObserver co);
+	public void setModelledData(Object data);
+	
+	public void addObserver(IClassObserver co);
+	public void removeObserver(IClassObserver co);
 	public void notifyObserver();
 	public void setUpdateField(String field);
 

@@ -7,27 +7,28 @@ import java.util.List;
 
 import rapidFit.TagNameException;
 
-public abstract class AbstractTagNameListModel<T> implements AbstractListModel<T> {
+public abstract class ITagNameListModel<T> implements IListModel<T> {
 	
-	private AbstractListModel<T> model;
-	protected String tagName;
+	private IListModel<T> model;
 	
-	public AbstractTagNameListModel (AbstractListModel<T> model, String tag){
+	public ITagNameListModel (IListModel<T> model){
 		this.model = model;
-		this.tagName = tag;
-		
+	}
+	
+	//abstract methods to be implemented by sub-classes
+	protected abstract void addEntry(T entry);
+	protected abstract void addEntry(T entry, String tagName);
+	protected abstract void removeEntry(T entry);
+	public abstract void setTagName(T entry, String tagName) throws TagNameException;
+	public abstract String getTagName(T entry);
+	public abstract HashMap<T, String> getNameMap();
+	
+	protected void initTagNames(){
 		//assign all existing elements in the model with a tag name 
 		for (int i = 0; i < model.size(); i++){
 			addEntry(model.get(i));
 		}
 	}
-	
-	//abstract methods to be implemented by sub-classes
-	protected abstract void addEntry(T entry);
-	protected abstract void removeEntry(T entry);
-	public abstract void setTagName(T entry, String tagName) throws TagNameException;
-	public abstract String getTagName(T entry);
-	public abstract HashMap<T, String> getNameMap();
 	
 	public void setTagName(int index, String tagName) throws TagNameException {
 		T entry = model.get(index);
@@ -44,14 +45,33 @@ public abstract class AbstractTagNameListModel<T> implements AbstractListModel<T
 		return null;
 	}
 	
-	public void addObserver(ListObserver lo){
-		model.addObserver(lo);
+	public void add(int index, String tagName) throws InstantiationException, IllegalAccessException{
+		model.add(index);
+		addEntry(model.get(index), tagName);
 	}
-	public void removeObserver(ListObserver lo){
-		model.removeObserver(lo);
+	
+	public void add(int index, T object, String tagName){
+		model.add(index, object);
+		addEntry(object, tagName);
 	}
-	public void notifyObserver(){
-		model.notifyObserver();
+	
+	public void setList(List<T> data){
+		//remove all tag names from elements of existing model
+		for (int i = 0; i < model.size(); i++){
+			removeEntry(model.get(i));
+		}
+		model.setList(data);
+		initTagNames();
+	}
+	
+	public void addListObserver(IListObserver lo){
+		model.addListObserver(lo);
+	}
+	public void removeListObserver(IListObserver lo){
+		model.removeListObserver(lo);
+	}
+	public void notifyListObserver(){
+		model.notifyListObserver();
 	}
 	public void setUpdateType(UpdateType t){
 		model.setUpdateType(t);
@@ -72,6 +92,9 @@ public abstract class AbstractTagNameListModel<T> implements AbstractListModel<T
 	}
 	
 	public void set(int index, T object){
+		if (getTagName(object) == null){
+			addEntry(object);
+		} 
 		model.set(index, object);
 	}
 	public void set(int index, String fieldName, Object value) 

@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MultiFieldsListModel<T> implements AbstractListModel<T> {
+public class MultiFieldsListModel<T> implements IListModel<T> {
 	
 	private Class<T> dataClass;
 	private List<T> data;
 	
 	private HashMap<String, Field> fields;
 	
-	private ArrayList<ListObserver> observers;
+	private ArrayList<IListObserver> observers;
 	private UpdateType updateType;
 	private String updateField;
 	private int updateIndex;
@@ -26,7 +26,7 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 		
 		fields = new HashMap<String, Field>();
 		
-		observers = new ArrayList<ListObserver>();
+		observers = new ArrayList<IListObserver>();
 		
 		//get setter and getter methods
 		Method [] methods = dataClass.getDeclaredMethods();
@@ -69,13 +69,18 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 	}
 	
 	@Override
+	public void setList(List<T> data){
+		this.data = data;
+	}
+	
+	@Override
 	public void set(int index, T object) {
 		if (index >= 0 && index < data.size()){
 			data.set(index, object);
 			updateType = UpdateType.EDIT;
 			updateField = null;
 			updateIndex = index;
-			notifyObserver();
+			notifyListObserver();
 		}
 	}
 	
@@ -87,7 +92,7 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 			updateType = UpdateType.EDIT;
 			updateField = fieldName;
 			updateIndex = index;
-			notifyObserver();
+			notifyListObserver();
 		}
 	}
 	
@@ -115,7 +120,7 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 			updateType = UpdateType.ADD;
 			updateField = null;
 			updateIndex = index;
-			notifyObserver();
+			notifyListObserver();
 		}
 	}
 	
@@ -126,7 +131,7 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 			updateType = UpdateType.ADD;
 			updateField = null;
 			updateIndex = index;
-			notifyObserver();
+			notifyListObserver();
 		}
 	}
 	
@@ -137,26 +142,26 @@ public class MultiFieldsListModel<T> implements AbstractListModel<T> {
 			updateType = UpdateType.REMOVE;
 			updateField = null;
 			updateIndex = index;
-			notifyObserver();
+			notifyListObserver();
 		}
 	}
 
 
 	@Override
-	public void addObserver(ListObserver lo) {
+	public void addListObserver(IListObserver lo) {
 		observers.add(lo);
 	}
 
 	@Override
-	public void removeObserver(ListObserver lo) {
+	public void removeListObserver(IListObserver lo) {
 		if (observers.contains(lo)){
 			observers.remove(lo);
 		}
 	}
 
 	@Override
-	public void notifyObserver() {
-		for (ListObserver lo : observers){
+	public void notifyListObserver() {
+		for (IListObserver lo : observers){
 			lo.update(updateIndex, updateType, updateField);
 		}
 	}

@@ -4,14 +4,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public interface AbstractListModel<T> {	
+public interface IListModel<T> {	
 	public static enum UpdateType {
 		ADD, REMOVE, EDIT;
 	}
 	
-	public void addObserver(ListObserver lo);
-	public void removeObserver(ListObserver lo);
-	public void notifyObserver();
+	public void setList(List<T> data);
+	
+	public void addListObserver(IListObserver lo);
+	public void removeListObserver(IListObserver lo);
+	public void notifyListObserver();
 	public void setUpdateType(UpdateType t);
 	public void setUpdateField(String field);
 	public void setUpdateIndex(int index);

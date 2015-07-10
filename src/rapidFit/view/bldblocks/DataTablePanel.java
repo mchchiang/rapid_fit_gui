@@ -6,7 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import rapidFit.RowNumberTable;
-import rapidFit.controller.AbstractDataTableController;
+import rapidFit.controller.IDataTableController;
 
 @SuppressWarnings("serial")
 public class DataTablePanel extends JPanel implements ActionListener {
@@ -36,9 +36,9 @@ public class DataTablePanel extends JPanel implements ActionListener {
 	//container for all the buttons 
 	protected JPanel controlPanel;
 		
-	private AbstractDataTableController controller;
+	private IDataTableController controller;
 	
-	public DataTablePanel (AbstractDataTableController controller, DataTableViewModel viewModel,
+	public DataTablePanel (IDataTableController controller, DataTableViewModel viewModel,
 			String btnAddName, String btnRemoveName, String btnCopyName){
 		
 		this.controller = controller;

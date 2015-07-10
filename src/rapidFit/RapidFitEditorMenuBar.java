@@ -54,17 +54,29 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		
 		mnuImport = new JMenuItem("Open XML");
 		mnuImport.addActionListener(this);
+		mnuImport.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_O, 
+		        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		
 		mnuExport = new JMenuItem("Save As New XML");
 		mnuExport.setEnabled(false);
 		mnuExport.addActionListener(this);
+		mnuExport.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_S, 
+		        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | InputEvent.ALT_DOWN_MASK));
 		
 		mnuSave = new JMenuItem("Save XML");
 		mnuSave.setEnabled(false);
 		mnuSave.addActionListener(this);
+		mnuSave.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_S, 
+		        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		
 		mnuNew = new JMenuItem("New XML");
 		mnuNew.addActionListener(this);
+		mnuNew.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_N, 
+		        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		
 		mnuFile = new JMenu("File");
 		mnuFile.add(mnuImport);

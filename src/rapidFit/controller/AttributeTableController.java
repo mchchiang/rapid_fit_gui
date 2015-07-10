@@ -5,33 +5,47 @@ import java.util.List;
 import javax.swing.JComponent;
 
 import rapidFit.controller.command.ClassModelEditFieldCommand;
-import rapidFit.model.AbstractClassModel;
-import rapidFit.model.ClassObserver;
+import rapidFit.model.IClassModel;
+import rapidFit.model.IClassObserver;
 import rapidFit.view.bldblocks.AttributePanel;
 import rapidFit.view.bldblocks.AttributeTableViewModel;
 
-public class AttributeTableController<T> implements AbstractAttributeTableController, ClassObserver {
+public class AttributeTableController<T> implements IAttributeTableController, IClassObserver {
 
-	private AbstractClassModel<T> model;
+	private IClassModel model;
 	private AttributePanel tablePanel;
 	private AttributeTableViewModel tableViewModel;
 	private MainController mainController;
 
 	private List<String> fieldNames;
 
-	public AttributeTableController (MainController controller, AbstractClassModel<T> model, String className) {
+	public AttributeTableController (MainController controller, IClassModel model, String className) {
 		this.model = model;
 		this.mainController = controller;
 		
 		model.addObserver(this);
-
+		
 		fieldNames = model.getFieldNames();
 
 		//create view
 		tableViewModel = new AttributeTableViewModel(this);
 		tablePanel = new AttributePanel(tableViewModel, className);
 	}
-
+	
+	@Override
+	public void setModel(IClassModel newModel){
+		if (model != null){
+			model.removeObserver(this);
+		}
+		model = newModel;
+		model.addObserver(this);
+		fieldNames = newModel.getFieldNames();
+		tableViewModel.fireTableDataChanged();
+	}
+	
+	@Override
+	public IClassModel getModel(){return model;}
+	
 	@Override
 	public int getRowCount() {
 		return fieldNames.size();
@@ -112,7 +126,11 @@ public class AttributeTableController<T> implements AbstractAttributeTableContro
 
 	@Override
 	public void update(String field) {
+		System.out.println(field);
 		tableViewModel.fireTableCellUpdated(fieldNames.indexOf(field), 1);		
 	}
+
+	@Override
+	public void changedSelectedElement(Object element) {}
 
 }

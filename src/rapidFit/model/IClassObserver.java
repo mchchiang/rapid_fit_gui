@@ -1,5 +1,5 @@
 package rapidFit.model;
 
-public interface ClassObserver {
+public interface IClassObserver {
 	public void update(String field);
 }
