@@ -7,9 +7,9 @@ import rapidFit.controller.IDataTableController;
 @SuppressWarnings("serial")
 public class DataTableViewModel extends AbstractTableModel {
 	
-	private IDataTableController controller;
+	private IDataTableController<?> controller;
 	
-	public DataTableViewModel(IDataTableController controller){
+	public DataTableViewModel(IDataTableController<?> controller){
 		this.controller = controller;
 	}
 	

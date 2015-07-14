@@ -7,12 +7,9 @@ import javax.swing.border.*;
 
 @SuppressWarnings("serial")
 public class AttributePanel extends JPanel {
-	private AttributeTable table;
 	private JScrollPane scrollPane;
 	
-	public AttributePanel (AttributeTableViewModel viewModel, String name){		
-		table = new AttributeTable(viewModel);
-		
+	public AttributePanel (AttributeTable table, String name){				
 		scrollPane = new JScrollPane(table);
 		table.setFillsViewportHeight(true);
 		

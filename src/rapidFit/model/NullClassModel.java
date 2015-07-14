@@ -5,22 +5,17 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NullClassModel implements IClassModel {
-
-	@Override
-	public void setModelledData(Object data) {}
+@SuppressWarnings("rawtypes")
+public class NullClassModel extends IClassModel {
 	
 	@Override
-	public void addObserver(IClassObserver co) {}
+	public void addDataListener(DataListener listener) {}
 
 	@Override
-	public void removeObserver(IClassObserver co) {}
+	public void removeDataListener(DataListener listener) {}
 
 	@Override
-	public void notifyObserver() {}
-
-	@Override
-	public void setUpdateField(String field) {}
+	public void notifyDataListener(DataEvent e) {}
 
 	@Override
 	public void set(String fieldName, Object value)
@@ -34,23 +29,23 @@ public class NullClassModel implements IClassModel {
 	}
 
 	@Override
-	public int getNumOfFields() {
-		return 0;
-	}
+	public int getNumOfFields() {return 0;}
 
 	@Override
-	public List<String> getFieldNames() {
-		return new ArrayList<String>();
-	}
+	public List<String> getFieldNames() {return new ArrayList<String>();}
 
 	@Override
-	public Class<?> getFieldClass(String fieldName) {
-		return null;
-	}
+	public Class<?> getFieldClass(String fieldName) {return null;}
 
 	@Override
-	public Type getFieldType(String fieldName) {
-		return null;
-	}
+	public Type getFieldType(String fieldName) {return null;}
 
+	@Override
+	public Object getObject() {return null;}
+	
+	@Override 
+	public Class<?> getDataClass() {return null;}
+	
+	@Override
+	public IDataModel<?> getActualModel() {return this;}
 }

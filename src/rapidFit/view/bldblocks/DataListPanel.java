@@ -5,8 +5,6 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -26,7 +24,7 @@ public class DataListPanel<T> extends JPanel{
 	private DataList<T> dataList;
 	
 	//for display the entries in the data as a list
-	private int currentSelectedIndex = -1;
+	//private int currentSelectedIndex = -1;
 	
 	//container for the list
 	private JScrollPane scrollPane;
@@ -59,20 +57,6 @@ public class DataListPanel<T> extends JPanel{
 	public void initDataListPanel(){
 		//initialise the list panel
 		scrollPane = new JScrollPane(dataList);
-		
-		dataList.addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e){
-				int index = dataList.locationToIndex(e.getPoint());
-				if (index != -1 && 
-						((currentSelectedIndex != index && e.getClickCount() == 1) ||
-						(e.getClickCount() == 2))){
-					currentSelectedIndex = index;
-					controller.setSelectedIndex(index);
-				}
-			}
-		});
-		
-		scrollPane = new JScrollPane(dataList);
 	}
 	
 	public void initOptionPanel(){
@@ -81,7 +65,7 @@ public class DataListPanel<T> extends JPanel{
 		btnAdd.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int index = dataList.getSelectedIndex();
+				int index = controller.getSelectedIndex();
 				if (index != -1){
 					controller.addRow(index);
 				} else {
@@ -94,7 +78,7 @@ public class DataListPanel<T> extends JPanel{
 		btnRemove.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int index = dataList.getSelectedIndex();
+				int index = controller.getSelectedIndex();
 				if (index != -1){
 					controller.removeRow(index);
 				} else {
@@ -107,7 +91,7 @@ public class DataListPanel<T> extends JPanel{
 		btnCopy.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int index = dataList.getSelectedIndex();
+				int index = controller.getSelectedIndex();
 				if (index != -1){
 					controller.copyRow(index);
 				} else {

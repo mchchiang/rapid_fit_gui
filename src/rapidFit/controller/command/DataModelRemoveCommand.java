@@ -1,14 +1,14 @@
 package rapidFit.controller.command;
 
-import rapidFit.model.IListModel;
+import rapidFit.model.IDataModel;
 
-public class ListModelRemoveCommand<T> implements UndoableCommand {
+public class DataModelRemoveCommand<T> implements UndoableCommand {
 
-	private IListModel<T> model;
+	private IDataModel<T> model;
 	private T oldObject;
 	private int index;
 	
-	public ListModelRemoveCommand(IListModel<T> model, int currentIndex, int removeIndex){
+	public DataModelRemoveCommand(IDataModel<T> model, int currentIndex, int removeIndex){
 		this.model = model;
 		this.index = removeIndex;
 		oldObject = model.get(currentIndex);
@@ -27,3 +27,4 @@ public class ListModelRemoveCommand<T> implements UndoableCommand {
 	}
 	
 }
+

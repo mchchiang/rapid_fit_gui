@@ -13,7 +13,6 @@ public class DataTablePanel extends JPanel implements ActionListener {
 	
 	//variables for the table panel
 	private DataTable table;
-	private DataTableViewModel viewModel;
 	private JScrollPane scrollPane;
 	private JTable rowTable; //make row numbers next to table
 
@@ -36,13 +35,13 @@ public class DataTablePanel extends JPanel implements ActionListener {
 	//container for all the buttons 
 	protected JPanel controlPanel;
 		
-	private IDataTableController controller;
+	private IDataTableController<?> controller;
 	
-	public DataTablePanel (IDataTableController controller, DataTableViewModel viewModel,
+	public DataTablePanel (IDataTableController<?> controller, DataTable table,
 			String btnAddName, String btnRemoveName, String btnCopyName){
 		
 		this.controller = controller;
-		this.viewModel = viewModel;
+		this.table = table;
 		
 		if (btnAddName != null){
 			this.btnAddName = btnAddName;
@@ -61,7 +60,6 @@ public class DataTablePanel extends JPanel implements ActionListener {
 	}
 	
 	protected void initTablePanel(){
-		table = new DataTable(viewModel);
 		rowTable = new RowNumberTable(table);
 		
 		scrollPane = new JScrollPane(table);

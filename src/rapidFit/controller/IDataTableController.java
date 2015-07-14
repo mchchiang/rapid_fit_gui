@@ -1,11 +1,12 @@
 package rapidFit.controller;
 
-import rapidFit.model.IListModel;
+import rapidFit.model.DataListener;
+import rapidFit.model.IDataModel;
 
-public interface IDataTableController<T> extends ITableController {
+public interface IDataTableController<T> extends ITableController, DataListener {
 	
-	public void setModel(IListModel<T> model);
-	
+	public void setModel(IDataModel<T> model);
+	public IDataModel<?> getModel();
 	public Class<?> getColumnClass(int col);
 	
 	public void addRow();
@@ -14,5 +15,4 @@ public interface IDataTableController<T> extends ITableController {
 	public void removeRows(int [] rows);
 	public void copyRow(int row);
 	public void copyRows(int [] rows);
-	
 }

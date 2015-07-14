@@ -11,16 +11,19 @@ import rapidFit.controller.IDataTableController;
 import rapidFit.controller.AttributeTableController;
 import rapidFit.controller.DataTableController;
 import rapidFit.controller.IListPanelController;
+import rapidFit.controller.IListViewController;
+import rapidFit.controller.ITagNamePanelController;
 import rapidFit.controller.ListPanelController;
-import rapidFit.controller.MainController;
+import rapidFit.controller.ListViewController;
+import rapidFit.controller.TagNamePanelController;
+import rapidFit.controller.UIController;
 import rapidFit.model.IClassModel;
-import rapidFit.model.IListModel;
+import rapidFit.model.IDataModel;
 import rapidFit.model.ClassModel;
-import rapidFit.model.ITagNameListModel;
+import rapidFit.model.ITagNameDataModel;
 import rapidFit.model.DataModel;
 import rapidFit.model.NullClassModel;
-import rapidFit.model.ListModel;
-import rapidFit.model.TagNameListModel;
+import rapidFit.model.TagNameDataModel;
 import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
@@ -43,7 +46,7 @@ public class RapidFitEditor extends JFrame {
 	
 	private static RapidFitEditor editor = null;
 	
-	private MainController mainController;
+	private rapidFit.controller.RapidFitEditor mainController;
 	
 	private RapidFitEditor(){
 		init();
@@ -129,46 +132,52 @@ public class RapidFitEditor extends JFrame {
 				"Available Projections", "Comp_Proj", "Projection Details");
 		
 		//new MVC design part
-		mainController = new MainController();
+		mainController = new rapidFit.controller.RapidFitEditor();
 		
 		//create the parameter set panel
-		IListModel<PhysicsParameterType> physicsParams = 
+		/*IDataModel<PhysicsParameterType> physicsParams = 
 				new DataModel<PhysicsParameterType>(PhysicsParameterType.class,
 						root.getParameterSet().getPhysicsParameter(), null);
 		IDataTableController<PhysicsParameterType> physicsParamsTableController = new 
-				DataTableController<PhysicsParameterType>(mainController, physicsParams,
+				DataTableController<PhysicsParameterType>(mainController, mainController, physicsParams,
 						"Add Parameter", "Remove Parameter(s)", "Duplicate Parameter(s)");
 		
 		//create the fit option panel
-		IClassModel fitFunction = new ClassModel(FitFunctionType.class, root.getFitFunction(), null);
-		IClassModel minimiser = new ClassModel(MinimiserType.class, root.getMinimiser(), null);
-		IClassModel precalculator = new ClassModel(PrecalculatorType.class,	root.getPrecalculator(), null);
-		IAttributeTableController fitFunctionTableController = 
-				new AttributeTableController<FitFunctionType>(mainController, fitFunction, "Fit Function");
-		IAttributeTableController minimiserTableController = 
-				new AttributeTableController<MinimiserType>(mainController, minimiser, "Miminiser");
-		IAttributeTableController precalculatorTableController = 
-				new AttributeTableController<PrecalculatorType>(mainController, precalculator, "Precalculator");
+		IClassModel<FitFunctionType> fitFunction = 
+				new ClassModel<FitFunctionType>(FitFunctionType.class, root.getFitFunction(), null);
+		IClassModel<MinimiserType> minimiser = 
+				new ClassModel<MinimiserType>(MinimiserType.class, root.getMinimiser(), null);
+		IClassModel<PrecalculatorType> precalculator =
+				new ClassModel<PrecalculatorType>(PrecalculatorType.class,	root.getPrecalculator(), null);
+		IAttributeTableController<FitFunctionType> fitFunctionTableController = 
+				new AttributeTableController<FitFunctionType>(mainController, mainController, fitFunction, fileName);
+		IAttributeTableController<MinimiserType> minimiserTableController = 
+				new AttributeTableController<MinimiserType>(mainController, mainController, minimiser, "Miminiser");
+		IAttributeTableController<PrecalculatorType> precalculatorTableController = 
+				new AttributeTableController<PrecalculatorType>(mainController, mainController, precalculator, "Precalculator");
 		
 		JPanel fitOptionsPanel = new JPanel();
 		fitOptionsPanel.setLayout(new GridLayout(2,2));
-		fitOptionsPanel.add(fitFunctionTableController.getViewComponent());
-		fitOptionsPanel.add(minimiserTableController.getViewComponent());
-		fitOptionsPanel.add(precalculatorTableController.getViewComponent());
+		fitOptionsPanel.add(fitFunctionTableController.getView());
+		fitOptionsPanel.add(minimiserTableController.getView());
+		fitOptionsPanel.add(precalculatorTableController.getView());
 		
-		IListModel<ObservableType> observables = 
+		IDataModel<ObservableType> observables = 
 				new DataModel<ObservableType>(ObservableType.class, 
 						root.getCommonPhaseSpace().getPhaseSpaceBoundary().getObservable(), null);
 		IDataTableController<ObservableType> observablesTableController = new 
-				DataTableController<ObservableType>(mainController, observables,
+				DataTableController<ObservableType>(mainController, mainController, observables,
 						"Add Observable", "Remove Observable(s)", "Duplicate Observable(s)");
 		
-		ITagNameListModel<ComponentProjectionType> projections = 
-				new TagNameListModel<ComponentProjectionType>(
-						new ListModel<ComponentProjectionType>(
-						ComponentProjectionType.class, root.getOutput().getComponentProjection()), "Comp_Proj");		
+		ITagNameDataModel<ComponentProjectionType> projections = 
+				new TagNameDataModel<ComponentProjectionType>(
+						new DataModel<ComponentProjectionType>(
+								ComponentProjectionType.class, 
+								root.getOutput().getComponentProjection(), null), "Comp_Proj");	
+		IListViewController<ComponentProjectionType> projectionsListController =
+				new ListViewController<ComponentProjectionType>(mainController, projections);
 		
-		IAttributeTableController projectionTableController = 
+		/*IAttributeTableController projectionTableController = 
 				new AttributeTableController<ComponentProjectionType>(mainController, new NullClassModel() , " "){
 			public void changedSelectedElement(Object element){
 				if (element != null && getModel() instanceof NullClassModel){
@@ -186,7 +195,7 @@ public class RapidFitEditor extends JFrame {
 		JPanel projectionPanel = new JPanel();
 		projectionPanel.setLayout(new BorderLayout());
 		projectionPanel.add(projectionsListController.getViewComponent(), BorderLayout.WEST);
-		projectionPanel.add(projectionTableController.getViewComponent(), BorderLayout.CENTER);
+		projectionPanel.add(projectionTableController.getViewComponent(), BorderLayout.CENTER);*/
 		
 		
 		RapidFitEditorMenuBar.getInstance().setMainController(mainController);
@@ -199,10 +208,12 @@ public class RapidFitEditor extends JFrame {
 		tabs.addTab("Data Sets", fitDataSetPanel);
 		tabs.addTab("Output - Scans", outputScanPanel);
 		tabs.addTab("Output - Projections", outputProjectionPanel);
-		tabs.addTab("Trial Parameter Set", physicsParamsTableController.getViewComponent());
+		/*tabs.addTab("Trial Parameter Set", physicsParamsTableController.getView());
 		tabs.addTab("Trial Fitting Options", fitOptionsPanel);
-		tabs.addTab("Trial Parameter Set", observablesTableController.getViewComponent());
-		tabs.addTab("Trial Component Projection", projectionPanel);
+		tabs.addTab("Trial Common Properties", observablesTableController.getView());
+		tabs.addTab("Trial Component Projection", projectionsListController.getView());*/
+		
+		mainController.showLoadedXMLFrame(root, fileName);
 		
 		content.add(tabs, BorderLayout.CENTER);
 		validate();

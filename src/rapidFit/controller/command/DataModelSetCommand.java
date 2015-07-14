@@ -1,15 +1,15 @@
 package rapidFit.controller.command;
 
-import rapidFit.model.IListModel;
+import rapidFit.model.IDataModel;
 
-public class ListModelSetCommand<T> implements UndoableCommand {
+public class DataModelSetCommand<T> implements UndoableCommand {
 	
-	private IListModel<T> model;
+	private IDataModel<T> model;
 	private int index;
 	private T oldValue;
 	private T newValue;
 	
-	public ListModelSetCommand(IListModel<T> model, int index, T oldValue, T newValue){
+	public DataModelSetCommand(IDataModel<T> model, int index, T oldValue, T newValue){
 		this.model = model;
 		this.index = index;
 		this.oldValue = oldValue;

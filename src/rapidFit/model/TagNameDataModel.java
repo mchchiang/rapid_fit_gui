@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import rapidFit.TagNameException;
 
-public class TagNameListModel<T> extends ITagNameListModel<T> {
+public class TagNameDataModel<T> extends ITagNameDataModel<T> {
 	
 	/*
 	 * a map that associates each object in the data list with
@@ -13,9 +13,11 @@ public class TagNameListModel<T> extends ITagNameListModel<T> {
 	private HashMap<T, String> nameMap;
 	private String tagName;
 	private int counter = 0;
+	private IDataModel<T> model;
 	
-	public TagNameListModel(IListModel<T> model, String tagName) {
+	public TagNameDataModel(IDataModel<T> model, String tagName) {
 		super(model);
+		this.model = model;
 		this.tagName = tagName;
 		nameMap = new HashMap<T, String>();
 		super.initTagNames();
@@ -60,7 +62,8 @@ public class TagNameListModel<T> extends ITagNameListModel<T> {
 					TagNameException.ErrorType.ENTRY_NOT_EXIST);
 		}
 		nameMap.put(entry, tagName);
-		
+		model.notifyDataListener(
+				new EditTagNameEvent(this, model.indexOf(entry), tagName));
 	}
 
 	@Override
@@ -72,5 +75,4 @@ public class TagNameListModel<T> extends ITagNameListModel<T> {
 	public HashMap<T, String> getNameMap() {
 		return nameMap;
 	}
-
 }

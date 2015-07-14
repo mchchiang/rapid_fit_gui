@@ -1,14 +1,14 @@
 package rapidFit.controller;
 
-import javax.swing.JComponent;
+import rapidFit.model.DataListener;
+import rapidFit.model.ITagNameDataModel;
+import rapidFit.model.ListObservable;
 
-import rapidFit.model.ITagNameListModel;
-import rapidFit.view.bldblocks.ListViewObservable;
-
-public interface IListPanelController<T> extends ListViewObservable {
+public interface IListPanelController<T> extends Controller, DataListener, ListObservable {
 	
-	public void setModel(ITagNameListModel<T> newModel);
-		
+	public void setModel(ITagNameDataModel<T> model);
+	public ITagNameDataModel<T> getModel();
+	
 	public void addRow();
 	public void addRow(int row);
 	public void removeRow(int row);
@@ -17,6 +17,8 @@ public interface IListPanelController<T> extends ListViewObservable {
 	public void copyRows(int [] rows);
 	
 	public void setSelectedIndex(int row);
+	public int getSelectedIndex();
+	public void clearSelection();
 	
 	public int getListSize();
 	
@@ -26,5 +28,4 @@ public interface IListPanelController<T> extends ListViewObservable {
 	public void set(int row);
 	public void setTagName(int row, String tagName);
 	
-	public JComponent getViewComponent();
 }

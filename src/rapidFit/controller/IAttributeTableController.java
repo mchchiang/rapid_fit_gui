@@ -1,13 +1,12 @@
 package rapidFit.controller;
 
+import rapidFit.model.DataListener;
 import rapidFit.model.IClassModel;
-import rapidFit.view.bldblocks.ListViewObserver;
 
-public interface IAttributeTableController extends ITableController, ListViewObserver {
+public interface IAttributeTableController<T> extends ITableController, DataListener {
 	
-	public void setModel(IClassModel model);
-	public IClassModel getModel();
-	
+	public void setModel(IClassModel<T> model);
+	public IClassModel<T> getModel();
 	public Class<?> getRowClass(int row);
 	
 }

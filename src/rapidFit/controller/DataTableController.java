@@ -11,45 +11,52 @@ import java.util.StringTokenizer;
 
 import javax.swing.JComponent;
 
+import rapidFit.Cloner;
 import rapidFit.controller.command.CompoundUndoableCommand;
-import rapidFit.controller.command.ListModelAddCommand;
-import rapidFit.controller.command.ListModelCopyCommand;
-import rapidFit.controller.command.ListModelEditFieldCommand;
-import rapidFit.controller.command.ListModelEditListCommand;
-import rapidFit.controller.command.ListModelRemoveCommand;
-import rapidFit.model.IListModel;
-import rapidFit.model.IListModel.UpdateType;
-import rapidFit.model.IListObserver;
+import rapidFit.controller.command.DataModelAddCommand;
+import rapidFit.controller.command.DataModelEditFieldCommand;
+import rapidFit.controller.command.DataModelCopyCommand;
+import rapidFit.controller.command.DataModelRemoveCommand;
+import rapidFit.model.AddElementEvent;
+import rapidFit.model.DataEvent;
+import rapidFit.model.EditElementEvent;
+import rapidFit.model.IDataModel;
+import rapidFit.model.RemoveElementEvent;
+import rapidFit.view.bldblocks.DataTable;
 import rapidFit.view.bldblocks.DataTablePanel;
 import rapidFit.view.bldblocks.DataTableViewModel;
 
-public class DataTableController<T> implements IDataTableController<T>, IListObserver {
+public class DataTableController<T> implements IDataTableController<T> {
 	
-	private IListModel<T> listModel;
+	private IDataModel<T> dataModel;
+	private DataTable table;
 	private DataTableViewModel tableViewModel;
 	private DataTablePanel tablePanel;
-	private MainController mainController;
+	private Controller parentController;
+	private UIController mainController;
 	private HashMap<Integer, Class<?>> listMap;
 	private List<String> fieldNames;
 	
 	public DataTableController(
-			MainController controller, IListModel<T> model,
+			UIController mainController, Controller parentController, IDataModel<T> model,
 			String btnAddName, String btnRemoveName, String btnCopyName){
-		this.mainController = controller;
-		this.listModel = model;
-		listModel.addListObserver(this);
+		this.mainController = mainController;
+		this.parentController = parentController;
+		this.dataModel = model;
+		dataModel.addDataListener(this);
 		
 		/*
 		 * get the list of names of the fields to be
 		 * displayed on separate columns
 		 */
-		fieldNames = listModel.getFieldNames();
+		fieldNames = dataModel.getFieldNames();
 
 		setListMap();
 		
 		//create the view
 		this.tableViewModel = new DataTableViewModel(this);
-		this.tablePanel = new DataTablePanel(this, tableViewModel,
+		this.table = new DataTable(tableViewModel);
+		this.tablePanel = new DataTablePanel(this, table,
 				btnAddName, btnRemoveName, btnCopyName);
 		
 	}
@@ -59,8 +66,8 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 		listMap = new HashMap<Integer, Class<?>>();
 
 		for (int col = 0; col < fieldNames.size(); col++){
-			if (listModel.getFieldClass(fieldNames.get(col)) == List.class){
-				Type type = listModel.getFieldType(fieldNames.get(col));
+			if (dataModel.getFieldClass(fieldNames.get(col)) == List.class){
+				Type type = dataModel.getFieldType(fieldNames.get(col));
 				if (type instanceof ParameterizedType){
 					listMap.put(col, (Class<?>) 
 							((ParameterizedType) type).getActualTypeArguments()[0]);
@@ -72,20 +79,23 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 	}
 	
 	@Override
-	public void setModel(IListModel<T> newModel){
-		if (listModel != null){
-			listModel.removeListObserver(this);
+	public void setModel(IDataModel<T> newModel){
+		if (dataModel != null){
+			dataModel.removeDataListener(this);
 		}
-		listModel = newModel;
-		listModel.addListObserver(this);
+		dataModel = newModel;
+		dataModel.addDataListener(this);
 		fieldNames = newModel.getFieldNames();
 		setListMap();
 		tableViewModel.fireTableDataChanged();
 	}
+	
+	@Override
+	public IDataModel<T> getModel() {return dataModel;}
 
 	@Override
 	public int getRowCount() {
-		return listModel.size();
+		return dataModel.size();
 	}
 
 	@Override
@@ -101,13 +111,18 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 	@Override
 	public Class<?> getColumnClass(int col) {
 		if (listMap.containsKey(col)) return String.class;
-		return listModel.getFieldClass(fieldNames.get(col));
+		return dataModel.getFieldClass(fieldNames.get(col));
 	}
 
 	@Override
 	public void setValueAt(Object value, int row, int col) {
 		
-		Object oldValue = getValueAt(row, col);
+		Object oldValue = null;
+		try {
+			oldValue = dataModel.get(row, fieldNames.get(col));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		//for setting a list or array of values
 		/*
@@ -116,6 +131,9 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 		 */
 		if (listMap.containsKey(col)){
 			try {
+				//get the old list
+				List<?> oldList = (List<?>) Cloner.deepClone(oldValue);
+				
 				StringTokenizer st = new StringTokenizer((String) value, "[, ]");
 				Class<?> clazz = listMap.get(col);
 				if (clazz == Double.class){
@@ -124,8 +142,8 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 						list.add(Double.parseDouble(st.nextToken()));
 					}
 					if (!list.toString().equals(oldValue)){
-						mainController.setCommand(new ListModelEditListCommand<Double>(
-								listModel, row, fieldNames.get(col), list));
+						mainController.setCommand(new DataModelEditFieldCommand(
+								dataModel, row, fieldNames.get(col), oldList, list, "Edited list"));
 					}
 				} else if (clazz == BigInteger.class){
 					ArrayList<BigInteger> list = new ArrayList<BigInteger>();
@@ -133,8 +151,8 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 						list.add(new BigInteger(st.nextToken()));
 					}
 					if (!list.toString().equals(oldValue)){
-						mainController.setCommand(new ListModelEditListCommand<BigInteger>(
-								listModel, row, fieldNames.get(col), list));
+						mainController.setCommand(new DataModelEditFieldCommand(
+								dataModel, row, fieldNames.get(col), oldList, list, "Edited list"));
 					}
 				} else if (clazz == String.class){
 					ArrayList<String> list = new ArrayList<String>();
@@ -142,8 +160,8 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 						list.add(st.nextToken());
 					}
 					if (!list.toString().equals(oldValue)){
-						mainController.setCommand(new ListModelEditListCommand<String>(
-								listModel, row, fieldNames.get(col), list));
+						mainController.setCommand(new DataModelEditFieldCommand(
+								dataModel, row, fieldNames.get(col), oldList, list, "Edited list"));
 					}
 				}
 			} catch (Exception e){
@@ -162,8 +180,8 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 			
 			if (value != null && !value.equals(oldValue) ||
 					value == null && oldValue != null){
-			mainController.setCommand(new ListModelEditFieldCommand
-					(listModel, row, fieldNames.get(col), 
+			mainController.setCommand(new DataModelEditFieldCommand
+					(dataModel, row, fieldNames.get(col), 
 							oldValue, value, "Changed field " + fieldNames.get(col) + 
 							" from \"" + oldValue + "\" to \"" + value + "\""));
 			}
@@ -175,10 +193,10 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 		try {
 			//for the case that the cell contains a List
 			if (listMap.containsKey(col)){
-				return ((List<?>) listModel.get(row, 
+				return ((List<?>) dataModel.get(row, 
 						fieldNames.get(col))).toString();
 			}
-			return listModel.get(row, fieldNames.get(col));
+			return dataModel.get(row, fieldNames.get(col));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -203,64 +221,120 @@ public class DataTableController<T> implements IDataTableController<T>, IListObs
 	}
 
 	@Override
-	public void update(int index, UpdateType t, String fieldName) {
-		if (t == UpdateType.EDIT){
-			 tableViewModel.fireTableCellUpdated(index, 
-					 fieldNames.indexOf(fieldName));
-		} else if (t == UpdateType.ADD || t == UpdateType.REMOVE){
-			tableViewModel.fireTableDataChanged();
+	public void update(DataEvent e) {
+		if (e.getDataModel() == dataModel.getActualModel()){
+			if (e instanceof EditElementEvent){
+				EditElementEvent evt = (EditElementEvent) e;
+				tableViewModel.fireTableCellUpdated(
+						evt.getIndex(), fieldNames.indexOf(evt.getField()));
+				setSelectedCell(
+						evt.getIndex(), fieldNames.indexOf(evt.getField()));
+				mainController.setActiveController(this);
+				
+			} else if (e instanceof AddElementEvent){
+				AddElementEvent evt = (AddElementEvent) e;
+				tableViewModel.fireTableDataChanged();
+				setSelectedCell(evt.getIndex(), 0);
+				mainController.setActiveController(this);
+				
+			} else if (e instanceof RemoveElementEvent){
+				tableViewModel.fireTableDataChanged();
+				clearSelection();
+				mainController.setActiveController(this);
+			}
 		}
 	}
 
 	@Override
 	public void addRow() {
-		addRow(listModel.size());
+		addRow(dataModel.size());
 	}
 
 	@Override
 	public void addRow(int row) {
-		mainController.setCommand(new ListModelAddCommand<T>(listModel, row,
+		mainController.setCommand(new DataModelAddCommand<T>(dataModel, row,
 				"Added a new row"));
 	}
 
 	@Override
 	public void removeRow(int row) {
-		mainController.setCommand(new ListModelRemoveCommand<T>(listModel, row, row));
+		mainController.setCommand(new DataModelRemoveCommand<T>(dataModel, row, row));
 	}
 	
 	@Override
 	public void removeRows(int [] rows){
-		ArrayList<ListModelRemoveCommand<T>> commands = 
-				new ArrayList<ListModelRemoveCommand<T>>();
+		ArrayList<DataModelRemoveCommand<T>> commands = 
+				new ArrayList<DataModelRemoveCommand<T>>();
 		
 		//need to be sure that the rows are sorted from smallest to largest
 		Arrays.sort(rows);
 		
 		for (int i = 0; i < rows.length; i++){
-			commands.add(new ListModelRemoveCommand<T>(listModel, rows[i], rows[i]-i));
+			commands.add(new DataModelRemoveCommand<T>(dataModel, rows[i], rows[i]-i));
 		}		
 		mainController.setCommand(new CompoundUndoableCommand(commands));
 	}
 	
 	@Override
 	public void copyRow(int row) {
-		mainController.setCommand(new ListModelCopyCommand<T>(listModel, row));
+		mainController.setCommand(new DataModelCopyCommand<T>(dataModel, row));
 	}
 	
 	@Override
 	public void copyRows(int [] rows){
-		ArrayList<ListModelCopyCommand<T>> commands =
-				new ArrayList<ListModelCopyCommand<T>>();
+		ArrayList<DataModelCopyCommand<T>> commands =
+				new ArrayList<DataModelCopyCommand<T>>();
 		
 		//need to be sure that the rows are sorted from smallest to largest
 		Arrays.sort(rows);
 		
 		for (int i = 0; i < rows.length; i++){
-			commands.add(new ListModelCopyCommand<T>(listModel, rows[i]+i));
+			commands.add(new DataModelCopyCommand<T>(dataModel, rows[i]+i));
 		}
 		mainController.setCommand(new CompoundUndoableCommand(commands));
 	}
 	
-	public JComponent getViewComponent(){return tablePanel;}
+	@Override
+	public JComponent getView(){return tablePanel;}
 
+	@Override
+	public void startCellEditing(int row, int col) {
+		table.editCellAt(row, col);	
+	}
+
+	@Override
+	public void stopCellEditing() {
+		if (table.getCellEditor() != null){
+			if (!table.getCellEditor().stopCellEditing()) {
+				table.getCellEditor().cancelCellEditing();
+			}
+		}
+	}
+	
+	@Override 
+	public void cancelCellEditing() {
+		if (table.getCellEditor() != null){
+			table.getCellEditor().cancelCellEditing();
+		}
+	}
+	
+	@Override
+	public void setSelectedCell(int row, int col){
+		table.changeSelection(row, col, false, false);
+	}
+	
+	@Override
+	public void clearSelection(){
+		table.clearSelection();
+	}
+
+	@Override
+	public Controller getParentController() {
+		return parentController;
+	}
+
+	@Override
+	public List<Controller> getChildControllers() {
+		return null;
+	}
 }

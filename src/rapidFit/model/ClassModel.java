@@ -1,50 +1,42 @@
 package rapidFit.model;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassModel implements IClassModel{
+public class ClassModel<T> extends IClassModel<T>{
 	
-	private Object data;
+	private T data;
+	private Class<T> dataClass;
 	private ClassAgent classAgent;
 	
-	private ArrayList<IClassObserver> observers;
-	private String updateField;
+	private ArrayList<DataListener> listeners;
 	
-	public ClassModel (Class<?> clazz, Object data, ArrayList<String> ignoreAttributes){
+	public ClassModel (Class<T> clazz, T data, ArrayList<String> ignoreAttributes){
 		this.data = data;
-		
-		classAgent = new ClassAgent(clazz, ignoreAttributes);		
-		observers = new ArrayList<IClassObserver>();
-		
+		this.dataClass = clazz;
+		classAgent = new ClassAgent(dataClass, ignoreAttributes);		
+		listeners = new ArrayList<DataListener>();
 	}
 	
-	@Override
-	public void setModelledData(Object data){
-		this.data = data;
-		for (String fieldName : classAgent.getFieldNames()){
-			System.out.println(fieldName);
-			updateField = fieldName;
-			notifyObserver();
-		}
-	}
 	
 	@Override
-	public void addObserver(IClassObserver co) {
-		observers.add(co);
+	public void addDataListener(DataListener listener) {
+		listeners.add(listener);
 	}
 
 	@Override
-	public void removeObserver(IClassObserver co) {
-		observers.remove(co);
+	public void removeDataListener(DataListener listener) {
 	}
 
 	@Override
-	public void notifyObserver() {
-		for (IClassObserver co : observers){
-			co.update(updateField);
+	public void notifyDataListener(DataEvent e) {
+		List<DataListener> listenersCopy = new ArrayList<DataListener>();
+		listenersCopy.addAll(listeners);
+		for (DataListener listener : listenersCopy){
+			listener.update(e);
 		}
 	}
 
@@ -57,15 +49,55 @@ public class ClassModel implements IClassModel{
 		return null;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void set(String fieldName, Object value)
 			throws IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException {
-		if (classAgent.getSetter(fieldName) != null){
+		/*
+		 * for handling fields whose data types are a List. This
+		 * is needed as there is no setter method for these fields
+		 */
+		if (classAgent.getFieldClass(fieldName) == List.class) {
+			boolean listEdited = false;
+			List list = (List) get(fieldName);
+			
+			if (value == null){
+				list.clear();
+				listEdited = true;
+				
+			} else if (value != null && value instanceof List) {
+				List<?> newList = (List<?>) value;
+				
+				if (newList.size() == 0){
+					list.clear();
+					listEdited = true;
+				
+				/*
+				 * check to make sure that the generic type of the 
+				 * old and that of the new list match.
+				 */
+				} else if (classAgent.getFieldType(fieldName) instanceof ParameterizedType &&
+						((ParameterizedType) classAgent.getFieldType(fieldName)).
+						getActualTypeArguments()[0] == newList.get(0).getClass()) {
+					
+					list.clear();
+					for (int i = 0; i < newList.size(); i++){
+						list.add(newList.get(i));
+					}
+					
+					listEdited = true;
+				}
+			}
+			
+			if (listEdited){
+				notifyDataListener(new EditElementEvent(this, 0, fieldName));
+			}
+			
+		} else if (classAgent.getSetter(fieldName) != null){
 			classAgent.getSetter(fieldName).invoke(
 					data, classAgent.getFieldClass(fieldName).cast(value));
-			updateField = fieldName;
-			notifyObserver();
+			notifyDataListener(new EditElementEvent(this, 0, fieldName));
 		}
 	}
 
@@ -80,15 +112,6 @@ public class ClassModel implements IClassModel{
 	}
 
 	@Override
-	public void setUpdateField(String field) {
-		if (classAgent.getFieldNames().contains(field)){
-			updateField = field;
-		} else {
-			updateField = null;
-		}
-	}
-
-	@Override
 	public Class<?> getFieldClass(String fieldName) {
 		return classAgent.getFieldClass(fieldName);
 	}
@@ -96,6 +119,21 @@ public class ClassModel implements IClassModel{
 	@Override
 	public Type getFieldType(String fieldName) {
 		return classAgent.getFieldType(fieldName);
+	}
+
+	@Override
+	public T getObject() {
+		return data;
+	}
+	
+	@Override
+	public Class<T> getDataClass() {
+		return dataClass;
+	}
+	
+	@Override
+	public IDataModel<T> getActualModel() {
+		return this;
 	}
 
 }

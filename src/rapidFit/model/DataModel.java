@@ -1,54 +1,82 @@
 package rapidFit.model;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataModel<T> implements IListModel<T> {
+public class DataModel<T> implements IDataModel<T> {
 	
 	private ClassAgent classAgent;
-	private Class<T> dataClass;
 	private List<T> data;
+	private Class<T> dataClass;
 	
-	private ArrayList<IListObserver> observers;
-	private UpdateType updateType;
-	private String updateField;
-	private int updateIndex;
+	private ArrayList<DataListener> listeners;
 	
 	public DataModel(Class<T> clazz, List<T> data, ArrayList<String> ignoreAttributes) {
-		this.data = data;
+		this.data = data;	
 		this.dataClass = clazz;
-		
-		classAgent = new ClassAgent(clazz, ignoreAttributes);	
-		observers = new ArrayList<IListObserver>();
-	}
-	
-	@Override
-	public void setList(List<T> data){
-		this.data = data;
+		classAgent = new ClassAgent(dataClass, ignoreAttributes);	
+		listeners = new ArrayList<DataListener>();
 	}
 	
 	@Override
 	public void set(int index, T object) {
 		if (index >= 0 && index < data.size()){
 			data.set(index, object);
-			updateType = UpdateType.EDIT;
-			updateField = null;
-			updateIndex = index;
-			notifyListObserver();
+			notifyDataListener(new SetElementEvent(this, index));
 		}
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void set(int index, String fieldName, Object value) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
-		if (classAgent.getSetter(fieldName) != null){
+		
+		/*
+		 * for handling fields whose data types are a List. This
+		 * is needed as there is no setter method for these fields
+		 */
+		if (classAgent.getFieldClass(fieldName) == List.class) {
+			boolean listEdited = false;
+			List list = (List) get(index, fieldName);
+			
+			if (value == null){
+				list.clear();
+				listEdited = true;
+				
+			} else if (value != null && value instanceof List) {
+				List<?> newList = (List<?>) value;
+				
+				if (newList.size() == 0){
+					list.clear();
+					listEdited = true;
+				
+				/*
+				 * check to make sure that the generic type of the 
+				 * old and that of the new list match.
+				 */
+				} else if (classAgent.getFieldType(fieldName) instanceof ParameterizedType &&
+						((ParameterizedType) classAgent.getFieldType(fieldName)).
+						getActualTypeArguments()[0] == newList.get(0).getClass()) {
+					
+					list.clear();
+					for (int i = 0; i < newList.size(); i++){
+						list.add(newList.get(i));
+					}
+					
+					listEdited = true;
+				}
+			}
+			
+			if (listEdited){
+				notifyDataListener(new EditElementEvent(this, index, fieldName));
+			}
+			
+		} else if (classAgent.getSetter(fieldName) != null){
 			classAgent.getSetter(fieldName).invoke(
 					data.get(index), classAgent.getFieldClass(fieldName).cast(value));
-			updateType = UpdateType.EDIT;
-			updateField = fieldName;
-			updateIndex = index;
-			notifyListObserver();
+			notifyDataListener(new EditElementEvent(this, index, fieldName));
 		}
 	}
 	
@@ -73,21 +101,21 @@ public class DataModel<T> implements IListModel<T> {
 	public void add(int index) throws InstantiationException, IllegalAccessException{
 		if (index >= 0 && index <= data.size()){
 			data.add(index, dataClass.newInstance());
-			updateType = UpdateType.ADD;
-			updateField = null;
-			updateIndex = index;
-			notifyListObserver();
+			notifyDataListener(new AddElementEvent(this, index));
 		}
+	}
+	
+	@Override
+	public void add(T object) {
+		data.add(object);
+		notifyDataListener(new AddElementEvent(this, indexOf(object)));
 	}
 	
 	@Override
 	public void add(int index, T object) {
 		if (index >= 0 && index <= data.size()){
 			data.add(index, object);
-			updateType = UpdateType.ADD;
-			updateField = null;
-			updateIndex = index;
-			notifyListObserver();
+			notifyDataListener(new AddElementEvent(this, index));
 		}
 	}
 	
@@ -95,30 +123,36 @@ public class DataModel<T> implements IListModel<T> {
 	public void remove(int index) {
 		if (index >= 0 && index < data.size()){	
 			data.remove(index);
-			updateType = UpdateType.REMOVE;
-			updateField = null;
-			updateIndex = index;
-			notifyListObserver();
+			notifyDataListener(new RemoveElementEvent(this, index));
 		}
 	}
-
-
+	
 	@Override
-	public void addListObserver(IListObserver lo) {
-		observers.add(lo);
-	}
-
-	@Override
-	public void removeListObserver(IListObserver lo) {
-		if (observers.contains(lo)){
-			observers.remove(lo);
+	public void remove(T object) {
+		int index = data.indexOf(object);
+		if (index != -1){
+			remove(index);
 		}
 	}
 
 	@Override
-	public void notifyListObserver() {
-		for (IListObserver lo : observers){
-			lo.update(updateIndex, updateType, updateField);
+	public void addDataListener(DataListener lo) {
+		listeners.add(lo);
+	}
+
+	@Override
+	public void removeDataListener(DataListener lo) {
+		if (listeners.contains(lo)){
+			listeners.remove(lo);
+		}
+	}
+
+	@Override
+	public void notifyDataListener(DataEvent e) {
+		List<DataListener> listenersCopy = new ArrayList<DataListener>();
+		listenersCopy.addAll(listeners);
+		for (DataListener listener : listenersCopy){
+			listener.update(e);
 		}
 	}
 
@@ -148,25 +182,17 @@ public class DataModel<T> implements IListModel<T> {
 	}
 
 	@Override
-	public void setUpdateType(UpdateType t) {
-		updateType = t;
+	public int indexOf(T object) {
+		return data.indexOf(object);
 	}
 
 	@Override
-	public void setUpdateField(String field) {
-		if (classAgent.getFieldNames().contains(field)){
-			updateField = field;
-		} else {
-			updateField = null;
-		}
+	public Class<T> getDataClass() {
+		return dataClass;
 	}
-
+	
 	@Override
-	public void setUpdateIndex(int index) {
-		if (index >= 0 && index < data.size()){
-			updateIndex = index;
-		} else {
-			updateIndex = -1;
-		}
+	public IDataModel<T> getActualModel() {
+		return this;
 	}
 }

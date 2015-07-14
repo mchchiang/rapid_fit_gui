@@ -7,9 +7,9 @@ import rapidFit.controller.IAttributeTableController;
 @SuppressWarnings("serial")
 public class AttributeTableViewModel extends AbstractTableModel {
 	
-	private IAttributeTableController controller;
+	private IAttributeTableController<?> controller;
 	
-	public AttributeTableViewModel(IAttributeTableController controller){
+	public AttributeTableViewModel(IAttributeTableController<?> controller){
 		this.controller = controller;
 	}
 	

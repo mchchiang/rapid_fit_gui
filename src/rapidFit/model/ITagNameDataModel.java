@@ -7,11 +7,20 @@ import java.util.List;
 
 import rapidFit.TagNameException;
 
-public abstract class ITagNameListModel<T> implements IListModel<T> {
+/**
+ * 
+ * A decorator abstract class to add tag name or ID
+ * to the individual elements in the data model.
+ * 
+ * @author MichaelChiang
+ *
+ * @param <T>
+ */
+public abstract class ITagNameDataModel<T> implements IDataModel<T> {
 	
-	private IListModel<T> model;
+	private IDataModel<T> model;
 	
-	public ITagNameListModel (IListModel<T> model){
+	public ITagNameDataModel (IDataModel<T> model){
 		this.model = model;
 	}
 	
@@ -45,91 +54,140 @@ public abstract class ITagNameListModel<T> implements IListModel<T> {
 		return null;
 	}
 	
-	public void add(int index, String tagName) throws InstantiationException, IllegalAccessException{
+	public void add(int index, String tagName) 
+			throws InstantiationException, IllegalAccessException{
 		model.add(index);
 		addEntry(model.get(index), tagName);
+		model.notifyDataListener(
+				new EditTagNameEvent(this, index, getTagName(index)));
 	}
 	
 	public void add(int index, T object, String tagName){
 		model.add(index, object);
 		addEntry(object, tagName);
+		model.notifyDataListener(
+				new EditTagNameEvent(this, index, getTagName(index)));
 	}
 	
-	public void setList(List<T> data){
-		//remove all tag names from elements of existing model
-		for (int i = 0; i < model.size(); i++){
-			removeEntry(model.get(i));
-		}
-		model.setList(data);
-		initTagNames();
+	@Override
+	public void addDataListener(DataListener lo){
+		model.addDataListener(lo);
 	}
 	
-	public void addListObserver(IListObserver lo){
-		model.addListObserver(lo);
-	}
-	public void removeListObserver(IListObserver lo){
-		model.removeListObserver(lo);
-	}
-	public void notifyListObserver(){
-		model.notifyListObserver();
-	}
-	public void setUpdateType(UpdateType t){
-		model.setUpdateType(t);
-	}
-	public void setUpdateField(String field){
-		model.setUpdateField(field);
-	}
-	public void setUpdateIndex(int index){
-		model.setUpdateIndex(index);
+	@Override
+	public void removeDataListener(DataListener lo){
+		model.removeDataListener(lo);
 	}
 	
+	@Override
+	public void notifyDataListener(DataEvent e){
+		model.notifyDataListener(e);
+	}
+	
+	@Override
 	public T get(int index){
 		return model.get(index);
 	}
+	
+	@Override
 	public Object get(int index, String fieldName) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		return model.get(index, fieldName);
 	}
 	
+	@Override
 	public void set(int index, T object){
 		if (getTagName(object) == null){
 			addEntry(object);
 		} 
 		model.set(index, object);
 	}
+	
+	@Override
 	public void set(int index, String fieldName, Object value) 
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		model.set(index, fieldName, value);
 	}
 	
+	@Override
 	public int getNumOfFields(){
 		return model.getNumOfFields();
 	}
+	
+	@Override
 	public List<String> getFieldNames(){
 		return model.getFieldNames();
 	}
+	
+	@Override
 	public Class<?> getFieldClass(String fieldName){
 		return model.getFieldClass(fieldName);
 	}
+	
+	@Override
 	public Type getFieldType(String fieldName){
 		return model.getFieldType(fieldName);
 	}
 	
+	@Override
 	public int size(){
 		return model.size();
 	}
+	
+	@Override
 	public void add(int index) throws InstantiationException, IllegalAccessException{
 		model.add(index);
 		addEntry(model.get(index));
+		model.notifyDataListener(
+				new EditTagNameEvent(this, index, getTagName(index)));
 	}
+	
+	@Override
+	public void add(T object) {
+		model.add(object);
+		addEntry(object);
+		model.notifyDataListener(
+				new EditTagNameEvent(this,
+						model.indexOf(object), getTagName(object)));
+	}
+	
+	@Override
 	public void add(int index, T object){
 		model.add(index, object);
 		addEntry(object);
+		model.notifyDataListener(
+				new EditTagNameEvent(this, index, getTagName(object)));
 	}
+
+	@Override
+	public void remove(T object) {
+		int index = model.indexOf(object);
+		if (index != -1){
+			removeEntry(model.get(index));
+		}
+		model.remove(index);
+	}
+	
+	@Override
 	public void remove(int index){
 		if (model.get(index) != null){
 			removeEntry(model.get(index));
 		}
 		model.remove(index);
+	}
+
+	@Override
+	public int indexOf(T object) {
+		return model.indexOf(object);
+	}
+	
+	@Override
+	public Class<T> getDataClass() {
+		return model.getDataClass();
+	}
+	
+	@Override
+	public IDataModel<T> getActualModel() {
+		return model.getActualModel();
 	}
 }

@@ -2,130 +2,154 @@ package rapidFit.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JComponent;
 
 import rapidFit.controller.command.CompoundUndoableCommand;
-import rapidFit.controller.command.ListModelCopyCommand;
-import rapidFit.controller.command.ListModelRemoveCommand;
 import rapidFit.controller.command.SetTagNameCommand;
-import rapidFit.controller.command.TagNameListModelAddCommand;
-import rapidFit.controller.command.TagNameListModelRemoveCommand;
-import rapidFit.model.IListModel.UpdateType;
-import rapidFit.model.ITagNameListModel;
-import rapidFit.model.IListObserver;
+import rapidFit.controller.command.TagNameDataModelAddCommand;
+import rapidFit.controller.command.TagNameDataModelCopyCommand;
+import rapidFit.controller.command.TagNameDataModelRemoveCommand;
+import rapidFit.model.AddElementEvent;
+import rapidFit.model.DataEvent;
+import rapidFit.model.EditElementEvent;
+import rapidFit.model.EditTagNameEvent;
+import rapidFit.model.ITagNameDataModel;
+import rapidFit.model.ListListener;
+import rapidFit.model.RemoveElementEvent;
 import rapidFit.view.bldblocks.DataList;
 import rapidFit.view.bldblocks.DataListPanel;
 import rapidFit.view.bldblocks.DataListViewModel;
-import rapidFit.view.bldblocks.ListViewObserver;
 
-public class ListPanelController<T> implements IListPanelController<T>, IListObserver {
-	
-	private ITagNameListModel<T> listModel;
-	private MainController mainController;
+public class ListPanelController<T> implements IListPanelController<T> {
+
+	private ITagNameDataModel<T> dataModel;
+	private Controller parentController;
+	private UIController mainController;
 	private DataListPanel<T> dataListPanel;
 	private DataList<T> dataList;
 	private DataListViewModel<T> viewModel;
-	
-	private ArrayList<ListViewObserver> viewObservers;
-	private T selectedElement;
-	
-	public ListPanelController(MainController controller, ITagNameListModel<T> listModel){
-		this.listModel = listModel;
+
+	private ArrayList<ListListener> listListeners;
+	private int selectedIndex;
+
+	public ListPanelController(UIController controller, 
+			Controller parentController, ITagNameDataModel<T> dataModel){
+
+		this.dataModel = dataModel;
 		this.mainController = controller;
-		
-		this.listModel.addListObserver(this);
-		
-		viewObservers = new ArrayList<ListViewObserver>();
-		
+		this.parentController = parentController;
+
+		this.dataModel.addDataListener(this);
+
+		listListeners = new ArrayList<ListListener>();
+
 		//create the view
+		selectedIndex = -1;
 		viewModel = new DataListViewModel<T>(this);
 		dataList = new DataList<T>(this, viewModel);
 		dataListPanel = new DataListPanel<T>(this, dataList);
 	}
-	
+
 	@Override 
-	public void setModel(ITagNameListModel<T> newModel){
-		if (listModel != null){
-			listModel.removeListObserver(this);
+	public void setModel(ITagNameDataModel<T> newModel) {
+		if (dataModel != null){
+			dataModel.removeDataListener(this);
 		}
-		listModel = newModel;
-		listModel.addListObserver(this);
+		dataModel = newModel;
+		dataModel.addDataListener(this);
 		viewModel.fireContentsChanged(0, getListSize());
 	}
-	
+
 	@Override
-	public void setSelectedIndex(int row){
-		if (row >= 0 && row < getListSize()){
-			selectedElement = listModel.get(row);
-			if (dataList.getSelectedIndex() != row){
-				dataList.setSelectedIndex(row);
+	public ITagNameDataModel<T> getModel() {return dataModel;}
+
+	@Override
+	public void setSelectedIndex(int index) {
+		if (index >= -1 && index < getListSize() && selectedIndex != index){
+			selectedIndex = index;
+			if (selectedIndex == -1){
+				dataList.clearSelection();
+			} else {
+				dataList.setSelectedIndex(index);
 			}
-			notifyListViewObserver();
+			notifyListListener();
 		}
 	}
-	
+
+	@Override
+	public int getSelectedIndex() {
+		return selectedIndex;
+	}
+
+	@Override
+	public void clearSelection() {
+		setSelectedIndex(-1);
+	}
+
 	@Override
 	public int getListSize() {
-		return listModel.size();
+		return dataModel.size();
 	}
 
 	@Override
 	public T get(int row) {
-		return listModel.get(row);
+		return dataModel.get(row);
 	}
 
 	@Override
 	public String getTagName(int row) {
-		return listModel.getTagName(row);
+		return dataModel.getTagName(row);
 	}
-	
+
 	@Override
 	public void addRow() {
-		addRow(listModel.size());
+		mainController.setCommand(new TagNameDataModelAddCommand<T>(dataModel, getListSize(),
+				"Added a new row"));
 	}
-	
+
 	@Override
 	public void addRow(int row) {
-		mainController.setCommand(new TagNameListModelAddCommand(listModel, row+1,
+		mainController.setCommand(new TagNameDataModelAddCommand<T>(dataModel, row+1,
 				"Added a new row"));
 	}
 
 	@Override
 	public void removeRow(int row) {
-		mainController.setCommand(new TagNameListModelRemoveCommand<T>(listModel, row, row));
-		
+		mainController.setCommand(new TagNameDataModelRemoveCommand<T>(dataModel, row, row));
+
 	}
 
 	@Override
 	public void removeRows(int[] rows) {
-		ArrayList<ListModelRemoveCommand<T>> commands = 
-				new ArrayList<ListModelRemoveCommand<T>>();
-		
+		ArrayList<TagNameDataModelRemoveCommand<T>> commands = 
+				new ArrayList<TagNameDataModelRemoveCommand<T>>();
+
 		//need to be sure that the rows are sorted from smallest to largest
 		Arrays.sort(rows);
-		
+
 		for (int i = 0; i < rows.length; i++){
-			commands.add(new ListModelRemoveCommand<T>(listModel, rows[i], rows[i]-i));
+			commands.add(new TagNameDataModelRemoveCommand<T>(dataModel, rows[i], rows[i]-i));
 		}		
 		mainController.setCommand(new CompoundUndoableCommand(commands));
 	}
-	
+
 	@Override
 	public void copyRow(int row) {
-		mainController.setCommand(new ListModelCopyCommand<T>(listModel, row));
+		mainController.setCommand(new TagNameDataModelCopyCommand<T>(dataModel, row));
 	}
-	
+
 	@Override
 	public void copyRows(int [] rows){
-		ArrayList<ListModelCopyCommand<T>> commands =
-				new ArrayList<ListModelCopyCommand<T>>();
-		
+		ArrayList<TagNameDataModelCopyCommand<T>> commands =
+				new ArrayList<TagNameDataModelCopyCommand<T>>();
+
 		//need to be sure that the rows are sorted from smallest to largest
 		Arrays.sort(rows);
-		
+
 		for (int i = 0; i < rows.length; i++){
-			commands.add(new ListModelCopyCommand<T>(listModel, rows[i]+i));
+			commands.add(new TagNameDataModelCopyCommand<T>(dataModel, rows[i]+i));
 		}
 		mainController.setCommand(new CompoundUndoableCommand(commands));
 	}
@@ -136,46 +160,66 @@ public class ListPanelController<T> implements IListPanelController<T>, IListObs
 	@Override
 	public void setTagName(int row, String tagName) {
 		mainController.setCommand(new SetTagNameCommand(
-				listModel, row, getTagName(row), tagName));
-	}
-	
-	@Override
-	public void update(int index, UpdateType t, String field) {
-		if (t == UpdateType.ADD){
-			viewModel.fireIntervalAdded(index, index);
-			setSelectedIndex(index);
-		} else if (t == UpdateType.REMOVE){
-			selectedElement = null;
-			viewModel.fireIntervalRemoved(index, index);
-			dataList.clearSelection();
-		} else if (t == UpdateType.EDIT){
-			viewModel.fireContentsChanged(index, index);
-			setSelectedIndex(index);
-		}
-		viewModel.fireContentsChanged(0, getListSize());
-	}
-	
-	@Override
-	public JComponent getViewComponent(){return dataListPanel;}
-	
-	
-	@Override
-	public void addListViewObserver(ListViewObserver lvo) {
-		viewObservers.add(lvo);
+				dataModel, row, getTagName(row), tagName));
 	}
 
 	@Override
-	public void removeListViewObserver(ListViewObserver lvo) {
-		if (viewObservers.contains(lvo)){
-			viewObservers.remove(lvo);
+	public void update(DataEvent e) {
+		if (e.getDataModel() == dataModel.getActualModel()){
+			if (e instanceof AddElementEvent){
+				AddElementEvent evt = (AddElementEvent) e;
+				viewModel.fireIntervalAdded(evt.getIndex(), evt.getIndex());
+				setSelectedIndex(evt.getIndex());
+
+			} else if (e instanceof RemoveElementEvent){
+				RemoveElementEvent evt = (RemoveElementEvent) e;
+				viewModel.fireIntervalRemoved(evt.getIndex(), evt.getIndex());
+				clearSelection();
+
+			} else if (e instanceof EditElementEvent){
+				EditElementEvent evt = (EditElementEvent) e;
+				viewModel.fireContentsChanged(evt.getIndex(), evt.getIndex());
+				setSelectedIndex(evt.getIndex());
+
+			} else if (e instanceof EditTagNameEvent){
+				EditTagNameEvent evt = (EditTagNameEvent) e;
+				viewModel.fireContentsChanged(evt.getIndex(), evt.getIndex());
+			}
+			viewModel.fireContentsChanged(0, getListSize());
 		}
 	}
 
 	@Override
-	public void notifyListViewObserver() {
-		for (ListViewObserver lvo : viewObservers){
-			lvo.changedSelectedElement(selectedElement);
+	public JComponent getView(){return dataListPanel;}
+
+
+	@Override
+	public void addListListener(ListListener listener) {
+		listListeners.add(listener);
+	}
+
+	@Override
+	public void removeListListener(ListListener listener) {
+		if (listListeners.contains(listener)){
+			listListeners.remove(listener);
 		}
 	}
-	
+
+	@Override
+	public void notifyListListener() {
+		for (ListListener listener : listListeners){
+			listener.changedSelectedElement(selectedIndex);
+		}
+	}
+
+	@Override
+	public Controller getParentController() {
+		return parentController;
+	}
+
+	@Override
+	public List<Controller> getChildControllers() {
+		return null;
+	}
+
 }

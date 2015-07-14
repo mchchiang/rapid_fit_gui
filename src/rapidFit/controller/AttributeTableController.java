@@ -4,47 +4,54 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
-import rapidFit.controller.command.ClassModelEditFieldCommand;
+import rapidFit.controller.command.DataModelEditFieldCommand;
+import rapidFit.model.DataEvent;
+import rapidFit.model.EditElementEvent;
 import rapidFit.model.IClassModel;
-import rapidFit.model.IClassObserver;
 import rapidFit.view.bldblocks.AttributePanel;
+import rapidFit.view.bldblocks.AttributeTable;
 import rapidFit.view.bldblocks.AttributeTableViewModel;
 
-public class AttributeTableController<T> implements IAttributeTableController, IClassObserver {
+public class AttributeTableController<T> implements IAttributeTableController<T> {
 
-	private IClassModel model;
+	private IClassModel<T> model;
 	private AttributePanel tablePanel;
+	private AttributeTable table;
 	private AttributeTableViewModel tableViewModel;
-	private MainController mainController;
+	private UIController mainController;
+	private Controller parentController;
 
 	private List<String> fieldNames;
 
-	public AttributeTableController (MainController controller, IClassModel model, String className) {
+	public AttributeTableController (UIController controller, 
+			Controller parentController, IClassModel<T> model, String className) {
 		this.model = model;
 		this.mainController = controller;
+		this.parentController = parentController;
 		
-		model.addObserver(this);
+		model.addDataListener(this);
 		
 		fieldNames = model.getFieldNames();
 
 		//create view
 		tableViewModel = new AttributeTableViewModel(this);
-		tablePanel = new AttributePanel(tableViewModel, className);
+		table = new AttributeTable(tableViewModel);
+		tablePanel = new AttributePanel(table, className);
 	}
 	
 	@Override
-	public void setModel(IClassModel newModel){
+	public void setModel(IClassModel<T> newModel){
 		if (model != null){
-			model.removeObserver(this);
+			model.removeDataListener(this);
 		}
 		model = newModel;
-		model.addObserver(this);
+		model.addDataListener(this);
 		fieldNames = newModel.getFieldNames();
 		tableViewModel.fireTableDataChanged();
 	}
 	
 	@Override
-	public IClassModel getModel(){return model;}
+	public IClassModel<T> getModel(){return model;}
 	
 	@Override
 	public int getRowCount() {
@@ -87,8 +94,8 @@ public class AttributeTableController<T> implements IAttributeTableController, I
 				if (value != null && !value.equals(getValueAt(row, col)) ||
 						value == null && getValueAt(row, col) != null){
 					Object oldValue = model.get(fieldNames.get(row));
-					mainController.setCommand(new ClassModelEditFieldCommand
-							(model, fieldNames.get(row), 
+					mainController.setCommand(new DataModelEditFieldCommand
+							(model, 0, fieldNames.get(row), 
 									oldValue, value, "Changed field " + fieldNames.get(row) + 
 									" from \"" + oldValue + "\" to \"" + value + "\""));
 				} 
@@ -122,15 +129,57 @@ public class AttributeTableController<T> implements IAttributeTableController, I
 	}
 
 	@Override
-	public JComponent getViewComponent() {return tablePanel;}
+	public JComponent getView() {return tablePanel;}
 
 	@Override
-	public void update(String field) {
-		System.out.println(field);
-		tableViewModel.fireTableCellUpdated(fieldNames.indexOf(field), 1);		
+	public void update(DataEvent e) {
+		if (e.getDataModel() == model.getActualModel()
+				&& e instanceof EditElementEvent){
+			EditElementEvent evt = (EditElementEvent) e;
+			tableViewModel.fireTableCellUpdated(
+					fieldNames.indexOf(evt.getField()), 1);	
+			setSelectedCell(fieldNames.indexOf(evt.getField()), 1);
+			mainController.setActiveController(this);
+		}			
 	}
 
 	@Override
-	public void changedSelectedElement(Object element) {}
+	public void startCellEditing(int row, int col) {
+		table.editCellAt(row, col);
+	}
+
+	@Override
+	public void stopCellEditing() {
+		if (table.getCellEditor() != null){
+			table.getCellEditor().stopCellEditing();
+		}
+	}
+	
+	@Override 
+	public void cancelCellEditing() {
+		if (table.getCellEditor() != null){
+			table.getCellEditor().cancelCellEditing();
+		}
+	}
+	
+	@Override
+	public void setSelectedCell(int row, int col){
+		table.changeSelection(row, col, false, false);
+	}
+	
+	@Override
+	public void clearSelection(){
+		table.clearSelection();
+	}
+
+	@Override
+	public Controller getParentController() {
+		return parentController;
+	}
+
+	@Override
+	public List<Controller> getChildControllers() {
+		return null;
+	}
 
 }

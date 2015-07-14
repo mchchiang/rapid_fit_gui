@@ -1,17 +1,17 @@
 package rapidFit.controller.command;
 
-import rapidFit.model.IListModel;
+import rapidFit.model.IDataModel;
 
-public class ListModelEditFieldCommand implements UndoableCommand {
+public class DataModelEditFieldCommand implements UndoableCommand {
 	
-	private IListModel<?> model;
+	private IDataModel<?> model;
 	private String field;
 	private int index;
 	private Object oldValue;
 	private Object newValue;
 	private String description;
 	
-	public ListModelEditFieldCommand(IListModel<?> model,
+	public DataModelEditFieldCommand(IDataModel<?> model,
 			int index, String field, Object oldValue, Object newValue, String description) {
 		this.model = model;
 		this.field = field;

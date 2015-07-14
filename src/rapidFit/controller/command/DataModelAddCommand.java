@@ -1,19 +1,19 @@
 package rapidFit.controller.command;
 
-import rapidFit.model.IListModel;
+import rapidFit.model.IDataModel;
 
-public class ListModelAddCommand<T> implements UndoableCommand {
+public class DataModelAddCommand<T> implements UndoableCommand {
 	
-	private IListModel<T> model;
+	private IDataModel<T> model;
 	private int index;
 	private String description;
 	private T addObject;
 	
-	public ListModelAddCommand(IListModel<T> model, int index, String description){
+	public DataModelAddCommand(IDataModel<T> model, int index, String description){
 		this(model, index, null, description);
 	}
 	
-	public ListModelAddCommand(IListModel<T> model, int index, T object, String description){
+	public DataModelAddCommand(IDataModel<T> model, int index, T object, String description){
 		this.model = model;
 		this.index = index;
 		this.description = description;
@@ -23,10 +23,12 @@ public class ListModelAddCommand<T> implements UndoableCommand {
 	@Override
 	public boolean execute() {
 		try {
-			if (addObject == null){
+			if (addObject != null){
 				model.add(index, addObject);
 			} else {
 				model.add(index);
+				System.out.println("Add new object");
+				addObject = model.get(index);
 			}
 			return true;
 		} catch (Exception e){

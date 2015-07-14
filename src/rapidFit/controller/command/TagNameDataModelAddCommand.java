@@ -1,31 +1,42 @@
 package rapidFit.controller.command;
 
-import rapidFit.model.ITagNameListModel;
+import rapidFit.model.ITagNameDataModel;
 
-public class TagNameListModelAddCommand implements UndoableCommand {
+public class TagNameDataModelAddCommand<T> implements UndoableCommand {
 	
-	private ITagNameListModel<?> model;
+	private ITagNameDataModel<T> model;
 	private int index;
 	private String description;
 	private String tagName;
 	private boolean hasExecutedBefore;
+	private T addObject;
 	
-	public TagNameListModelAddCommand(ITagNameListModel<?> model, 
-			int index, String description) {
+	public TagNameDataModelAddCommand(ITagNameDataModel<T> model,
+			int index, String description){
+		this(model, index, null, description);
+	}
+	
+	public TagNameDataModelAddCommand(ITagNameDataModel<T> model,
+			int index, T object, String description){
 		this.model = model;
 		this.index = index;
 		this.description = description;
 		this.hasExecutedBefore = false;
-		this.tagName = null;
+		this.addObject = object;
 	}
 	
 	@Override
 	public boolean execute(){
 		try {
 			if (hasExecutedBefore){
-				model.add(index, tagName);
+				model.add(index, addObject, tagName);
 			} else {
-				model.add(index);
+				if (addObject != null) {
+					model.add(index, addObject);
+				} else {
+					model.add(index);
+					addObject = model.get(index);
+				}
 				tagName = model.getTagName(index);
 				hasExecutedBefore = true;
 			}

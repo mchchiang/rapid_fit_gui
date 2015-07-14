@@ -3,8 +3,6 @@ package rapidFit;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 
-import rapidFit.controller.MainController;
-
 import java.awt.Toolkit;
 import java.awt.event.*;
 import java.io.File;
@@ -29,7 +27,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	
 	private static RapidFitEditorMenuBar menuBar = null;
 	
-	private MainController controller;
+	private rapidFit.controller.UIController controller;
 	
 	//prevent outer classes to create a new menu bar (singleton pattern)
 	private RapidFitEditorMenuBar(){
@@ -43,7 +41,7 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 		return menuBar;
 	}
 	
-	public void setMainController(MainController controller){
+	public void setMainController(rapidFit.controller.UIController controller){
 		this.controller = controller;
 	}
 	

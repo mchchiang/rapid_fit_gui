@@ -2,31 +2,20 @@ package rapidFit.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("rawtypes")
-public class NullListModel implements IListModel {
+public class NullDataModel implements IDataModel {
 	
 	@Override
-	public void setList(List data) {}
-	
-	@Override
-	public void addListObserver(IListObserver lo) {}
+	public void addDataListener(DataListener listener) {}
 
 	@Override
-	public void removeListObserver(IListObserver lo) {}
+	public void removeDataListener(DataListener listener) {}
 
 	@Override
-	public void notifyListObserver() {}
-
-	@Override
-	public void setUpdateType(UpdateType t) {}
-
-	@Override
-	public void setUpdateField(String field) {}
-
-	@Override
-	public void setUpdateIndex(int index) {}
+	public void notifyDataListener(DataEvent e) {}
 
 	@Override
 	public Object get(int index) {
@@ -49,38 +38,41 @@ public class NullListModel implements IListModel {
 			InvocationTargetException {}
 
 	@Override
-	public int getNumOfFields() {
-		return 0;
-	}
+	public int getNumOfFields() {return 0;}
 
 	@Override
-	public List<?> getFieldNames() {
-		return null;
-	}
+	public List<String> getFieldNames() {return new ArrayList<String>();}
 
 	@Override
-	public Class<?> getFieldClass(String fieldName) {
-		return null;
-	}
+	public Class<?> getFieldClass(String fieldName) {return null;}
 
 	@Override
-	public Type getFieldType(String fieldName) {
-		return null;
-	}
+	public Type getFieldType(String fieldName) {return null;}
 
 	@Override
-	public int size() {
-		return 0;
-	}
+	public int size() {	return 0;}
 
 	@Override
-	public void add(int index) throws InstantiationException,
-			IllegalAccessException {}
-
+	public void add(int index) {}
+	
+	@Override
+	public void add(Object object) {}
+	
 	@Override
 	public void add(int index, Object object) {}
 
 	@Override
 	public void remove(int index) {}
 
+	@Override
+	public void remove(Object object) {}
+
+	@Override
+	public int indexOf(Object object) {return 0;}
+	
+	@Override
+	public Class<?> getDataClass() {return null;}
+	
+	@Override
+	public IDataModel<?> getActualModel() {return this;}
 }
