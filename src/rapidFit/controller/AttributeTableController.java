@@ -28,17 +28,17 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 		this.model = model;
 		this.mainController = controller;
 		this.parentController = parentController;
-		
+
 		model.addDataListener(this);
-		
+
 		fieldNames = model.getFieldNames();
 
 		//create view
 		tableViewModel = new AttributeTableViewModel(this);
-		table = new AttributeTable(tableViewModel);
+		table = new AttributeTable(this, tableViewModel);
 		tablePanel = new AttributePanel(table, className);
 	}
-	
+
 	@Override
 	public void setModel(IClassModel<T> newModel){
 		if (model != null){
@@ -49,10 +49,10 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 		fieldNames = newModel.getFieldNames();
 		tableViewModel.fireTableDataChanged();
 	}
-	
+
 	@Override
 	public IClassModel<T> getModel(){return model;}
-	
+
 	@Override
 	public int getRowCount() {
 		return fieldNames.size();
@@ -81,6 +81,9 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 	public void setValueAt(Object value, int row, int col) {
 		if (col == 1){
 			try {
+
+				Object oldValue = model.get(fieldNames.get(row));
+
 				/*
 				 * for empty String input (i.e. ""), set the string to null.
 				 * This is needed to ensure there is no empty tag <></> generated
@@ -90,15 +93,19 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 					value = null;
 				}
 				
+				if (getRowClass(row) == Boolean.class && 
+						(Boolean) value == false) {
+					value = null;
+				}
+				
 				//only set a new value if it is different from the old one
-				if (value != null && !value.equals(getValueAt(row, col)) ||
-						value == null && getValueAt(row, col) != null){
-					Object oldValue = model.get(fieldNames.get(row));
+				if ((value != null && !value.equals(oldValue)) ||
+						(value == null && oldValue != null)){
 					mainController.setCommand(new DataModelEditFieldCommand
 							(model, 0, fieldNames.get(row), 
 									oldValue, value, "Changed field " + fieldNames.get(row) + 
 									" from \"" + oldValue + "\" to \"" + value + "\""));
-				} 
+				}
 			} catch (Exception e){
 				e.printStackTrace();
 			}
@@ -151,25 +158,42 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 	@Override
 	public void stopCellEditing() {
 		if (table.getCellEditor() != null){
-			table.getCellEditor().stopCellEditing();
+			if (!table.getCellEditor().stopCellEditing()) {
+				table.getCellEditor().cancelCellEditing();
+			}
 		}
 	}
-	
+
 	@Override 
 	public void cancelCellEditing() {
 		if (table.getCellEditor() != null){
 			table.getCellEditor().cancelCellEditing();
 		}
 	}
-	
+
 	@Override
 	public void setSelectedCell(int row, int col){
 		table.changeSelection(row, col, false, false);
 	}
 	
 	@Override
+	public int getSelectedRow(){
+		return table.getSelectedRow();
+	}
+	
+	@Override
+	public int getSelectedColumn(){
+		return table.getSelectedColumn();
+	}
+
+	@Override
 	public void clearSelection(){
 		table.clearSelection();
+	}
+	
+	@Override
+	public void makeViewFocusable(boolean focusable){
+		table.setFocusable(focusable);
 	}
 
 	@Override
@@ -182,4 +206,8 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 		return null;
 	}
 
+	@Override
+	public void activateController() {
+		mainController.setActiveController(this);
+	}
 }

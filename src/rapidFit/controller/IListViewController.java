@@ -17,46 +17,54 @@ public abstract class IListViewController<T> implements Controller, ListListener
 	private ListViewPanel mainPanel;
 	private JComponent listPanel;
 	private JComponent displayPanel;
-	private String listTitle = null;
-	private String displayTitle = null;
 	
 	/*
 	 * requires the sub-class to determine how to display the data
 	 */
 	protected abstract JPanel getView(T object);
 	
-	public IListViewController (ITagNameDataModel<T> model) {
-		this.model = model;
-		this.model.addDataListener(this);
+	public void setModel(ITagNameDataModel<T> model) {
+		if (model != null){
+			if (this.model != null){
+				this.model.removeDataListener(this);
+			}
+			this.model = model;
+			this.model.addDataListener(this);
+		}
 	}
 	
 	public void setListPanelController(IListPanelController<T> listPanelController) {
 		if (listPanelController != null) {
+			if (this.listPanelController != null){
+				this.listPanelController.removeListListener(this);
+			}
 			this.listPanelController = listPanelController;
 			this.listPanelController.addListListener(this);
 		}
 	}
 	
 	public void setListTitle(String title) {
-		this.listTitle = title;
+		mainPanel.setListTitle(title);
 	}
 	
 	public void setDisplayTitle(String title) {
-		this.displayTitle = title;
+		mainPanel.setDisplayTitle(title);
 	}
 	
-	public void initView() {
+	public void initView(String listTitle, String displayTitle) {
 		//create the view
-		listPanel = this.listPanelController.getView();
-		displayPanel = getView(null);
-		mainPanel = new ListViewPanel(listPanel, displayPanel, listTitle, displayTitle);		
+		if (listPanelController != null){
+			listPanel = listPanelController.getView();
+			displayPanel = getView(null);
+			mainPanel = new ListViewPanel(listPanel, displayPanel, listTitle, displayTitle);
+		}		
 	}
 	
 	@Override
 	public void changedSelectedElement(int index) {
-		displayTitle = listPanelController.getTagName(index);
 		displayPanel = getView(listPanelController.get(index));
-		mainPanel.updateDisplayPanel(displayPanel, displayTitle);
+		mainPanel.updateDisplayPanel(displayPanel, 
+				listPanelController.getTagName(index));
 	}
 	
 	@Override
@@ -65,8 +73,7 @@ public abstract class IListViewController<T> implements Controller, ListListener
 				e instanceof EditTagNameEvent){
 			EditTagNameEvent evt = (EditTagNameEvent) e;
 			if (evt.getIndex() == listPanelController.getSelectedIndex()) {
-				displayTitle = evt.getNewTagName();
-				mainPanel.updateDisplayTitle(displayTitle);
+				setDisplayTitle(evt.getNewTagName());
 			}
 		}
 	}
@@ -76,4 +83,8 @@ public abstract class IListViewController<T> implements Controller, ListListener
 		return mainPanel;
 	}
 	
+	@Override
+	public void makeViewFocusable(boolean focusable) {
+		mainPanel.setFocusable(focusable);
+	}
 }

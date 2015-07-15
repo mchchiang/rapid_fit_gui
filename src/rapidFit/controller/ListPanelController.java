@@ -74,6 +74,7 @@ public class ListPanelController<T> implements IListPanelController<T> {
 			} else {
 				dataList.setSelectedIndex(index);
 			}
+			activateController();
 			notifyListListener();
 		}
 	}
@@ -170,22 +171,30 @@ public class ListPanelController<T> implements IListPanelController<T> {
 				AddElementEvent evt = (AddElementEvent) e;
 				viewModel.fireIntervalAdded(evt.getIndex(), evt.getIndex());
 				setSelectedIndex(evt.getIndex());
-
+				viewModel.fireContentsChanged(0, getListSize());
+				activateController();
+				
 			} else if (e instanceof RemoveElementEvent){
 				RemoveElementEvent evt = (RemoveElementEvent) e;
 				viewModel.fireIntervalRemoved(evt.getIndex(), evt.getIndex());
 				clearSelection();
-
+				viewModel.fireContentsChanged(0, getListSize());
+				activateController();
+				
 			} else if (e instanceof EditElementEvent){
 				EditElementEvent evt = (EditElementEvent) e;
 				viewModel.fireContentsChanged(evt.getIndex(), evt.getIndex());
 				setSelectedIndex(evt.getIndex());
-
+				viewModel.fireContentsChanged(0, getListSize());
+				activateController();
+				
 			} else if (e instanceof EditTagNameEvent){
 				EditTagNameEvent evt = (EditTagNameEvent) e;
 				viewModel.fireContentsChanged(evt.getIndex(), evt.getIndex());
+				viewModel.fireContentsChanged(0, getListSize());
+				activateController();
 			}
-			viewModel.fireContentsChanged(0, getListSize());
+			
 		}
 	}
 
@@ -220,6 +229,16 @@ public class ListPanelController<T> implements IListPanelController<T> {
 	@Override
 	public List<Controller> getChildControllers() {
 		return null;
+	}
+	
+	@Override
+	public void activateController() {
+		mainController.setActiveController(this);
+	}
+	
+	@Override
+	public void makeViewFocusable(boolean focusable) {
+		dataList.setFocusable(focusable);
 	}
 
 }

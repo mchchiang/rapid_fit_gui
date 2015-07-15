@@ -27,7 +27,6 @@ public class DataModelAddCommand<T> implements UndoableCommand {
 				model.add(index, addObject);
 			} else {
 				model.add(index);
-				System.out.println("Add new object");
 				addObject = model.get(index);
 			}
 			return true;

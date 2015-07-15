@@ -3,7 +3,7 @@ package rapidFit.view;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -53,7 +53,7 @@ public class RapidFitMainFrame extends JFrame {
 		setVisible(true);
 	}
 
-	public void createLoadedFileScene(HashMap<JComponent, String> components, String fileName) {
+	public void createLoadedFileScene(LinkedHashMap<JComponent, String> components, String fileName) {
 		//remove previously displayed contents
 		Container content = getContentPane();
 		content.removeAll();

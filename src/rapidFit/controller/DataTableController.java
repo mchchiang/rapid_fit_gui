@@ -55,7 +55,7 @@ public class DataTableController<T> implements IDataTableController<T> {
 		
 		//create the view
 		this.tableViewModel = new DataTableViewModel(this);
-		this.table = new DataTable(tableViewModel);
+		this.table = new DataTable(this, tableViewModel);
 		this.tablePanel = new DataTablePanel(this, table,
 				btnAddName, btnRemoveName, btnCopyName);
 		
@@ -176,10 +176,15 @@ public class DataTableController<T> implements IDataTableController<T> {
 			if (getColumnClass(col) == String.class && 
 					((String) value).equals("")){
 				value = null;
-			} 
+			}  
 			
-			if (value != null && !value.equals(oldValue) ||
-					value == null && oldValue != null){
+			if (getColumnClass(col) == Boolean.class && 
+					(Boolean) value == false) {
+				value = null;
+			}
+			
+			if ((value != null && !value.equals(oldValue)) ||
+					(value == null && oldValue != null)){
 			mainController.setCommand(new DataModelEditFieldCommand
 					(dataModel, row, fieldNames.get(col), 
 							oldValue, value, "Changed field " + fieldNames.get(col) + 
@@ -229,18 +234,18 @@ public class DataTableController<T> implements IDataTableController<T> {
 						evt.getIndex(), fieldNames.indexOf(evt.getField()));
 				setSelectedCell(
 						evt.getIndex(), fieldNames.indexOf(evt.getField()));
-				mainController.setActiveController(this);
+				activateController();
 				
 			} else if (e instanceof AddElementEvent){
 				AddElementEvent evt = (AddElementEvent) e;
 				tableViewModel.fireTableDataChanged();
 				setSelectedCell(evt.getIndex(), 0);
-				mainController.setActiveController(this);
+				activateController();
 				
 			} else if (e instanceof RemoveElementEvent){
 				tableViewModel.fireTableDataChanged();
 				clearSelection();
-				mainController.setActiveController(this);
+				activateController();
 			}
 		}
 	}
@@ -311,6 +316,11 @@ public class DataTableController<T> implements IDataTableController<T> {
 		}
 	}
 	
+	@Override
+	public void makeViewFocusable(boolean focusable){
+		table.setFocusable(focusable);
+	}
+	
 	@Override 
 	public void cancelCellEditing() {
 		if (table.getCellEditor() != null){
@@ -321,6 +331,16 @@ public class DataTableController<T> implements IDataTableController<T> {
 	@Override
 	public void setSelectedCell(int row, int col){
 		table.changeSelection(row, col, false, false);
+	}
+	
+	@Override
+	public int getSelectedRow(){
+		return table.getSelectedRow();
+	}
+	
+	@Override
+	public int getSelectedColumn(){
+		return table.getSelectedColumn();
 	}
 	
 	@Override
@@ -336,5 +356,10 @@ public class DataTableController<T> implements IDataTableController<T> {
 	@Override
 	public List<Controller> getChildControllers() {
 		return null;
+	}
+	
+	@Override
+	public void activateController() {
+		mainController.setActiveController(this);
 	}
 }

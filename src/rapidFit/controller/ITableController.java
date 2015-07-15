@@ -6,6 +6,8 @@ public interface ITableController extends Controller {
 	public void stopCellEditing();
 	public void cancelCellEditing();
 	public void setSelectedCell(int row, int col);
+	public int getSelectedRow();
+	public int getSelectedColumn();
 	public void clearSelection();
 	
 	public boolean isCellEditable(int row, int col);

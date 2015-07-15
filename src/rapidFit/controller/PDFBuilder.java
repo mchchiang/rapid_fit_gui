@@ -65,5 +65,11 @@ public class PDFBuilder implements UIController {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public void activateController() {}
+	
+	@Override
+	public void makeViewFocusable(boolean focusable) {}
 
 }

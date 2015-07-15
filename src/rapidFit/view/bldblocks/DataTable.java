@@ -3,12 +3,15 @@ package rapidFit.view.bldblocks;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 
+import rapidFit.controller.IDataTableController;
+
 
 @SuppressWarnings("serial")
-public class DataTable extends Table {
+public class DataTable extends Table {	
+	
 	@SuppressWarnings("unchecked")
-	public DataTable(DataTableViewModel viewModel) {
-		super(viewModel);
+	public DataTable(IDataTableController<?> controller, DataTableViewModel viewModel) {
+		super(controller, viewModel);
 
 		//display enum attributes as combo box
 		for (int i = 0; i < viewModel.getColumnCount(); i++){
@@ -19,5 +22,6 @@ public class DataTable extends Table {
 								((Class<? extends Enum<?>>) clazz).getEnumConstants())));
 			}
 		}
+		
 	}
 }

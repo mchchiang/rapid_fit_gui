@@ -31,8 +31,8 @@ public class ListViewController<T> extends IListViewController<T> {
 
 	@SuppressWarnings("unchecked")
 	public ListViewController(UIController mainController, 
-			ITagNameDataModel<T> model, String listTitle) {
-		super(model);
+			ITagNameDataModel<T> model, String listTitle, 
+			String attributeTableTitle) {
 		this.model = model;
 		this.mainController = mainController;
 		
@@ -41,7 +41,7 @@ public class ListViewController<T> extends IListViewController<T> {
 		tagNamePanelController = new TagNamePanelController(
 				mainController, listPanelController, this, model);
 		attributeTableController = new AttributeTableController<T>(
-				mainController, this, new NullClassModel(), "");
+				mainController, this, new NullClassModel(), attributeTableTitle);
 		
 		modelMap = new HashMap<T, IClassModel<T>>();
 		
@@ -67,9 +67,9 @@ public class ListViewController<T> extends IListViewController<T> {
 		
 		nullPanel.add(txtNoData, BorderLayout.CENTER);
 		
+		setModel(model);
 		setListPanelController(listPanelController);
-		setListTitle(listTitle);
-		initView();
+		initView(listTitle, null);
 	}
 	
 	@Override
@@ -85,12 +85,12 @@ public class ListViewController<T> extends IListViewController<T> {
 			}
 			attributeTableController.setModel(model);
 			
-			setDisplayTitle(this.model.getTagName(object));
+			//setDisplayTitle(this.model.getTagName(object));
 			return displayPanel;
 		
 		//create the display when no element is selected
 		} else {
-			setDisplayTitle(null);
+			//setDisplayTitle(null);
 			return nullPanel;
 		}
 	}
@@ -113,5 +113,10 @@ public class ListViewController<T> extends IListViewController<T> {
 		childControllers.add(listPanelController);
 		childControllers.add(tagNamePanelController);
 		return childControllers;
+	}
+	
+	@Override
+	public void activateController() {
+		mainController.setActiveController(this);
 	}
 }

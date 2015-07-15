@@ -56,4 +56,6 @@ public class TagNamePanel extends JPanel implements PropertyChangeListener {
 			controller.setTagName(tagName);
 		}
 	}
+	
+	public JFormattedTextField getTagNameTextField() {return txtTagName;}
 }

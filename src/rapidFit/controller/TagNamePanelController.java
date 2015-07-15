@@ -85,4 +85,13 @@ public class TagNamePanelController implements ITagNamePanelController, ListList
 		return panel;
 	}
 	
+	@Override
+	public void activateController() {
+		mainController.setActiveController(this);
+	}
+	
+	@Override
+	public void makeViewFocusable(boolean focusable) {
+		panel.getTagNameTextField().setFocusable(focusable);
+	}
 }

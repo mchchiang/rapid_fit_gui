@@ -8,15 +8,19 @@ import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.text.*;
 
+import rapidFit.controller.ITableController;
+
 @SuppressWarnings("serial")
 public class Table extends JTable{
+	private ITableController tableController;
 	private boolean isSelectAllForMouseEvent = false;
 	private boolean isSelectAllForActionEvent = false;
 	private boolean isSelectAllForKeyEvent = false;
 
 	//Constructor
-	public Table(TableModel dm){
+	public Table(ITableController controller, TableModel dm){
         super(dm, null, null);
+        this.tableController = controller;
         
         //set default properties
         setShowGrid(true);
@@ -25,7 +29,13 @@ public class Table extends JTable{
 		getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
 		setSelectAllForEdit(true);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		setFocusable(true);
+		
+		/*
+		 * needed to make sure the table cells do not remain in
+		 * focus even when other cells have been selected
+		 */
+		setFocusable(false);
+		
 		
 		/*
 		 * make sure the edits to a cell is saved when user click on
@@ -144,6 +154,14 @@ public class Table extends JTable{
  		//RapidFitMainControl.getInstance().setCurrentEditingTable(this);
  		return super.prepareEditor(editor,row,column);
  	}
+ 	
+ 	public void changeSelection(int rowIndex, int columnIndex,
+			boolean toggle, boolean extend) {
+		super.changeSelection(rowIndex, columnIndex, toggle, extend);
+		tableController.activateController();
+		this.requestFocusInWindow();
+	}
+ 	
 //
 //  Static, convenience methods
 //

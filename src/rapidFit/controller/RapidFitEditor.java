@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Stack;
 
@@ -70,7 +71,7 @@ public class RapidFitEditor implements UIController {
 	
 	public void showLoadedXMLFrame(RapidFitType root, String fileName){
 		controlViewPair = new HashMap<Controller, JComponent>();
-		HashMap<JComponent, String> componentTitlePair = new HashMap<JComponent, String>();
+		LinkedHashMap<JComponent, String> componentTitlePair = new LinkedHashMap<JComponent, String>();
 		
 		//load all data and create all the controllers
 		
@@ -210,7 +211,8 @@ public class RapidFitEditor implements UIController {
 								ComponentProjectionType.class, 
 								root.getOutput().getComponentProjection(), null), "Comp_Proj");	
 		IListViewController<ComponentProjectionType> projectionsListController =
-				new ListViewController<ComponentProjectionType>(this, projections, "Available Projections");
+				new ListViewController<ComponentProjectionType>(
+						this, projections, "Available Projections", "Projection Details");
 		controlViewPair.put(projectionsListController, projectionsListController.getView());
 		componentTitlePair.put(projectionsListController.getView(), "Ouptut - Projections");
 		
@@ -221,7 +223,8 @@ public class RapidFitEditor implements UIController {
 								root.getOutput().getScan(), null), "Scan");
 		
 		IListViewController<ScanParamType> scansListController =
-				new ListViewController<ScanParamType>(this, scans, "Available Scans");
+				new ListViewController<ScanParamType>(
+						this, scans, "Available Scans", "Scan Details");
 		
 		
 		ITagNameDataModel<TwoDScanType> twoDScans =
@@ -234,9 +237,9 @@ public class RapidFitEditor implements UIController {
 		mainFrame.createLoadedFileScene(componentTitlePair, fileName);
 	}
 	
-	public void undo(){
+	public synchronized void undo(){
+		stopTableCellEditing();
 		if (hasUndoableCommand()){
-			stopTableCellEditing();
 			UndoableCommand uc = commandHistory.pop();
 			uc.undo();
 			redoCommands.push(uc);
@@ -249,9 +252,9 @@ public class RapidFitEditor implements UIController {
 		}
 	}
 	
-	public void redo(){
+	public synchronized void redo(){
+		stopTableCellEditing();
 		if (hasRedoableCommand()){
-			stopTableCellEditing();
 			UndoableCommand uc = redoCommands.pop();
 			uc.execute();
 			commandHistory.push(uc);
@@ -291,14 +294,21 @@ public class RapidFitEditor implements UIController {
 	}
 
 	@Override
-	public void setActiveController(Controller controller) {
+	public synchronized void setActiveController(Controller controller) {
 		if (activeController != controller) {
 			/*
 			 * stop cell editing for the old controller if it is
 			 * a table controller
 			 */
 			stopTableCellEditing();
+			if (activeController != null){
+				activeController.makeViewFocusable(false);
+			}
 			activeController = controller;
+			if (activeController != null){
+				activeController.makeViewFocusable(true);
+			}
+			
 			Controller c = findParentController(controller);
 			JComponent cmp = controlViewPair.get(c);
 			if (cmp != null){
@@ -312,7 +322,9 @@ public class RapidFitEditor implements UIController {
 	 * the sub-controller (excluding this controller)
 	 */
 	private Controller findParentController(Controller c) {
-		if (c.getParentController() == this) {
+		if (c == null) {
+			return null;
+		} else if (c.getParentController() == this) {
 			return c;
 		} else {
 			return findParentController(c.getParentController());
@@ -322,7 +334,7 @@ public class RapidFitEditor implements UIController {
 	private void stopTableCellEditing() {
 		if (activeController instanceof ITableController) {
 			ITableController tableController = (ITableController) activeController;
-			tableController.cancelCellEditing();
+			tableController.stopCellEditing();
 			tableController.clearSelection();
 		}
 	}
@@ -347,4 +359,10 @@ public class RapidFitEditor implements UIController {
 	public JComponent getView() {
 		return null;
 	}
+	
+	@Override
+	public void activateController() {}
+	
+	@Override
+	public void makeViewFocusable(boolean focusable) {}
 }

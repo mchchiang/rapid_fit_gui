@@ -1,5 +1,11 @@
 package rapidFit.model;
 
-public class ITreeModel {
+public interface ITreeModel {
+	
+	public void addTreeListener(TreeListener listener);
+	public void removeTreeListener(TreeListener listener);
+	public void notifyTreeListener(TreeEvent e);
+	
+	public void set(Object [] path, Object newNode);
 	
 }

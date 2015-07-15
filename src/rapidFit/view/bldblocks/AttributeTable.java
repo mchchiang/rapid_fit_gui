@@ -3,14 +3,17 @@ package rapidFit.view.bldblocks;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import rapidFit.controller.IAttributeTableController;
+
 @SuppressWarnings("serial")
 public class AttributeTable extends Table {
 
 	private Class<?> editingClass;
 
-	public AttributeTable(AbstractTableModel dm) {
-		super(dm);
+	public AttributeTable(IAttributeTableController<?> controller, AbstractTableModel dm) {
+		super(controller, dm);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 	}
 
 	//allow different data types for different rows in the same column
@@ -24,9 +27,12 @@ public class AttributeTable extends Table {
 					((AttributeTableViewModel) getModel()).getRowClass(modelRow);
 			return getDefaultRenderer(rowClass);
 		} else {
+			
 			return super.getCellRenderer(row, col);
 		}
 	}
+	
+	
 
 	@SuppressWarnings("unchecked")
 	@Override

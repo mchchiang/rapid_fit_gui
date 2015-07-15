@@ -11,20 +11,16 @@ public class ListViewPanel extends JPanel {
 	
 	private JComponent displayPanel;
 	private JComponent listPanel;
+	private String listTitle;
+	private String displayTitle;
 	
 	public ListViewPanel(JComponent listPanel, JComponent displayPanel, 
 			String listTitle, String displayTitle){
 		this.listPanel = listPanel;
 		this.displayPanel = displayPanel;
 		
-		this.listPanel.setBorder(BorderFactory.createTitledBorder(
-				"<html><h3>" + listTitle + "</h3></html>"));
-		
-		if (displayTitle == null || displayTitle.equals("")) {
-			displayTitle = "&nbsp;";
-		}
-		this.displayPanel.setBorder(BorderFactory.createTitledBorder(
-				"<html><h3>" + displayTitle + "</h3></html>"));
+		setListTitle(listTitle);
+		setDisplayTitle(displayTitle);
 		
 		this.setLayout(new BorderLayout());
 		this.add(listPanel, BorderLayout.WEST);
@@ -32,28 +28,40 @@ public class ListViewPanel extends JPanel {
 		
 	}
 	
+	public void setDisplayTitle(String title) {
+		if (title == null || title == "") {
+			title = "&nbsp;";
+		}
+		if ((displayTitle == null && title != null) ||
+				!displayTitle.equals(title)) {
+			displayTitle = title;
+			displayPanel.setBorder(BorderFactory.createTitledBorder(
+					"<html><h3>" + displayTitle + "</h3></html>"));
+			displayPanel.repaint();
+			displayPanel.validate();
+		}
+	}
+	
+	public void setListTitle(String title) {
+		if (title == null || title == "") {
+			title = "&nbsp;";
+		}
+		if ((listTitle == null && title != null) ||
+				!listTitle.equals(title)){
+			listTitle = title;
+			listPanel.setBorder(BorderFactory.createTitledBorder(
+					"<html><h3>" + listTitle + "</h3></html>"));
+			listPanel.repaint();
+			listPanel.validate();
+		}
+	}
+	
 	public void updateDisplayPanel(JComponent displayPanel, String displayTitle){
 		this.remove(this.displayPanel);
 		this.displayPanel = displayPanel;
-		if (displayTitle == null || displayTitle.equals("")) {
-			displayTitle = "&nbsp;";
-		}
-		this.displayPanel.setBorder(BorderFactory.createTitledBorder(
-				"<html><h3>" + displayTitle + "</h3></html>"));
-		
+		this.setDisplayTitle(displayTitle);
 		this.add(this.displayPanel, BorderLayout.CENTER);
 		this.repaint();
 		this.validate();
-	}
-	
-	public void updateDisplayTitle(String displayTitle) {
-		if (displayTitle == null || displayTitle.equals("")) {
-			displayTitle = "&nbsp;";
-		}
-		this.displayPanel.setBorder(BorderFactory.createTitledBorder(
-				"<html><h3>" + displayTitle + "</h3></html>"));
-		this.repaint();
-		this.validate();
-	}
-	
+	}	
 }

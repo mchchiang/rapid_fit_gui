@@ -32,15 +32,18 @@ public class DataList<T> extends JList<T> {
 	public DataList(IListPanelController<T> controller, DataListViewModel<T> viewModel){
 		super(viewModel);
 		this.listController = controller;
-		setCellRenderer(new DataListRenderer());
-		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		addMouseListener(new MouseAdapter(){
+		this.setCellRenderer(new DataListRenderer());
+		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		this.setFocusable(false);
+		final DataList<T> dataList = this;
+		this.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
 				int index = locationToIndex(e.getPoint());
 				if (index != -1 && 
 						((listController.getSelectedIndex() != index && e.getClickCount() == 1) ||
 						(e.getClickCount() == 2))){
 					listController.setSelectedIndex(index);
+					dataList.requestFocusInWindow();
 				}
 			}
 		});
