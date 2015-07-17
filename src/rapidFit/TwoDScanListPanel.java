@@ -2,9 +2,10 @@ package rapidFit;
 
 import java.util.List;
 import java.awt.*;
+
 import javax.swing.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class TwoDScanListPanel extends DataListViewer<TwoDScanType>{

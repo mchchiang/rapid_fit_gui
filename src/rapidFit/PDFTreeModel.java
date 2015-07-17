@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 public class PDFTreeModel implements TreeModel {
 	private EventListenerList listenerList = new EventListenerList();

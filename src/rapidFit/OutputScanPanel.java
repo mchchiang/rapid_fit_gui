@@ -5,7 +5,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class OutputScanPanel extends JPanel {

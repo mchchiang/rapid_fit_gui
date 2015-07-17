@@ -5,7 +5,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class FitConstraintPanel extends JPanel{

@@ -7,7 +7,7 @@ import java.util.*;
 
 import javax.swing.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class PDFSumDialog extends JDialog implements ActionListener {

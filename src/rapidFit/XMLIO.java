@@ -7,12 +7,8 @@ import java.util.*;
 
 //import javax.xml.*;
 import javax.xml.bind.*;
-//import javax.xml.bind.util.*;
-//import javax.xml.validation.*;
 
-//import org.xml.sax.*;
-
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 public class XMLIO {
 	
@@ -385,7 +381,7 @@ public class XMLIO {
         	
             // create a JAXBContext capable of handling classes generated into
             // the primer.po package
-            jc = JAXBContext.newInstance( "rapidFit.rpfit" );
+            jc = JAXBContext.newInstance( "rapidFit.data" );
             
             // create an Unmarshaller
             u = jc.createUnmarshaller();
@@ -449,7 +445,7 @@ public class XMLIO {
         try {
             // create a JAXBContext capable of handling classes generated into
             // the primer.po package
-            jc = JAXBContext.newInstance( "rapidFit.rpfit" );
+            jc = JAXBContext.newInstance( "rapidFit.data" );
             
             // create an Unmarshaller
             m = jc.createMarshaller();

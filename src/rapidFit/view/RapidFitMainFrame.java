@@ -9,8 +9,6 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import rapidFit.RapidFitEditorMenuBar;
 

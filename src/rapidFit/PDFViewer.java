@@ -7,7 +7,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class PDFViewer extends JPanel implements ActionListener {

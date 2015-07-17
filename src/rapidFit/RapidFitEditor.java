@@ -17,6 +17,7 @@ import rapidFit.controller.ListPanelController;
 import rapidFit.controller.ListViewController;
 import rapidFit.controller.TagNamePanelController;
 import rapidFit.controller.UIController;
+import rapidFit.data.*;
 import rapidFit.model.IClassModel;
 import rapidFit.model.IDataModel;
 import rapidFit.model.ClassModel;
@@ -24,7 +25,6 @@ import rapidFit.model.ITagNameDataModel;
 import rapidFit.model.DataModel;
 import rapidFit.model.NullClassModel;
 import rapidFit.model.TagNameDataModel;
-import rapidFit.rpfit.*;
 
 @SuppressWarnings("serial")
 public class RapidFitEditor extends JFrame {
@@ -75,6 +75,13 @@ public class RapidFitEditor extends JFrame {
 		
 		Container content = getContentPane();
 		content.add(txtNoData, BorderLayout.CENTER);
+		
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		setJMenuBar(RapidFitEditorMenuBar.getInstance());
 	}

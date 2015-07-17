@@ -1,8 +1,8 @@
 package rapidFit;
 
 import java.io.*;
-//import java.awt.event.*;
-import rapidFit.rpfit.*;
+
+import rapidFit.data.*;
 
 //a class to store global settings
 public class RapidFitMainControl {

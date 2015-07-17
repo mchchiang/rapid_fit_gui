@@ -17,24 +17,24 @@ import javax.swing.border.CompoundBorder;
 import rapidFit.RapidFitEditorMenuBar;
 import rapidFit.controller.command.Command;
 import rapidFit.controller.command.UndoableCommand;
+import rapidFit.data.ComponentProjectionType;
+import rapidFit.data.ExternalConstMatrixType;
+import rapidFit.data.ExternalConstraintType;
+import rapidFit.data.FitFunctionType;
+import rapidFit.data.MinimiserType;
+import rapidFit.data.ObservableType;
+import rapidFit.data.PhysicsParameterType;
+import rapidFit.data.PrecalculatorType;
+import rapidFit.data.RapidFitType;
+import rapidFit.data.ScanParamType;
+import rapidFit.data.ToFitType;
+import rapidFit.data.TwoDScanType;
 import rapidFit.model.ClassModel;
 import rapidFit.model.DataModel;
 import rapidFit.model.IClassModel;
 import rapidFit.model.IDataModel;
 import rapidFit.model.ITagNameDataModel;
 import rapidFit.model.TagNameDataModel;
-import rapidFit.rpfit.ComponentProjectionType;
-import rapidFit.rpfit.ExternalConstMatrixType;
-import rapidFit.rpfit.ExternalConstraintType;
-import rapidFit.rpfit.FitFunctionType;
-import rapidFit.rpfit.MinimiserType;
-import rapidFit.rpfit.ObservableType;
-import rapidFit.rpfit.PhysicsParameterType;
-import rapidFit.rpfit.PrecalculatorType;
-import rapidFit.rpfit.RapidFitType;
-import rapidFit.rpfit.ScanParamType;
-import rapidFit.rpfit.ToFitType;
-import rapidFit.rpfit.TwoDScanType;
 import rapidFit.view.RapidFitMainFrame;
 
 /**
@@ -215,6 +215,7 @@ public class RapidFitEditor implements UIController {
 						this, projections, "Available Projections", "Projection Details");
 		controlViewPair.put(projectionsListController, projectionsListController.getView());
 		componentTitlePair.put(projectionsListController.getView(), "Ouptut - Projections");
+		
 		
 		//for scans and 2D scans
 		ITagNameDataModel<ScanParamType> scans =

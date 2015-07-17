@@ -7,7 +7,7 @@ import java.lang.reflect.*;
 
 import javax.swing.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 //for inspecting elements of a PDF / composite PDF 
 @SuppressWarnings("serial")

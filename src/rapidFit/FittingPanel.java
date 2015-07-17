@@ -3,8 +3,10 @@ package rapidFit;
 import java.lang.reflect.*;
 import java.util.*;
 import java.awt.*;
+
 import javax.swing.*;
-import rapidFit.rpfit.*;
+
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class FittingPanel extends JPanel {

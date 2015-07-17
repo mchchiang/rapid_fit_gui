@@ -6,7 +6,7 @@ import java.util.*;
 
 import javax.swing.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class PDFProdDialog extends JDialog implements ActionListener {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class FitDataSetPanel extends AbstractDataListViewer<ToFitType> {

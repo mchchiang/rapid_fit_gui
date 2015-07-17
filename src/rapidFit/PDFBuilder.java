@@ -7,7 +7,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 
 @SuppressWarnings("serial")

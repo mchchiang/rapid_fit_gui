@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.swing.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class CommonPropertiesPanel extends JPanel {

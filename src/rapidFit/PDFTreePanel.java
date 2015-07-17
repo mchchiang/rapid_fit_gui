@@ -2,9 +2,11 @@ package rapidFit;
 
 import java.util.*;
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
-import rapidFit.rpfit.*;
+
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class PDFTreePanel extends JPanel {

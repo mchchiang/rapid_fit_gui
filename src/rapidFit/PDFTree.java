@@ -6,7 +6,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
-import rapidFit.rpfit.*;
+import rapidFit.data.*;
 
 @SuppressWarnings("serial")
 public class PDFTree extends JTree {

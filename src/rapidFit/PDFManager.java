@@ -1,7 +1,8 @@
 package rapidFit;
 
 import java.util.*;
-import rapidFit.rpfit.*;
+
+import rapidFit.data.*;
 
 /*
  * a class to handle tag names for PDFs. This is needed as it is possible
