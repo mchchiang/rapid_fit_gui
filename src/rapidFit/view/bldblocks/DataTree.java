@@ -3,37 +3,47 @@ package rapidFit.view.bldblocks;
 import java.awt.Component;
 
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeSelectionModel;
 
-import rapidFit.controller.ITreeController;
+import rapidFit.controller.ITreePanelController;
 
 
 @SuppressWarnings("serial")
 public class DataTree extends JTree {
 	
 	//used for displaying the tag name of the PDF in the tree
-	private ITreeController controller;
+	private ITreePanelController panelController;
 	
 	private class DataTreeCellRenderer extends DefaultTreeCellRenderer{
 		@Override
 		public Component getTreeCellRendererComponent(JTree tree, Object value, 
 				boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-		    String name = controller.getDisplayName(value);
+			String name =  panelController.getDisplayName(value);
+			if (!panelController.isLeaf(value)){
+				name = "<html><b>" + name + "</b></html>";
+			}
 		    return super.getTreeCellRendererComponent(
 		    		tree, name, sel, expanded, leaf, row, hasFocus);
 		}
 	}
 	
-	public DataTree (DataTreeViewModel viewModel, ITreeController controller){
+	public DataTree (DataTreeViewModel viewModel, ITreePanelController controller){
 		super(viewModel);
-		this.controller = controller;
-		
+		this.panelController = controller;
 		//default tree settings
 		setCellRenderer(new DataTreeCellRenderer());
 		setEditable(false);
 		getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
+		addTreeSelectionListener(new TreeSelectionListener(){
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				panelController.setSelectedPath(e.getPath().getPath());
+			}
+		});
 		expandAllRows();
 		
 	}

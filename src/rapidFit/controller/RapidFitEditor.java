@@ -29,12 +29,13 @@ import rapidFit.data.RapidFitType;
 import rapidFit.data.ScanParamType;
 import rapidFit.data.ToFitType;
 import rapidFit.data.TwoDScanType;
-import rapidFit.model.ClassModel;
-import rapidFit.model.DataModel;
-import rapidFit.model.IClassModel;
-import rapidFit.model.IDataModel;
-import rapidFit.model.ITagNameDataModel;
-import rapidFit.model.TagNameDataModel;
+import rapidFit.model.dataModel.ClassModel;
+import rapidFit.model.dataModel.DataModel;
+import rapidFit.model.dataModel.IClassModel;
+import rapidFit.model.dataModel.IDataModel;
+import rapidFit.model.dataModel.ITagNameDataModel;
+import rapidFit.model.dataModel.TagNameDataModel;
+import rapidFit.model.treeModel.PDFManager;
 import rapidFit.view.RapidFitMainFrame;
 
 /**
@@ -233,13 +234,19 @@ public class RapidFitEditor implements UIController {
 						new DataModel<TwoDScanType>(TwoDScanType.class,
 								root.getOutput().getTwoDScan(), null), "2D_Scan");
 		
+		/*ITreePanelController treePanelController = new TreePanelController(
+				this, this, pdfManager.getTreeModel());*/
+		PDFViewController commonPDFController = new PDFViewController(
+				this, this, root.getCommonPDF());
 		
+		controlViewPair.put(commonPDFController, commonPDFController.getView());
+		componentTitlePair.put(commonPDFController.getView(), "Common PDF");
 		
 		mainFrame.createLoadedFileScene(componentTitlePair, fileName);
 	}
 	
 	public synchronized void undo(){
-		stopTableCellEditing();
+		activeController.deactivateController();
 		if (hasUndoableCommand()){
 			UndoableCommand uc = commandHistory.pop();
 			uc.undo();
@@ -254,7 +261,7 @@ public class RapidFitEditor implements UIController {
 	}
 	
 	public synchronized void redo(){
-		stopTableCellEditing();
+		activeController.deactivateController();
 		if (hasRedoableCommand()){
 			UndoableCommand uc = redoCommands.pop();
 			uc.execute();
@@ -297,18 +304,11 @@ public class RapidFitEditor implements UIController {
 	@Override
 	public synchronized void setActiveController(Controller controller) {
 		if (activeController != controller) {
-			/*
-			 * stop cell editing for the old controller if it is
-			 * a table controller
-			 */
-			stopTableCellEditing();
 			if (activeController != null){
-				activeController.makeViewFocusable(false);
+				activeController.deactivateController();
 			}
+			controller.activateController();
 			activeController = controller;
-			if (activeController != null){
-				activeController.makeViewFocusable(true);
-			}
 			
 			Controller c = findParentController(controller);
 			JComponent cmp = controlViewPair.get(c);
@@ -329,14 +329,6 @@ public class RapidFitEditor implements UIController {
 			return c;
 		} else {
 			return findParentController(c.getParentController());
-		}
-	}
-	
-	private void stopTableCellEditing() {
-		if (activeController instanceof ITableController) {
-			ITableController tableController = (ITableController) activeController;
-			tableController.stopCellEditing();
-			tableController.clearSelection();
 		}
 	}
 
@@ -364,6 +356,7 @@ public class RapidFitEditor implements UIController {
 	@Override
 	public void activateController() {}
 	
+
 	@Override
-	public void makeViewFocusable(boolean focusable) {}
+	public void deactivateController() {}
 }

@@ -4,14 +4,16 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import rapidFit.controller.IAttributeTableController;
+import rapidFit.controller.UIController;
 
 @SuppressWarnings("serial")
 public class AttributeTable extends Table {
 
 	private Class<?> editingClass;
 
-	public AttributeTable(IAttributeTableController<?> controller, AbstractTableModel dm) {
-		super(controller, dm);
+	public AttributeTable(UIController mainController, 
+			IAttributeTableController<?> controller, AbstractTableModel dm) {
+		super(mainController, controller, dm);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 	}

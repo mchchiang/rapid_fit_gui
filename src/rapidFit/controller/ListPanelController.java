@@ -11,13 +11,12 @@ import rapidFit.controller.command.SetTagNameCommand;
 import rapidFit.controller.command.TagNameDataModelAddCommand;
 import rapidFit.controller.command.TagNameDataModelCopyCommand;
 import rapidFit.controller.command.TagNameDataModelRemoveCommand;
-import rapidFit.model.AddElementEvent;
-import rapidFit.model.DataEvent;
-import rapidFit.model.EditElementEvent;
-import rapidFit.model.EditTagNameEvent;
-import rapidFit.model.ITagNameDataModel;
-import rapidFit.model.ListListener;
-import rapidFit.model.RemoveElementEvent;
+import rapidFit.model.dataModel.AddElementEvent;
+import rapidFit.model.dataModel.DataEvent;
+import rapidFit.model.dataModel.EditElementEvent;
+import rapidFit.model.dataModel.EditTagNameEvent;
+import rapidFit.model.dataModel.ITagNameDataModel;
+import rapidFit.model.dataModel.RemoveElementEvent;
 import rapidFit.view.bldblocks.DataList;
 import rapidFit.view.bldblocks.DataListPanel;
 import rapidFit.view.bldblocks.DataListViewModel;
@@ -31,7 +30,7 @@ public class ListPanelController<T> implements IListPanelController<T> {
 	private DataList<T> dataList;
 	private DataListViewModel<T> viewModel;
 
-	private ArrayList<ListListener> listListeners;
+	private ArrayList<ListPanelListener> listListeners;
 	private int selectedIndex;
 
 	public ListPanelController(UIController controller, 
@@ -43,7 +42,7 @@ public class ListPanelController<T> implements IListPanelController<T> {
 
 		this.dataModel.addDataListener(this);
 
-		listListeners = new ArrayList<ListListener>();
+		listListeners = new ArrayList<ListPanelListener>();
 
 		//create the view
 		selectedIndex = -1;
@@ -60,6 +59,7 @@ public class ListPanelController<T> implements IListPanelController<T> {
 		dataModel = newModel;
 		dataModel.addDataListener(this);
 		viewModel.fireContentsChanged(0, getListSize());
+		clearSelection();
 	}
 
 	@Override
@@ -74,8 +74,8 @@ public class ListPanelController<T> implements IListPanelController<T> {
 			} else {
 				dataList.setSelectedIndex(index);
 			}
-			activateController();
-			notifyListListener();
+			mainController.setActiveController(this);
+			notifyListPanelListener();
 		}
 	}
 
@@ -172,27 +172,27 @@ public class ListPanelController<T> implements IListPanelController<T> {
 				viewModel.fireIntervalAdded(evt.getIndex(), evt.getIndex());
 				setSelectedIndex(evt.getIndex());
 				viewModel.fireContentsChanged(0, getListSize());
-				activateController();
+				mainController.setActiveController(this);
 				
 			} else if (e instanceof RemoveElementEvent){
 				RemoveElementEvent evt = (RemoveElementEvent) e;
 				viewModel.fireIntervalRemoved(evt.getIndex(), evt.getIndex());
 				clearSelection();
 				viewModel.fireContentsChanged(0, getListSize());
-				activateController();
+				mainController.setActiveController(this);
 				
 			} else if (e instanceof EditElementEvent){
 				EditElementEvent evt = (EditElementEvent) e;
 				viewModel.fireContentsChanged(evt.getIndex(), evt.getIndex());
 				setSelectedIndex(evt.getIndex());
 				viewModel.fireContentsChanged(0, getListSize());
-				activateController();
+				mainController.setActiveController(this);
 				
 			} else if (e instanceof EditTagNameEvent){
 				EditTagNameEvent evt = (EditTagNameEvent) e;
 				viewModel.fireContentsChanged(evt.getIndex(), evt.getIndex());
 				viewModel.fireContentsChanged(0, getListSize());
-				activateController();
+				mainController.setActiveController(this);
 			}
 			
 		}
@@ -203,20 +203,20 @@ public class ListPanelController<T> implements IListPanelController<T> {
 
 
 	@Override
-	public void addListListener(ListListener listener) {
+	public void addListPanelListener(ListPanelListener listener) {
 		listListeners.add(listener);
 	}
 
 	@Override
-	public void removeListListener(ListListener listener) {
+	public void removeListPanelListener(ListPanelListener listener) {
 		if (listListeners.contains(listener)){
 			listListeners.remove(listener);
 		}
 	}
 
 	@Override
-	public void notifyListListener() {
-		for (ListListener listener : listListeners){
+	public void notifyListPanelListener() {
+		for (ListPanelListener listener : listListeners){
 			listener.changedSelectedElement(selectedIndex);
 		}
 	}
@@ -233,12 +233,12 @@ public class ListPanelController<T> implements IListPanelController<T> {
 	
 	@Override
 	public void activateController() {
-		mainController.setActiveController(this);
+		dataList.setFocusable(true);
 	}
 	
 	@Override
-	public void makeViewFocusable(boolean focusable) {
-		dataList.setFocusable(focusable);
+	public void deactivateController() {
+		dataList.setFocusable(false);
 	}
 
 }

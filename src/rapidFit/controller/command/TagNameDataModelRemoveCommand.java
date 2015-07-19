@@ -1,6 +1,6 @@
 package rapidFit.controller.command;
 
-import rapidFit.model.ITagNameDataModel;
+import rapidFit.model.dataModel.ITagNameDataModel;
 
 public class TagNameDataModelRemoveCommand<T> implements UndoableCommand {
 	

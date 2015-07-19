@@ -1,10 +1,9 @@
 package rapidFit.controller;
 
-import rapidFit.model.DataListener;
-import rapidFit.model.ITagNameDataModel;
-import rapidFit.model.ListObservable;
+import rapidFit.model.dataModel.DataListener;
+import rapidFit.model.dataModel.ITagNameDataModel;
 
-public interface IListPanelController<T> extends Controller, DataListener, ListObservable {
+public interface IListPanelController<T> extends Controller, DataListener {
 	
 	public void setModel(ITagNameDataModel<T> model);
 	public ITagNameDataModel<T> getModel();
@@ -27,5 +26,9 @@ public interface IListPanelController<T> extends Controller, DataListener, ListO
 	
 	public void set(int row);
 	public void setTagName(int row, String tagName);
+	
+	public void addListPanelListener(ListPanelListener listener);
+	public void removeListPanelListener(ListPanelListener listener);
+	public void notifyListPanelListener();
 	
 }

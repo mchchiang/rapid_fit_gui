@@ -6,14 +6,13 @@ import java.util.List;
 import javax.swing.JComponent;
 
 import rapidFit.controller.command.SetTagNameCommand;
-import rapidFit.model.DataEvent;
-import rapidFit.model.DataListener;
-import rapidFit.model.EditTagNameEvent;
-import rapidFit.model.ITagNameDataModel;
-import rapidFit.model.ListListener;
+import rapidFit.model.dataModel.DataEvent;
+import rapidFit.model.dataModel.DataListener;
+import rapidFit.model.dataModel.EditTagNameEvent;
+import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.view.bldblocks.TagNamePanel;
 
-public class TagNamePanelController implements ITagNamePanelController, ListListener, DataListener {
+public class TagNamePanelController implements ITagNamePanelController, ListPanelListener, DataListener {
 	
 	private ITagNameDataModel<?> model;
 	private UIController mainController;
@@ -28,7 +27,7 @@ public class TagNamePanelController implements ITagNamePanelController, ListList
 		this.mainController = mainController;
 		this.listController = listController;
 		this.parentController = parentController;
-		listController.addListListener(this);
+		listController.addListPanelListener(this);
 		model.addDataListener(this);
 		
 		//create view
@@ -42,6 +41,7 @@ public class TagNamePanelController implements ITagNamePanelController, ListList
 			EditTagNameEvent evt = (EditTagNameEvent) e;
 			if (evt.getIndex() == listController.getSelectedIndex()){
 				panel.setTagName(evt.getNewTagName());
+				mainController.setActiveController(this);
 			}
 		}
 	}
@@ -87,11 +87,11 @@ public class TagNamePanelController implements ITagNamePanelController, ListList
 	
 	@Override
 	public void activateController() {
-		mainController.setActiveController(this);
+		panel.getTagNameTextField().setFocusable(true);
 	}
-	
+
 	@Override
-	public void makeViewFocusable(boolean focusable) {
-		panel.getTagNameTextField().setFocusable(focusable);
+	public void deactivateController() {
+		panel.getTagNameTextField().setFocusable(false);
 	}
 }

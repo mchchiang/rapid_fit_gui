@@ -61,7 +61,6 @@ public class RapidFitMainFrame extends JFrame {
 		
 		tabs = new JTabbedPane();
 		
-		
 		for (JComponent cmp : components.keySet()){
 			tabs.add(cmp, components.get(cmp));
 		}

@@ -4,14 +4,16 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 
 import rapidFit.controller.IDataTableController;
+import rapidFit.controller.UIController;
 
 
 @SuppressWarnings("serial")
 public class DataTable extends Table {	
 	
 	@SuppressWarnings("unchecked")
-	public DataTable(IDataTableController<?> controller, DataTableViewModel viewModel) {
-		super(controller, viewModel);
+	public DataTable(UIController mainController, 
+			IDataTableController<?> controller, DataTableViewModel viewModel) {
+		super(mainController, controller, viewModel);
 
 		//display enum attributes as combo box
 		for (int i = 0; i < viewModel.getColumnCount(); i++){

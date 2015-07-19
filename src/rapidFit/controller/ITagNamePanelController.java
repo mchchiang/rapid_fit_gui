@@ -1,6 +1,6 @@
 package rapidFit.controller;
 
-import rapidFit.model.DataListener;
+import rapidFit.model.dataModel.DataListener;
 
 public interface ITagNamePanelController extends Controller, DataListener {
 

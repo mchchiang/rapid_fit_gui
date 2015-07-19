@@ -54,6 +54,7 @@ public class PDFBuilder extends JDialog implements ActionListener {
 		setResizable(true);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setPreferredSize(new Dimension(width, height));
+		this.setJMenuBar(RapidFitEditorMenuBar.getInstance());
 
 		pdfRoot = root;
 		parameters = params;

@@ -1,7 +1,7 @@
 package rapidFit.controller;
 
-import rapidFit.model.DataListener;
-import rapidFit.model.IDataModel;
+import rapidFit.model.dataModel.DataListener;
+import rapidFit.model.dataModel.IDataModel;
 
 public interface IDataTableController<T> extends ITableController, DataListener {
 	

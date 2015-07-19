@@ -2,7 +2,10 @@ package rapidFit;
 
 import java.awt.*;
 import java.beans.*;
+
 import javax.swing.*;
+
+import rapidFit.controller.exception.TagNameException;
 
 @SuppressWarnings("serial")
 public class TagNamePanel<T> extends JPanel implements PropertyChangeListener{

@@ -1,7 +1,7 @@
 package rapidFit.controller.command;
 
 import rapidFit.Cloner;
-import rapidFit.model.IDataModel;
+import rapidFit.model.dataModel.IDataModel;
 
 public class DataModelCopyCommand<T> implements UndoableCommand {
 

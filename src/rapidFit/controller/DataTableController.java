@@ -17,11 +17,11 @@ import rapidFit.controller.command.DataModelAddCommand;
 import rapidFit.controller.command.DataModelEditFieldCommand;
 import rapidFit.controller.command.DataModelCopyCommand;
 import rapidFit.controller.command.DataModelRemoveCommand;
-import rapidFit.model.AddElementEvent;
-import rapidFit.model.DataEvent;
-import rapidFit.model.EditElementEvent;
-import rapidFit.model.IDataModel;
-import rapidFit.model.RemoveElementEvent;
+import rapidFit.model.dataModel.AddElementEvent;
+import rapidFit.model.dataModel.DataEvent;
+import rapidFit.model.dataModel.EditElementEvent;
+import rapidFit.model.dataModel.IDataModel;
+import rapidFit.model.dataModel.RemoveElementEvent;
 import rapidFit.view.bldblocks.DataTable;
 import rapidFit.view.bldblocks.DataTablePanel;
 import rapidFit.view.bldblocks.DataTableViewModel;
@@ -55,7 +55,7 @@ public class DataTableController<T> implements IDataTableController<T> {
 		
 		//create the view
 		this.tableViewModel = new DataTableViewModel(this);
-		this.table = new DataTable(this, tableViewModel);
+		this.table = new DataTable(mainController, this, tableViewModel);
 		this.tablePanel = new DataTablePanel(this, table,
 				btnAddName, btnRemoveName, btnCopyName);
 		
@@ -234,18 +234,18 @@ public class DataTableController<T> implements IDataTableController<T> {
 						evt.getIndex(), fieldNames.indexOf(evt.getField()));
 				setSelectedCell(
 						evt.getIndex(), fieldNames.indexOf(evt.getField()));
-				activateController();
+				mainController.setActiveController(this);
 				
 			} else if (e instanceof AddElementEvent){
 				AddElementEvent evt = (AddElementEvent) e;
 				tableViewModel.fireTableDataChanged();
 				setSelectedCell(evt.getIndex(), 0);
-				activateController();
+				mainController.setActiveController(this);
 				
 			} else if (e instanceof RemoveElementEvent){
 				tableViewModel.fireTableDataChanged();
 				clearSelection();
-				activateController();
+				mainController.setActiveController(this);
 			}
 		}
 	}
@@ -316,11 +316,6 @@ public class DataTableController<T> implements IDataTableController<T> {
 		}
 	}
 	
-	@Override
-	public void makeViewFocusable(boolean focusable){
-		table.setFocusable(focusable);
-	}
-	
 	@Override 
 	public void cancelCellEditing() {
 		if (table.getCellEditor() != null){
@@ -360,6 +355,13 @@ public class DataTableController<T> implements IDataTableController<T> {
 	
 	@Override
 	public void activateController() {
-		mainController.setActiveController(this);
+		table.setFocusable(true);
+	}
+
+	@Override
+	public void deactivateController() {
+		stopCellEditing();
+		clearSelection();
+		table.setFocusable(false);
 	}
 }

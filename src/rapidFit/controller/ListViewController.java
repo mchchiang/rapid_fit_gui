@@ -11,10 +11,10 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import rapidFit.model.ClassModelAdapter;
-import rapidFit.model.IClassModel;
-import rapidFit.model.ITagNameDataModel;
-import rapidFit.model.NullClassModel;
+import rapidFit.model.dataModel.ClassModelAdapter;
+import rapidFit.model.dataModel.IClassModel;
+import rapidFit.model.dataModel.ITagNameDataModel;
+import rapidFit.model.dataModel.NullClassModel;
 
 public class ListViewController<T> extends IListViewController<T> {
 	
@@ -118,5 +118,11 @@ public class ListViewController<T> extends IListViewController<T> {
 	@Override
 	public void activateController() {
 		mainController.setActiveController(this);
+	}
+
+	@Override
+	public void deactivateController() {
+		// TODO Auto-generated method stub
+		
 	}
 }

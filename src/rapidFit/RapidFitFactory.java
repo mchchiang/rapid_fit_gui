@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import rapidFit.controller.exception.XMLIOException;
 import rapidFit.data.*;
 
 //for creating the rapid fit database model

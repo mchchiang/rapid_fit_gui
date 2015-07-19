@@ -18,13 +18,13 @@ import rapidFit.controller.ListViewController;
 import rapidFit.controller.TagNamePanelController;
 import rapidFit.controller.UIController;
 import rapidFit.data.*;
-import rapidFit.model.IClassModel;
-import rapidFit.model.IDataModel;
-import rapidFit.model.ClassModel;
-import rapidFit.model.ITagNameDataModel;
-import rapidFit.model.DataModel;
-import rapidFit.model.NullClassModel;
-import rapidFit.model.TagNameDataModel;
+import rapidFit.model.dataModel.ClassModel;
+import rapidFit.model.dataModel.DataModel;
+import rapidFit.model.dataModel.IClassModel;
+import rapidFit.model.dataModel.IDataModel;
+import rapidFit.model.dataModel.ITagNameDataModel;
+import rapidFit.model.dataModel.NullClassModel;
+import rapidFit.model.dataModel.TagNameDataModel;
 
 @SuppressWarnings("serial")
 public class RapidFitEditor extends JFrame {

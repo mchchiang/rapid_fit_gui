@@ -8,6 +8,7 @@ import java.util.*;
 //import javax.xml.*;
 import javax.xml.bind.*;
 
+import rapidFit.controller.exception.XMLIOException;
 import rapidFit.data.*;
 
 public class XMLIO {

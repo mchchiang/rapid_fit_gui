@@ -5,9 +5,9 @@ import java.util.List;
 import javax.swing.JComponent;
 
 import rapidFit.controller.command.DataModelEditFieldCommand;
-import rapidFit.model.DataEvent;
-import rapidFit.model.EditElementEvent;
-import rapidFit.model.IClassModel;
+import rapidFit.model.dataModel.DataEvent;
+import rapidFit.model.dataModel.EditElementEvent;
+import rapidFit.model.dataModel.IClassModel;
 import rapidFit.view.bldblocks.AttributePanel;
 import rapidFit.view.bldblocks.AttributeTable;
 import rapidFit.view.bldblocks.AttributeTableViewModel;
@@ -35,7 +35,7 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 
 		//create view
 		tableViewModel = new AttributeTableViewModel(this);
-		table = new AttributeTable(this, tableViewModel);
+		table = new AttributeTable(mainController, this, tableViewModel);
 		tablePanel = new AttributePanel(table, className);
 	}
 
@@ -192,11 +192,6 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 	}
 	
 	@Override
-	public void makeViewFocusable(boolean focusable){
-		table.setFocusable(focusable);
-	}
-
-	@Override
 	public Controller getParentController() {
 		return parentController;
 	}
@@ -208,6 +203,13 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 
 	@Override
 	public void activateController() {
-		mainController.setActiveController(this);
+		table.setFocusable(true);
+	}
+
+	@Override
+	public void deactivateController() {
+		stopCellEditing();
+		clearSelection();
+		table.setFocusable(false);
 	}
 }

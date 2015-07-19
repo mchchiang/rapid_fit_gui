@@ -7,16 +7,31 @@ import javax.swing.JComponent;
 
 import rapidFit.controller.command.Command;
 import rapidFit.controller.command.UndoableCommand;
+import rapidFit.data.PDFType;
+import rapidFit.model.treeModel.PDFManager;
+import rapidFit.view.PDFBuilderFrame;
 
-public class PDFBuilder implements UIController {
+public class PDFBuilder implements UIController, ListPanelListener, TreePanelListener {
 	
 	private Stack<UndoableCommand> commandHistory;
 	private Stack<UndoableCommand> redoCommands;
 	
 	private UIController mainController;
+	private IListPanelController<PDFType> pdfListController;
+	private ITreePanelController pdfTreeController;
+	private Controller activeController;
 	
-	public PDFBuilder(UIController mainController) {
-		
+	private PDFBuilderFrame mainFrame;
+	
+	private boolean listenToPDFTree;
+	private boolean listenToPDFList;
+	
+	public PDFBuilder(UIController mainController, PDFManager rootPDFManager) {
+		this.mainController = mainController;
+		pdfListController.addListPanelListener(this);
+		pdfTreeController.addTreePanelListener(this);
+		listenToPDFTree = true;
+		listenToPDFList = false;
 	}
 
 	@Override
@@ -32,7 +47,6 @@ public class PDFBuilder implements UIController {
 
 	@Override
 	public JComponent getView() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -62,14 +76,28 @@ public class PDFBuilder implements UIController {
 
 	@Override
 	public Controller getActiveController() {
-		// TODO Auto-generated method stub
-		return null;
+		return activeController;
 	}
 	
 	@Override
 	public void activateController() {}
 	
+
 	@Override
-	public void makeViewFocusable(boolean focusable) {}
+	public void deactivateController() {}
+
+	@Override
+	public void changeSelectedPath(Object[] path) {
+		if (listenToPDFTree){
+			
+		}
+	}
+
+	@Override
+	public void changedSelectedElement(int index) {
+		if (listenToPDFList){
+			
+		}
+	}
 
 }

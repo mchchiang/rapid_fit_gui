@@ -3,14 +3,13 @@ package rapidFit.controller;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import rapidFit.model.DataEvent;
-import rapidFit.model.DataListener;
-import rapidFit.model.EditTagNameEvent;
-import rapidFit.model.ITagNameDataModel;
-import rapidFit.model.ListListener;
+import rapidFit.model.dataModel.DataEvent;
+import rapidFit.model.dataModel.DataListener;
+import rapidFit.model.dataModel.EditTagNameEvent;
+import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.view.bldblocks.ListViewPanel;
 
-public abstract class IListViewController<T> implements Controller, ListListener, DataListener {
+public abstract class IListViewController<T> implements Controller, ListPanelListener, DataListener {
 	
 	protected IListPanelController<T> listPanelController = null;
 	private ITagNameDataModel<T> model;
@@ -36,10 +35,10 @@ public abstract class IListViewController<T> implements Controller, ListListener
 	public void setListPanelController(IListPanelController<T> listPanelController) {
 		if (listPanelController != null) {
 			if (this.listPanelController != null){
-				this.listPanelController.removeListListener(this);
+				this.listPanelController.removeListPanelListener(this);
 			}
 			this.listPanelController = listPanelController;
-			this.listPanelController.addListListener(this);
+			this.listPanelController.addListPanelListener(this);
 		}
 	}
 	
@@ -83,8 +82,4 @@ public abstract class IListViewController<T> implements Controller, ListListener
 		return mainPanel;
 	}
 	
-	@Override
-	public void makeViewFocusable(boolean focusable) {
-		mainPanel.setFocusable(focusable);
-	}
 }

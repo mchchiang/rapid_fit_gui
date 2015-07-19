@@ -6,14 +6,14 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import rapidFit.controller.ITreeController;
+import rapidFit.controller.ITreePanelController;
 
 public class DataTreeViewModel implements TreeModel {
 	
-	private ITreeController controller;
+	private ITreePanelController controller;
 	private EventListenerList listenerList = new EventListenerList();
 	
-	public DataTreeViewModel (ITreeController controller){
+	public DataTreeViewModel (ITreePanelController controller){
 		this.controller = controller;
 	}
 
@@ -68,7 +68,7 @@ public class DataTreeViewModel implements TreeModel {
      * @param childIndices the indices of the affected elements
      * @param children the affected elements
      */
-    protected void fireTreeStructureChanged(Object source, Object[] path,
+    public void fireTreeStructureChanged(Object source, Object[] path,
                                         int[] childIndices,
                                         Object[] children) {
         // Guaranteed to return a non-null array

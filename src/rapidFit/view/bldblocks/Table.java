@@ -9,17 +9,20 @@ import javax.swing.table.*;
 import javax.swing.text.*;
 
 import rapidFit.controller.ITableController;
+import rapidFit.controller.UIController;
 
 @SuppressWarnings("serial")
 public class Table extends JTable{
+	private UIController mainController;
 	private ITableController tableController;
 	private boolean isSelectAllForMouseEvent = false;
 	private boolean isSelectAllForActionEvent = false;
 	private boolean isSelectAllForKeyEvent = false;
 
 	//Constructor
-	public Table(ITableController controller, TableModel dm){
+	public Table(UIController mainController, ITableController controller, TableModel dm){
         super(dm, null, null);
+        this.mainController = mainController;
         this.tableController = controller;
         
         //set default properties
@@ -158,7 +161,7 @@ public class Table extends JTable{
  	public void changeSelection(int rowIndex, int columnIndex,
 			boolean toggle, boolean extend) {
 		super.changeSelection(rowIndex, columnIndex, toggle, extend);
-		tableController.activateController();
+		mainController.setActiveController(tableController);
 		this.requestFocusInWindow();
 	}
  	

@@ -1,7 +1,7 @@
 package rapidFit.controller.command;
 
-import rapidFit.TagNameException;
-import rapidFit.model.ITagNameDataModel;
+import rapidFit.controller.exception.TagNameException;
+import rapidFit.model.dataModel.ITagNameDataModel;
 
 public class SetTagNameCommand implements UndoableCommand {
 

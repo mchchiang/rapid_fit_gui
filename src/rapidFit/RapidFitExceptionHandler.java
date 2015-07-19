@@ -1,7 +1,11 @@
 package rapidFit;
 
 import java.io.*;
+
 import javax.swing.*;
+
+import rapidFit.controller.exception.TagNameException;
+import rapidFit.controller.exception.XMLIOException;
 
 public class RapidFitExceptionHandler {
 	

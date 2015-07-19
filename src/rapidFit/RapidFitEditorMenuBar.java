@@ -3,6 +3,8 @@ package rapidFit;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 
+import rapidFit.controller.exception.XMLIOException;
+
 import java.awt.Toolkit;
 import java.awt.event.*;
 import java.io.File;
@@ -118,10 +120,10 @@ public class RapidFitEditorMenuBar extends JMenuBar implements ActionListener {
 	
 	public void actionPerformed(ActionEvent e) {
 		//stop the active table editing before any menu item action is invoked
-		if (RapidFitMainControl.getInstance().getCurrentEditingTable() != null){
+		/*if (RapidFitMainControl.getInstance().getCurrentEditingTable() != null){
 			RapidFitMainControl.getInstance().
 			getCurrentEditingTable().getCellEditor().stopCellEditing();
-		}
+		}*/
 		
 		if (e.getSource() == mnuImport) {
 			//check if there is unsaved edits

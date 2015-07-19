@@ -2,6 +2,8 @@ package rapidFit;
 
 import java.util.*;
 
+import rapidFit.controller.exception.TagNameException;
+
 /*
  * a class to handle tag names for a data list in which 
  * entries do not have a unique identifier (e.g. tag name or ID)
