@@ -14,6 +14,8 @@ public class CommandHandler {
 	
 	public CommandHandler(CommandListener listener){
 		this.listener = listener;
+		commandHistory = new Stack<UndoableCommand>();
+		redoCommands = new Stack<UndoableCommand>();
 	}
 	
 	public void setCommand(Command cmd) {
@@ -52,13 +54,11 @@ public class CommandHandler {
 	}
 
 	public synchronized void setActiveController(Controller controller) {
-		if (activeController != controller) {
-			if (activeController != null){
-				activeController.deactivateController();
-			}
-			controller.activateController();
-			activeController = controller;
+		if (activeController != null){
+			activeController.deactivateController();
 		}
+		controller.activateController();
+		activeController = controller;
 	}
 
 	public Controller getActiveController() {

@@ -46,21 +46,16 @@ import rapidFit.view.RapidFitMainFrame;
  *
  */
 
-public class RapidFitEditor implements UIController {
+public class RapidFitEditor implements UIController, CommandListener{
 	
 	private RapidFitMainFrame mainFrame;
 	
-	private Stack<UndoableCommand> commandHistory;
-	private Stack<UndoableCommand> redoCommands;
-	
-	private Controller activeController;
+	private CommandHandler commandHandler;
 	
 	private HashMap<Controller, JComponent> controlViewPair;
 	
 	public RapidFitEditor(){
-		
-		commandHistory = new Stack<UndoableCommand>();
-		redoCommands = new Stack<UndoableCommand>();
+		commandHandler = new CommandHandler(this);
 		
 		mainFrame = new RapidFitMainFrame();
 		//showStartUpScene();
@@ -245,71 +240,50 @@ public class RapidFitEditor implements UIController {
 		mainFrame.createLoadedFileScene(componentTitlePair, fileName);
 	}
 	
-	public synchronized void undo(){
-		activeController.deactivateController();
-		if (hasUndoableCommand()){
-			UndoableCommand uc = commandHistory.pop();
-			uc.undo();
-			redoCommands.push(uc);
-			RapidFitEditorMenuBar.getInstance().getRedoButton().setEnabled(true);
-			if (hasUndoableCommand()){
-				RapidFitEditorMenuBar.getInstance().getUndoButton().setEnabled(true);
-			} else {
-				RapidFitEditorMenuBar.getInstance().getUndoButton().setEnabled(false);
-			}
-		}
+	public void undo(){
+		commandHandler.undo();
 	}
 	
-	public synchronized void redo(){
-		activeController.deactivateController();
-		if (hasRedoableCommand()){
-			UndoableCommand uc = redoCommands.pop();
-			uc.execute();
-			commandHistory.push(uc);
-			
+	public void redo(){
+		commandHandler.redo();
+	}
+	
+	@Override
+	public void undoOccurred(Command cmd) {
+		RapidFitEditorMenuBar.getInstance().getRedoButton().setEnabled(true);
+		if (commandHandler.hasUndoableCommand()){
 			RapidFitEditorMenuBar.getInstance().getUndoButton().setEnabled(true);
-			if (hasRedoableCommand()){
-				RapidFitEditorMenuBar.getInstance().getRedoButton().setEnabled(true);
-			} else {
-				RapidFitEditorMenuBar.getInstance().getRedoButton().setEnabled(false);
-			}
+		} else {
+			RapidFitEditorMenuBar.getInstance().getUndoButton().setEnabled(false);
 		}
 	}
-	
-	public boolean hasUndoableCommand(){
-		return !commandHistory.empty();
+
+	@Override
+	public void redoOccurred(Command cmd) {
+		RapidFitEditorMenuBar.getInstance().getUndoButton().setEnabled(true);
+		if (commandHandler.hasRedoableCommand()){
+			RapidFitEditorMenuBar.getInstance().getRedoButton().setEnabled(true);
+		} else {
+			RapidFitEditorMenuBar.getInstance().getRedoButton().setEnabled(false);
+		}
 	}
-	
-	public boolean hasRedoableCommand(){
-		return !redoCommands.empty();
-	}
-	
-	public void clearRedoableCommand(){
-		redoCommands.clear();
-		RapidFitEditorMenuBar.getInstance().getRedoButton().setEnabled(false);
+
+	@Override
+	public void commandExecuted(Command cmd) {
+		if (commandHandler.hasUndoableCommand()){
+			RapidFitEditorMenuBar.getInstance().getUndoButton().setEnabled(true);
+		} 
 	}
 
 	@Override
 	public void setCommand(Command cmd) {
-		if (cmd.execute()){
-			System.out.println(cmd);
-			if (cmd instanceof UndoableCommand){
-				commandHistory.push((UndoableCommand) cmd);
-			}
-			clearRedoableCommand();
-			RapidFitEditorMenuBar.getInstance().getUndoButton().setEnabled(true);
-		}
+		commandHandler.setCommand(cmd);
 	}
 
 	@Override
-	public synchronized void setActiveController(Controller controller) {
-		if (activeController != controller) {
-			if (activeController != null){
-				activeController.deactivateController();
-			}
-			controller.activateController();
-			activeController = controller;
-			
+	public void setActiveController(Controller controller) {
+		if (commandHandler.getActiveController() != controller) {
+			commandHandler.setActiveController(controller);
 			Controller c = findParentController(controller);
 			JComponent cmp = controlViewPair.get(c);
 			if (cmp != null){
@@ -334,12 +308,11 @@ public class RapidFitEditor implements UIController {
 
 	@Override
 	public Controller getActiveController() {
-		return activeController;
+		return commandHandler.getActiveController();
 	}
 
 	@Override
 	public Controller getParentController() {return null;}
-
 
 	@Override
 	public List<Controller> getChildControllers() {
@@ -356,7 +329,7 @@ public class RapidFitEditor implements UIController {
 	@Override
 	public void activateController() {}
 	
-
 	@Override
 	public void deactivateController() {}
+
 }

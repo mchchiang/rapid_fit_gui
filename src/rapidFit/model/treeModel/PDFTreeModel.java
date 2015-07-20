@@ -2,6 +2,7 @@ package rapidFit.model.treeModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import rapidFit.data.PDFExpressionType;
@@ -11,22 +12,11 @@ import rapidFit.data.SumPDFType;
 import rapidFit.data.ToFitType;
 
 public class PDFTreeModel implements ITreeModel {
-	
+
 	private ArrayList<TreeListener> listeners;
 	private PDFNode displayRoot;
-	//private HashMap<Object, String> tagNameMap;
-	//private HashMap<String, Integer> tagNameCounter;
-	
-	/*
-	 * count the number of times a pdf (whether it is an actual pdf or
-	 * a composite pdf) has occurred in the tree structure. This is
-	 * used to determine if the pdf tag name should be removed when
-	 * there is a change in the expression structure
-	 */
-	//private HashMap<Object, Integer> pdfOccurrences;
-	private HashMap<PDFType, List<PDFNode>> pdfNodeMap;
-	//private ArrayList<PDFNode> pdfLeafNodes;
-	
+	private LinkedHashMap<PDFType, List<PDFNode>> pdfNodeMap;
+
 	public PDFTreeModel(PDFExpressionType root){
 		if (root.getNormalisedSumPDF() != null){
 			displayRoot = new PDFNode(null, root.getNormalisedSumPDF());
@@ -35,14 +25,14 @@ public class PDFTreeModel implements ITreeModel {
 		} else if (root.getPDF() != null){
 			displayRoot = new PDFNode(null, root.getPDF());
 		}
-		
+
 		if (displayRoot != null){
 			listeners = new ArrayList<TreeListener>();
-			pdfNodeMap = new HashMap<PDFType, List<PDFNode>>();
+			pdfNodeMap = new LinkedHashMap<PDFType, List<PDFNode>>();
 			initPDFTagName(new HashMap<String, Integer>(), displayRoot);
 		}
 	}
-	
+
 	public PDFTreeModel(ToFitType root){
 		if (root.getNormalisedSumPDF() != null){
 			displayRoot = new PDFNode(null, root.getNormalisedSumPDF());
@@ -51,14 +41,14 @@ public class PDFTreeModel implements ITreeModel {
 		} else if (root.getPDF() != null){
 			displayRoot = new PDFNode(null, root.getPDF());
 		}
-		
+
 		if (displayRoot != null){
 			listeners = new ArrayList<TreeListener>();
-			pdfNodeMap = new HashMap<PDFType, List<PDFNode>>();
+			pdfNodeMap = new LinkedHashMap<PDFType, List<PDFNode>>();
 			initPDFTagName(new HashMap<String, Integer>(), displayRoot);
 		}
 	}
-	
+
 	/*
 	 * a method to initialise the tag names for all pdfs. It ensures 
 	 * that all pdfs (except sums and products) have unique tag names.
@@ -120,12 +110,12 @@ public class PDFTreeModel implements ITreeModel {
 		if (((PDFNode) parent).isLeaf()) return 0;
 		return 2;
 	}
-	
+
 	@Override
 	public boolean isLeaf(Object node){
 		return ((PDFNode) node).isLeaf();
 	}
-	
+
 	@Override
 	public int getIndexOfChild(Object parent, Object child){
 		return ((PDFNode) parent).getIndexOfChild((PDFNode) child);
@@ -139,21 +129,27 @@ public class PDFTreeModel implements ITreeModel {
 
 	@Override
 	public void replaceNode(Object parent, int index, Object node) {
-		PDFNode oldNode = displayRoot;
+		PDFNode parentNode = (PDFNode) parent;
+		PDFNode oldNode = (PDFNode) parentNode.getChild(index);
 		PDFNode newNode = (PDFNode) node;
+		
+		oldNode.setParent(null);
 		if (parent == null){
+			newNode.setParent(null);
 			displayRoot = newNode;
 			updateLeafNodes(oldNode, newNode);
 			notifyTreeListener(new SetTreeNodeEvent(
 					this, new PDFNode [] {newNode}, oldNode, newNode));
 		} else {
-			((PDFNode) parent).setChild(index, newNode);
+			newNode.setParent(parentNode); 
+			System.out.println(newNode.getTagName());
+			parentNode.setChild(index, newNode);
 			updateLeafNodes(oldNode, newNode);
 			notifyTreeListener(new SetTreeNodeEvent(
 					this, getPathToRoot(newNode), oldNode, newNode));
 		}
 	}
-	
+
 	/*
 	 * used for updating the tag names of the nodes
 	 * when the tree structure has changed
@@ -162,7 +158,7 @@ public class PDFTreeModel implements ITreeModel {
 		removeLeafNodes(oldNode);
 		addLeafNodes(newNode);
 	}
-	
+
 	/*
 	 * start removing tag names by going from the root
 	 */
@@ -178,7 +174,7 @@ public class PDFTreeModel implements ITreeModel {
 			}
 		}
 	}
-	
+
 	private void addLeafNodes(PDFNode node){
 		if (!node.isLeaf()){
 			addLeafNodes((PDFNode) node.getChild(0));
@@ -195,18 +191,19 @@ public class PDFTreeModel implements ITreeModel {
 	public PDFNode [] getPathToRoot(PDFNode node){
 		ArrayList<PDFNode> path = new ArrayList<PDFNode>();
 		buildPath(path, node);
-		return path.toArray(new PDFNode [path.size()]);
+		PDFNode [] returnpath = path.toArray(new PDFNode [path.size()]);
+		return returnpath;
 	}
-	
+
 	private void buildPath(ArrayList<PDFNode> path, PDFNode node){
-		if (node.getParent() != null){
+		if (node != displayRoot){
 			buildPath(path, (PDFNode) node.getParent());
 			path.add(node);
 		} else {
 			path.add(node);
 		}
 	}
-	
+
 	@Override
 	public void setTagName(Object entry, String tagName) {
 		((PDFNode) entry).setTagName(tagName);		
@@ -216,13 +213,13 @@ public class PDFTreeModel implements ITreeModel {
 	public String getTagName(Object entry) {
 		return ((PDFNode) entry).getTagName();
 	}
-	
+
 	@Override
 	public Object getActualObject(Object node){
 		return ((PDFNode) node).getActualObject();
 	}
-	
-	public HashMap<PDFType, List<PDFNode>> getPDFNodeMap() {
+
+	public LinkedHashMap<PDFType, List<PDFNode>> getPDFNodeMap() {
 		return pdfNodeMap;
 	}
 

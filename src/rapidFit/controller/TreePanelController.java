@@ -191,4 +191,5 @@ public class TreePanelController implements ITreePanelController, TreeListener {
 			setSelectedPath(evt.getPath());
 		}
 	}
+
 }

@@ -58,6 +58,11 @@ public class PDFNode implements TreeNode {
 	}
 	
 	@Override
+	public void setParent(TreeNode newParent){
+		parent = newParent;
+	}
+	
+	@Override
 	public TreeNode getParent() {
 		return parent;
 	}

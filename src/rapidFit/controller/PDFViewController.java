@@ -60,7 +60,7 @@ public class PDFViewController implements Controller, TreePanelListener {
 
 		//create view
 		inspector = new PDFInspector();
-		panel = new PDFViewPanel(pdfTreeController, inspector);
+		panel = new PDFViewPanel(this, pdfTreeController, inspector);
 	}
 
 	@Override
@@ -113,4 +113,7 @@ public class PDFViewController implements Controller, TreePanelListener {
 	@Override
 	public void deactivateController() {}
 
+	public void editPDF(){
+		new PDFBuilderController(mainController, pdfManager);
+	}
 }

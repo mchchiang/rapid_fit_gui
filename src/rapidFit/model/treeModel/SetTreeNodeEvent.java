@@ -9,6 +9,7 @@ public class SetTreeNodeEvent implements TreeEvent {
 	
 	public SetTreeNodeEvent(ITreeModel model, Object [] path, Object oldNode, Object newNode){
 		this.model = model;
+		this.path = path;
 		this.oldNode = oldNode;
 		this.newNode = newNode;
 	}

@@ -1,9 +1,10 @@
 package rapidFit.model.treeModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
+import rapidFit.Cloner;
 import rapidFit.controller.exception.TagNameException;
 import rapidFit.data.PDFExpressionType;
 import rapidFit.data.PDFType;
@@ -17,11 +18,13 @@ import rapidFit.model.dataModel.TagNameDataModel;
 
 public class PDFManager implements DataListener {
 	
+	private Object pdfRoot;
 	private ITagNameDataModel<PDFType> pdfDataModel;
 	private PDFTreeModel pdfTree;
 	private boolean hasDataModel;
 	
 	public PDFManager(ToFitType root, boolean needDataModel){
+		pdfRoot = root;
 		pdfTree = new PDFTreeModel(root);
 		hasDataModel = needDataModel;
 		if (needDataModel){
@@ -30,6 +33,7 @@ public class PDFManager implements DataListener {
 	}
 	
 	public PDFManager(PDFExpressionType root, boolean needDataModel){
+		pdfRoot = root;
 		pdfTree = new PDFTreeModel(root);
 		hasDataModel = needDataModel;
 		if (needDataModel){
@@ -57,19 +61,13 @@ public class PDFManager implements DataListener {
 		}
 	}
 	
-	public PDFManager(PDFManager oldManager,
-			ToFitType copiedRoot, boolean needDataModel){
-		pdfTree = new PDFTreeModel(copiedRoot);
-		copyTagNamesFromOldModel(oldManager);
-		hasDataModel = needDataModel;
-		if (needDataModel){
-			initPDFDataModel();	
+	public PDFManager(PDFManager oldManager, boolean needDataModel){
+		pdfRoot = Cloner.deepClone(oldManager.pdfRoot);
+		if (pdfRoot instanceof ToFitType){
+			pdfTree = new PDFTreeModel((ToFitType) pdfRoot);
+		} else if (pdfRoot instanceof PDFExpressionType){
+			pdfTree = new PDFTreeModel((PDFExpressionType) pdfRoot);
 		}
-	}
-	
-	public PDFManager(PDFManager oldManager, 
-			PDFExpressionType copiedRoot, boolean needDataModel){
-		pdfTree = new PDFTreeModel(copiedRoot);
 		copyTagNamesFromOldModel(oldManager);
 		hasDataModel = needDataModel;
 		if (needDataModel){
@@ -79,7 +77,7 @@ public class PDFManager implements DataListener {
 	
 	private void copyTagNamesFromOldModel(PDFManager oldManager){
 		ITagNameDataModel<PDFType> oldPDFDataModel = oldManager.pdfDataModel;
-		HashMap<PDFType, List<PDFNode>> pdfNodeMap = pdfTree.getPDFNodeMap();
+		LinkedHashMap<PDFType, List<PDFNode>> pdfNodeMap = pdfTree.getPDFNodeMap();
 		for (int i = 0; i < oldPDFDataModel.size(); i++){
 			PDFType pdf = oldPDFDataModel.get(i);
 			if (pdfNodeMap.containsKey(pdf)){

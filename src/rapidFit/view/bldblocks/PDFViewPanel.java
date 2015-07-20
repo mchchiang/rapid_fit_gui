@@ -11,8 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
-import rapidFit.PDFInspectorPanel;
 import rapidFit.controller.ITreePanelController;
+import rapidFit.controller.PDFViewController;
 import rapidFit.view.PDFInspector;
 
 @SuppressWarnings("serial")
@@ -22,12 +22,16 @@ public class PDFViewPanel extends JPanel {
 	private JPanel mainPanel;
 	private JPanel controlPanel;
 	private JButton btnEditPDF;
+	private PDFViewController mainController;
 	
-	public PDFViewPanel(ITreePanelController pdfTreeController, PDFInspector inspector){
+	public PDFViewPanel(PDFViewController pdfViewController, 
+			ITreePanelController pdfTreeController, PDFInspector inspector){
 		
 		pdfTreePanel = new JPanel();
 		pdfTreePanel.setLayout(new BorderLayout());
 		pdfTreePanel.add(pdfTreeController.getView(), BorderLayout.CENTER);
+		
+		this.mainController = pdfViewController;
 		
 		Border border = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 		Border title = BorderFactory.createTitledBorder(
@@ -50,7 +54,7 @@ public class PDFViewPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-								
+				mainController.editPDF();
 			}
 			
 		});

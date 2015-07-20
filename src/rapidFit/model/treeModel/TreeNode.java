@@ -3,6 +3,7 @@ package rapidFit.model.treeModel;
 import java.util.List;
 
 public interface TreeNode {
+	public void setParent(TreeNode node);
 	public TreeNode getParent();
 	public List<TreeNode> children();
 	public boolean isLeaf();
