@@ -39,22 +39,6 @@ public class PDFSumDialog extends JDialog implements ActionListener {
 
 	private JButton btnConfirm;
 	
-	/*
-	 * customise the combo box cell renderer such that it displays
-	 * the name of the physics parameter
-	 */
-	private class PDFComboBoxRenderer extends JLabel implements 
-	ListCellRenderer<PDFType> {
-
-		@Override
-		public Component getListCellRendererComponent(
-				JList<? extends PDFType> list,
-				PDFType value, int index, boolean isSelected,
-				boolean cellHasFocus) {
-			this.setName(value.getName());			
-			return this;
-		}
-	}
 
 	public PDFSumDialog(PDFSumDialogController controller){
 		//set windows properties
@@ -65,7 +49,7 @@ public class PDFSumDialog extends JDialog implements ActionListener {
 
 		this.mainController = controller;
 
-		cbLeftOperand.setRenderer(new PDFComboBoxRenderer());
+		cbLeftOperand.setRenderer(new PDFComboBoxRenderer(null));
 		cbLeftOperand.addActionListener(new ActionListener(){
 
 			@Override
@@ -76,7 +60,7 @@ public class PDFSumDialog extends JDialog implements ActionListener {
 
 		});
 		
-		cbRightOperand.setRenderer(new PDFComboBoxRenderer());
+		cbRightOperand.setRenderer(new PDFComboBoxRenderer(null));
 		cbRightOperand.addActionListener(new ActionListener(){
 
 			@Override

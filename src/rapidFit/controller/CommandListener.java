@@ -3,7 +3,7 @@ package rapidFit.controller;
 import rapidFit.controller.command.Command;
 
 public interface CommandListener {
-	public void undoOccurred(Command cmd);
-	public void redoOccurred(Command cmd);
-	public void commandExecuted(Command cmd);
+	void undoOccurred(Command cmd);
+	void redoOccurred(Command cmd);
+	void commandExecuted(Command cmd);
 }

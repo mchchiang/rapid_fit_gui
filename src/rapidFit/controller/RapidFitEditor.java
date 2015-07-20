@@ -1,12 +1,12 @@
 package rapidFit.controller;
 
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Stack;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -16,7 +16,6 @@ import javax.swing.border.CompoundBorder;
 
 import rapidFit.RapidFitEditorMenuBar;
 import rapidFit.controller.command.Command;
-import rapidFit.controller.command.UndoableCommand;
 import rapidFit.data.ComponentProjectionType;
 import rapidFit.data.ExternalConstMatrixType;
 import rapidFit.data.ExternalConstraintType;
@@ -35,7 +34,6 @@ import rapidFit.model.dataModel.IClassModel;
 import rapidFit.model.dataModel.IDataModel;
 import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.model.dataModel.TagNameDataModel;
-import rapidFit.model.treeModel.PDFManager;
 import rapidFit.view.RapidFitMainFrame;
 
 /**
@@ -46,7 +44,7 @@ import rapidFit.view.RapidFitMainFrame;
  *
  */
 
-public class RapidFitEditor implements UIController, CommandListener{
+public class RapidFitEditor extends UIController implements CommandListener{
 	
 	private RapidFitMainFrame mainFrame;
 	
@@ -229,8 +227,6 @@ public class RapidFitEditor implements UIController, CommandListener{
 						new DataModel<TwoDScanType>(TwoDScanType.class,
 								root.getOutput().getTwoDScan(), null), "2D_Scan");
 		
-		/*ITreePanelController treePanelController = new TreePanelController(
-				this, this, pdfManager.getTreeModel());*/
 		PDFViewController commonPDFController = new PDFViewController(
 				this, this, root.getCommonPDF());
 		
@@ -331,5 +327,10 @@ public class RapidFitEditor implements UIController, CommandListener{
 	
 	@Override
 	public void deactivateController() {}
+
+	@Override
+	public Window getWindow() {
+		return mainFrame;
+	}
 
 }

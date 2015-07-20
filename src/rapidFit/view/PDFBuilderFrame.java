@@ -1,5 +1,6 @@
 package rapidFit.view;
 
+import java.awt.Frame;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -18,6 +19,7 @@ import javax.swing.JRadioButton;
 import rapidFit.controller.IListPanelController;
 import rapidFit.controller.ITreePanelController;
 import rapidFit.controller.PDFBuilderController;
+import rapidFit.controller.UIController;
 import rapidFit.data.PDFType;
 
 @SuppressWarnings("serial")
@@ -50,17 +52,21 @@ public class PDFBuilderFrame extends JDialog {
 	private JComponent pdfListPanel;
 	
 	private JButton btnBuildPDF;
+	
+	private PDFBuilderMenuBar menuBar;
 
-	public PDFBuilderFrame(PDFBuilderController controller, 
+	public PDFBuilderFrame(UIController mainController, PDFBuilderController controller, 
 			IListPanelController<PDFType> listPanelController,
 			ITreePanelController treePanelController){
-
+		super((Frame)mainController.getWindow(), true);
 		//set window properties
 		setTitle("PDF Builder");
-		setModal(true);
 		setResizable(true);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setPreferredSize(new Dimension(width, height));
+		
+		menuBar = new PDFBuilderMenuBar(controller);
+		setJMenuBar(menuBar);
 		
 		this.mainController = controller;
 		this.pdfListController = listPanelController;
@@ -190,5 +196,9 @@ public class PDFBuilderFrame extends JDialog {
 		content.add(pdfListPanel, BorderLayout.WEST);
 		content.add(pdfViewerPanel, BorderLayout.CENTER);
 		content.add(btnBuildPDF, BorderLayout.SOUTH);
+	}
+	
+	public PDFBuilderMenuBar getMenuBar(){
+		return menuBar;
 	}
 }

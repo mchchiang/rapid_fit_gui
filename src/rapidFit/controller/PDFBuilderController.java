@@ -1,21 +1,21 @@
 package rapidFit.controller;
 
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JComponent;
 
 import rapidFit.controller.command.Command;
 import rapidFit.controller.command.ReplaceTreeNodeCommand;
 import rapidFit.data.PDFType;
+import rapidFit.data.ProdPDFType;
 import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.model.treeModel.ITreeModel;
 import rapidFit.model.treeModel.PDFManager;
 import rapidFit.model.treeModel.PDFNode;
 import rapidFit.view.PDFBuilderFrame;
 
-public class PDFBuilderController implements UIController, 
+public class PDFBuilderController extends UIController implements 
 CommandListener, ListPanelListener, TreePanelListener {
 	
 	private CommandHandler commandHandler;
@@ -56,7 +56,8 @@ CommandListener, ListPanelListener, TreePanelListener {
 		listenToPDFList = false;
 		
 		//create view
-		mainFrame = new PDFBuilderFrame(this, pdfListController, pdfTreeController);
+		mainFrame = new PDFBuilderFrame(mainController, 
+				this, pdfListController, pdfTreeController);
 		mainFrame.setVisible(true);
 	}
 
@@ -71,11 +72,6 @@ CommandListener, ListPanelListener, TreePanelListener {
 		childControllers.add(pdfListController);
 		childControllers.add(pdfTreeController);
 		return childControllers;
-	}
-
-	@Override
-	public JComponent getView() {
-		return null;
 	}
 
 	@Override
@@ -104,12 +100,6 @@ CommandListener, ListPanelListener, TreePanelListener {
 	public Controller getActiveController() {
 		return commandHandler.getActiveController();
 	}
-	
-	@Override
-	public void activateController() {}
-	
-	@Override
-	public void deactivateController() {}
 
 	@Override
 	public void changeSelectedPath(Object[] path) {
@@ -124,20 +114,33 @@ CommandListener, ListPanelListener, TreePanelListener {
 			
 		}
 	}
+	
+	private void updateMenuBar(){
+		if (commandHandler.hasUndoableCommand()){
+			mainFrame.getMenuBar().getUndoButton().setEnabled(true);
+		} else {
+			mainFrame.getMenuBar().getUndoButton().setEnabled(false);
+		}
+		if (commandHandler.hasRedoableCommand()){
+			mainFrame.getMenuBar().getRedoButton().setEnabled(true);
+		} else {
+			mainFrame.getMenuBar().getRedoButton().setEnabled(false);
+		}
+	}
 
 	@Override
 	public void undoOccurred(Command cmd) {
-		
+		updateMenuBar();
 	}
 
 	@Override
 	public void redoOccurred(Command cmd) {
-		
+		updateMenuBar();
 	}
 
 	@Override
 	public void commandExecuted(Command cmd) {
-		
+		updateMenuBar();
 	}
 	
 	public void quitPDFBuilder(){
@@ -153,7 +156,8 @@ CommandListener, ListPanelListener, TreePanelListener {
 		
 		if (selectedIndex != -1 && selectedPath != null && selectedPath.length > 0){
 			int pathLastIndex = selectedPath.length - 1;
-			PDFNode pdfNode = new PDFNode(null, pdfDataModel.get(selectedIndex));
+			PDFNode pdfNode = pdfManager.createPDFNode(
+					pdfDataModel.get(selectedIndex));
 			pdfNode.setTagName(pdfDataModel.getTagName(selectedIndex));
 			if (pathLastIndex == 0){
 				setCommand(new ReplaceTreeNodeCommand(
@@ -177,6 +181,30 @@ CommandListener, ListPanelListener, TreePanelListener {
 		
 	}
 	
+	public void editPDF(){
+		
+	}
+	
+	public void openPDFProductDialog(boolean buildNewProdPDF){
+		Object [] path = pdfTreeController.getSelectedPath();
+		if (buildNewProdPDF){
+			
+		} else if (!buildNewProdPDF && 
+				pdfTreeModel.getActualObject(path[path.length-1]) instanceof ProdPDFType){
+			
+		} else {
+			Toolkit.getDefaultToolkit().beep();
+		}
+	}
+	
+	public void openPDFSumDialog(){
+		
+	}
+	
+	public void openPDFEditor(){
+		
+	}
+	
 	public void listenToTreeSelection(){
 		listenToPDFTree = true;
 		listenToPDFList = false;
@@ -185,5 +213,10 @@ CommandListener, ListPanelListener, TreePanelListener {
 	public void listenToListSelection(){
 		listenToPDFTree = false;
 		listenToPDFList = true;
+	}
+
+	@Override
+	public Window getWindow() {
+		return mainFrame;
 	}
 }

@@ -1,6 +1,8 @@
 package rapidFit.view.bldblocks;
 
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
@@ -46,6 +48,15 @@ public class DataTree extends JTree {
 		});
 		expandAllRows();
 		
+		addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e){
+				int selRow = getRowForLocation(e.getX(), e.getY());
+				Object [] selPath = getPathForLocation(e.getX(), e.getY()).getPath();
+				if (selRow != -1 && e.getClickCount() == 2){
+					System.out.println("OK");
+				}
+			}
+		});
 	}
 	
 	public void expandAllRows(){
@@ -54,5 +65,4 @@ public class DataTree extends JTree {
 			expandRow(i);
 		}
 	}
-
 }

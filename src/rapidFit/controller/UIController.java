@@ -1,14 +1,26 @@
 package rapidFit.controller;
 
+import java.awt.Window;
+
+import javax.swing.JComponent;
+
 import rapidFit.controller.command.Command;
 
-public interface UIController extends Controller {
+public abstract class UIController implements Controller {
 	
-	public void setCommand(Command cmd);
-	public void undo();
-	public void redo();
+	public abstract void setCommand(Command cmd);
+	public abstract void undo();
+	public abstract void redo();
 	
-	public void setActiveController(Controller c);
-	public Controller getActiveController();
+	public abstract void setActiveController(Controller c);
+	public abstract Controller getActiveController();
 	
+	public void activateController() {}
+	public void deactivateController() {}
+	
+	public JComponent getView(){
+		return null;
+	}
+	
+	public abstract Window getWindow();
 }

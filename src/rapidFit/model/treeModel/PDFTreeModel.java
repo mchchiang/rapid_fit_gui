@@ -129,18 +129,19 @@ public class PDFTreeModel implements ITreeModel {
 
 	@Override
 	public void replaceNode(Object parent, int index, Object node) {
-		PDFNode parentNode = (PDFNode) parent;
-		PDFNode oldNode = (PDFNode) parentNode.getChild(index);
 		PDFNode newNode = (PDFNode) node;
-		
-		oldNode.setParent(null);
+
 		if (parent == null){
+			PDFNode oldNode = displayRoot;
 			newNode.setParent(null);
 			displayRoot = newNode;
 			updateLeafNodes(oldNode, newNode);
 			notifyTreeListener(new SetTreeNodeEvent(
 					this, new PDFNode [] {newNode}, oldNode, newNode));
 		} else {
+			PDFNode parentNode = (PDFNode) parent;
+			PDFNode oldNode = (PDFNode) parentNode.getChild(index);
+			oldNode.setParent(null);
 			newNode.setParent(parentNode); 
 			System.out.println(newNode.getTagName());
 			parentNode.setChild(index, newNode);
@@ -222,5 +223,4 @@ public class PDFTreeModel implements ITreeModel {
 	public LinkedHashMap<PDFType, List<PDFNode>> getPDFNodeMap() {
 		return pdfNodeMap;
 	}
-
 }

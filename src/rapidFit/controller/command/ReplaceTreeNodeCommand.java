@@ -15,7 +15,13 @@ public class ReplaceTreeNodeCommand implements UndoableCommand {
 		this.model = model;
 		this.parentNode = parent;
 		this.index = index;
-		this.oldNode = model.getChild(parent, index);
+		
+		//for the case if the node is the root node
+		if (parent == null){
+			this.oldNode = model.getRoot();
+		} else {
+			this.oldNode = model.getChild(parent, index);
+		}
 		this.newNode = newNode;
 		if (oldNode != null){
 			canExecute = true;

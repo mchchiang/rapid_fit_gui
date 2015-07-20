@@ -8,6 +8,8 @@ import rapidFit.Cloner;
 import rapidFit.controller.exception.TagNameException;
 import rapidFit.data.PDFExpressionType;
 import rapidFit.data.PDFType;
+import rapidFit.data.ProdPDFType;
+import rapidFit.data.SumPDFType;
 import rapidFit.data.ToFitType;
 import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
@@ -115,6 +117,37 @@ public class PDFManager implements DataListener {
 					}
 				}
 			}
+		}
+	}
+	
+	/*
+	 * methods allowing controllers to create pdf nodes with 
+	 * tag names that are used in the PDF list
+	 */
+	public PDFNode createPDFNode(PDFType pdf){
+		PDFNode node = new PDFNode(null, pdf);
+		return node;
+	}
+	
+	public PDFNode createPDFNode(SumPDFType pdf){
+		PDFNode node = new PDFNode(null, pdf);
+		setTagName(node);
+		return node;
+	}
+	
+	public PDFNode createPDFNode(ProdPDFType pdf){
+		PDFNode node = new PDFNode(null, pdf);
+		setTagName(node);
+		return node;
+	}
+	
+	public void setTagName(PDFNode node){
+		if (!node.isLeaf()){
+			setTagName((PDFNode) node.getChild(0));
+			setTagName((PDFNode) node.getChild(1));
+		} else {
+			node.setTagName(pdfDataModel.getTagName(
+					(PDFType) node.getActualObject()));
 		}
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.tree.TreePath;
 
 import rapidFit.controller.command.ReplaceTreeNodeCommand;
 import rapidFit.model.treeModel.ITreeModel;
@@ -66,6 +67,11 @@ public class TreePanelController implements ITreePanelController, TreeListener {
 	@Override
 	public void activateController() {
 		dataTree.setFocusable(true);
+	}
+	
+	@Override
+	public void deactivateController() {
+		dataTree.setFocusable(false);
 	}
 
 	@Override
@@ -129,7 +135,6 @@ public class TreePanelController implements ITreePanelController, TreeListener {
 	public void setSelectedPath(Object [] path) {
 		//check if the new path is different from the old path
 		boolean isNewPath = false;
-		
 		if (selectedPath != null && selectedPath.length == path.length){
 			for (int i = 0; i < selectedPath.length; i++){
 				if (selectedPath[i] != path[i]){
@@ -143,6 +148,8 @@ public class TreePanelController implements ITreePanelController, TreeListener {
 		
 		if (isNewPath){
 			selectedPath = path;
+			dataTree.setSelectionPath(new TreePath(path));
+			dataTree.expandAllRows();
 			notifyTreePanelListener();
 		}
 	}
@@ -174,11 +181,6 @@ public class TreePanelController implements ITreePanelController, TreeListener {
 		for (TreePanelListener listener : listeners){
 			listener.changeSelectedPath(selectedPath);
 		}
-	}
-
-	@Override
-	public void deactivateController() {
-		dataTree.setFocusable(false);
 	}
 
 	@Override
