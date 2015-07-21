@@ -7,11 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * 
  * A class to discover the fields with getter and setter methods in a class
  * 
  * @author MichaelChiang
- *
  */
 
 public class ClassAgent {
@@ -72,20 +70,16 @@ public class ClassAgent {
 	
 	//accessor methods
 	/**
-	 * 
 	 * Return the total number of declared fields in the class (excluding the
 	 * ones that are stated to be ignored in the constructor)
-	 * 
 	 */
 	public int getNumOfFields() {
 		return fields.size();
 	}
 	
 	/**
-	 * 
 	 * Return the names of the declared fields (excluding the
 	 * ones that are stated to be ignored in the constructor)
-	 * 
 	 */
 	public List<String> getFieldNames(){
 		ArrayList<String> fieldNames = new ArrayList<String>();
@@ -94,11 +88,10 @@ public class ClassAgent {
 	}
 	
 	/**
-	 * 
 	 * Return the Java class type (<code>Class<?></code>) of the 
 	 * specified declared field
-	 * @param fieldName Name of the field
 	 * 
+	 * @param fieldName Name of the field
 	 */
 	public Class<?> getFieldClass(String fieldName){
 		if (fields.containsKey(fieldName)){
@@ -108,11 +101,10 @@ public class ClassAgent {
 	}
 	
 	/**
-	 * 
 	 * Return the Java <code>Type</code> of the specified declared field
+	 * 
 	 * @param fieldName Name of the field
 	 * @see <code>Type</code>
-	 * 
 	 */
 	public Type getFieldType(String fieldName){
 		if (fields.containsKey(fieldName)){
@@ -122,10 +114,9 @@ public class ClassAgent {
 	}
 	
 	/**
-	 * 
 	 * Return the getter method of the specified declared field
+	 * 
 	 * @param fieldName Name of the field
-	 *
 	 */
 	public Method getGetter(String fieldName){
 		if (fields.containsKey(fieldName)){
@@ -136,10 +127,9 @@ public class ClassAgent {
 	
 	
 	/**
-	 * 
 	 * Return the setter method of the specified declared field
-	 * @param fieldName Name of the field
 	 * 
+	 * @param fieldName Name of the field
 	 */
 	public Method getSetter(String fieldName){
 		if (fields.containsKey(fieldName)){
@@ -149,9 +139,7 @@ public class ClassAgent {
 	}
 	
 	/**
-	 * 
 	 * Return the Java class type that the agent is analysing
-	 * 
 	 */
 	public Class<?> getAgentClass(){
 		return clazz;

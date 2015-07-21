@@ -21,6 +21,7 @@ import rapidFit.controller.ITreePanelController;
 import rapidFit.controller.PDFBuilderController;
 import rapidFit.controller.UIController;
 import rapidFit.data.PDFType;
+import rapidFit.model.dataModel.IClassModel;
 
 @SuppressWarnings("serial")
 public class PDFBuilderFrame extends JDialog {
@@ -35,6 +36,8 @@ public class PDFBuilderFrame extends JDialog {
 	private JButton btnReplaceWithPDF;
 	private JButton btnReplaceWithSum;
 	private JButton btnReplaceWithProd;
+	private JButton btnEditProdPDF;
+	private JButton btnEditSumPDF;
 
 	private JRadioButton rbInspectFromPDFTree;
 	private JRadioButton rbInspectFromPDFList;
@@ -85,7 +88,7 @@ public class PDFBuilderFrame extends JDialog {
 								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 								new String [] {"Yes", "No"}, "No");
 				if (result == JOptionPane.YES_OPTION){
-					
+					dispose();
 				} else {
 					setVisible(true);
 				}
@@ -100,6 +103,7 @@ public class PDFBuilderFrame extends JDialog {
 		pdfTreePanel = pdfTreeController.getView();
 		
 		btnReplaceWithPDF = new JButton("Replace with Selected PDF");
+		btnReplaceWithPDF.setEnabled(false);
 		btnReplaceWithPDF.addActionListener(new ActionListener(){
 			
 			@Override
@@ -109,31 +113,49 @@ public class PDFBuilderFrame extends JDialog {
 			
 		});
 
-		btnReplaceWithSum = new JButton("Replace with Sum");
+		btnReplaceWithSum = new JButton("Replace with New Sum PDF");
+		btnReplaceWithSum.setEnabled(false);
 		btnReplaceWithSum.addActionListener(new ActionListener(){
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mainController.replaceWithPDFSum();
-			}
-			
+				mainController.openPDFSumDialog(true);
+			}	
 		});
 
-		btnReplaceWithProd = new JButton("Replace with Product");
+		btnReplaceWithProd = new JButton("Replace with New Product PDF");
+		btnReplaceWithProd.setEnabled(false);
 		btnReplaceWithProd.addActionListener(new ActionListener(){
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mainController.replaceWithPDFProduct();
+				mainController.openPDFProductDialog(true);
 			}
-			
+		});
+		
+		btnEditProdPDF = new JButton("Edit Product PDF");
+		btnEditProdPDF.setEnabled(false);
+		btnEditProdPDF.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainController.openPDFProductDialog(false);
+			}
+		});
+		
+		btnEditSumPDF = new JButton("Edit Sum PDF");
+		btnEditSumPDF.setEnabled(false);
+		btnEditSumPDF.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainController.openPDFSumDialog(false);
+			}
 		});
 
 		pdfBuilderOptionPanel = new JPanel();
-		pdfBuilderOptionPanel.setLayout(new GridLayout(3,1));
+		pdfBuilderOptionPanel.setLayout(new GridLayout(0,2));
 		pdfBuilderOptionPanel.add(btnReplaceWithPDF);
 		pdfBuilderOptionPanel.add(btnReplaceWithSum);
 		pdfBuilderOptionPanel.add(btnReplaceWithProd);
+		pdfBuilderOptionPanel.add(btnEditSumPDF);
+		pdfBuilderOptionPanel.add(btnEditProdPDF);
 
 		pdfBuilderPanel = new JPanel();
 		pdfBuilderPanel.setLayout(new BorderLayout());
@@ -191,6 +213,12 @@ public class PDFBuilderFrame extends JDialog {
 		
 		//initialise main panel
 		btnBuildPDF = new JButton("Save and Build PDF");
+		btnBuildPDF.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainController.quitPDFBuilder();
+			}
+		});
 
 		Container content = this.getContentPane();
 		content.add(pdfListPanel, BorderLayout.WEST);
@@ -201,4 +229,41 @@ public class PDFBuilderFrame extends JDialog {
 	public PDFBuilderMenuBar getMenuBar(){
 		return menuBar;
 	}
+	
+	public void enableReplaceWithProdButton(boolean b){
+		btnReplaceWithProd.setEnabled(b);
+	}
+	
+	public void enableReplaceWithSumButton(boolean b){
+		btnReplaceWithSum.setEnabled(b);
+	}
+	
+	public void enableReplaceWithPDFButton(boolean b){
+		btnReplaceWithPDF.setEnabled(b);
+	}
+	
+	public void enableEditProdPDFButton(boolean b){
+		btnEditProdPDF.setEnabled(b);
+	}
+	
+	public void enableEditSumPDFButton(boolean b){
+		btnEditSumPDF.setEnabled(b);
+	}
+	
+	public void displayPDF(IClassModel<PDFType> pdfModel, String tagName){
+		pdfInspector.displayPDF(pdfModel, tagName);
+	}
+	
+	public void displayProdPDF(String pdfName1, String pdfName2){
+		pdfInspector.displayProdPDF(pdfName1, pdfName2);
+	}
+	
+	public void displaySumPDF(String fractionName, String pdfName1, String pdfName2){
+		pdfInspector.displaySumPDF(fractionName, pdfName1, pdfName2);
+	}
+	
+	public void displayNoPDF(){
+		pdfInspector.displayNoPDF();
+	}
+	
 }

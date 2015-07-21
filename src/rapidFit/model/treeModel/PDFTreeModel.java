@@ -12,12 +12,14 @@ import rapidFit.data.SumPDFType;
 import rapidFit.data.ToFitType;
 
 public class PDFTreeModel implements ITreeModel {
-
+	
 	private ArrayList<TreeListener> listeners;
 	private PDFNode displayRoot;
+	private Object root;
 	private LinkedHashMap<PDFType, List<PDFNode>> pdfNodeMap;
 
 	public PDFTreeModel(PDFExpressionType root){
+		this.root = root;
 		if (root.getNormalisedSumPDF() != null){
 			displayRoot = new PDFNode(null, root.getNormalisedSumPDF());
 		} else if (root.getProdPDF() != null){
@@ -34,6 +36,7 @@ public class PDFTreeModel implements ITreeModel {
 	}
 
 	public PDFTreeModel(ToFitType root){
+		this.root = root;
 		if (root.getNormalisedSumPDF() != null){
 			displayRoot = new PDFNode(null, root.getNormalisedSumPDF());
 		} else if (root.getProdPDF() != null){
@@ -135,6 +138,36 @@ public class PDFTreeModel implements ITreeModel {
 			PDFNode oldNode = displayRoot;
 			newNode.setParent(null);
 			displayRoot = newNode;
+			if (root instanceof PDFExpressionType){
+				PDFExpressionType expType = (PDFExpressionType) root;
+				Object pdf = newNode.getActualObject();
+				expType.setProdPDF(null);
+				expType.setNormalisedSumPDF(null);
+				expType.setPDF(null);
+				
+				if (pdf instanceof ProdPDFType){
+					expType.setProdPDF((ProdPDFType) pdf); 
+				} else if (pdf instanceof SumPDFType){
+					expType.setNormalisedSumPDF((SumPDFType) pdf);
+				} else if (pdf instanceof PDFType){
+					expType.setPDF((PDFType) pdf);
+				}
+				
+			} else if (root instanceof ToFitType){
+				ToFitType tofit = (ToFitType) root;
+				Object pdf = newNode.getActualObject();
+				tofit.setProdPDF(null);
+				tofit.setNormalisedSumPDF(null);
+				tofit.setPDF(null);
+				
+				if (pdf instanceof ProdPDFType){
+					tofit.setProdPDF((ProdPDFType) pdf); 
+				} else if (pdf instanceof SumPDFType){
+					tofit.setNormalisedSumPDF((SumPDFType) pdf);
+				} else if (pdf instanceof PDFType){
+					tofit.setPDF((PDFType) pdf);
+				}
+			}
 			updateLeafNodes(oldNode, newNode);
 			notifyTreeListener(new SetTreeNodeEvent(
 					this, new PDFNode [] {newNode}, oldNode, newNode));
@@ -143,7 +176,6 @@ public class PDFTreeModel implements ITreeModel {
 			PDFNode oldNode = (PDFNode) parentNode.getChild(index);
 			oldNode.setParent(null);
 			newNode.setParent(parentNode); 
-			System.out.println(newNode.getTagName());
 			parentNode.setChild(index, newNode);
 			updateLeafNodes(oldNode, newNode);
 			notifyTreeListener(new SetTreeNodeEvent(
@@ -207,7 +239,11 @@ public class PDFTreeModel implements ITreeModel {
 
 	@Override
 	public void setTagName(Object entry, String tagName) {
-		((PDFNode) entry).setTagName(tagName);		
+		PDFNode node = (PDFNode) entry;
+		String oldName = node.getTagName();
+		node.setTagName(tagName);
+		notifyTreeListener(new RenameTreeNodeEvent(
+				this, getPathToRoot(node), oldName, tagName));
 	}
 
 	@Override

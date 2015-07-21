@@ -7,7 +7,7 @@ import java.util.List;
 import javax.swing.JComponent;
 
 import rapidFit.controller.command.CompoundUndoableCommand;
-import rapidFit.controller.command.SetTagNameCommand;
+import rapidFit.controller.command.EditDataModelTagNameCommand;
 import rapidFit.controller.command.TagNameDataModelAddCommand;
 import rapidFit.controller.command.TagNameDataModelCopyCommand;
 import rapidFit.controller.command.TagNameDataModelRemoveCommand;
@@ -160,7 +160,7 @@ public class ListPanelController<T> implements IListPanelController<T> {
 
 	@Override
 	public void setTagName(int row, String tagName) {
-		mainController.setCommand(new SetTagNameCommand(
+		mainController.setCommand(new EditDataModelTagNameCommand(
 				dataModel, row, getTagName(row), tagName));
 	}
 

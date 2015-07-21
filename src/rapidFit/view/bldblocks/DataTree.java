@@ -1,12 +1,8 @@
 package rapidFit.view.bldblocks;
 
 import java.awt.Component;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -40,23 +36,7 @@ public class DataTree extends JTree {
 		setEditable(false);
 		getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
-		addTreeSelectionListener(new TreeSelectionListener(){
-			@Override
-			public void valueChanged(TreeSelectionEvent e) {
-				panelController.setSelectedPath(e.getPath().getPath());
-			}
-		});
 		expandAllRows();
-		
-		addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e){
-				int selRow = getRowForLocation(e.getX(), e.getY());
-				Object [] selPath = getPathForLocation(e.getX(), e.getY()).getPath();
-				if (selRow != -1 && e.getClickCount() == 2){
-					System.out.println("OK");
-				}
-			}
-		});
 	}
 	
 	public void expandAllRows(){

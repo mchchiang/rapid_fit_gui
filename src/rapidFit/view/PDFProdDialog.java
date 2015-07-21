@@ -1,5 +1,6 @@
 package rapidFit.view;
 
+import java.awt.Dialog;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
@@ -20,6 +21,8 @@ public class PDFProdDialog extends JDialog {
 	
 	private PDFProdDialogController mainController;
 	
+	private boolean createNewProductPDF;
+	
 	private JComboBox<String> cbLeftOperand;
 	private JComboBox<String> cbRightOperand;
 	private JLabel lblProdPDF;
@@ -34,6 +37,7 @@ public class PDFProdDialog extends JDialog {
 	public PDFProdDialog(PDFProdDialogController controller,
 			List<String> pdfTagNames, String leftOperand, String rightOperand,
 			boolean enableLeftOperand, boolean enableRightOperand){
+		super((Dialog) controller.getWindow(), true);
 		
 		mainController = controller;
 		
@@ -43,8 +47,19 @@ public class PDFProdDialog extends JDialog {
 		setResizable(true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
-		cbLeftOperand = new JComboBox<String>(pdfTagNames.toArray(
-				new String [pdfTagNames.size()]));
+		if (enableLeftOperand){
+			cbLeftOperand = new JComboBox<String>(pdfTagNames.toArray(
+					new String [pdfTagNames.size()]));
+			if (leftOperand != null){
+				cbLeftOperand.setSelectedItem(leftOperand);
+			} else {
+				cbLeftOperand.setSelectedIndex(0);
+				mainController.setLeftOperand(cbLeftOperand.getItemAt(0));
+			}
+		} else {
+			cbLeftOperand = new JComboBox<String>(new String [] {leftOperand});
+		}
+		
 		cbLeftOperand.setEnabled(enableLeftOperand);
 		cbLeftOperand.addActionListener(new ActionListener(){
 			@Override
@@ -54,8 +69,19 @@ public class PDFProdDialog extends JDialog {
 			}
 		});
 		
-		cbRightOperand = new JComboBox<String>(pdfTagNames.toArray(
-				new String [pdfTagNames.size()]));
+		if (enableRightOperand){
+			cbRightOperand = new JComboBox<String>(pdfTagNames.toArray(
+					new String [pdfTagNames.size()]));
+			if (rightOperand != null){
+				cbRightOperand.setSelectedItem(rightOperand);
+			} else {
+				cbRightOperand.setSelectedIndex(0);
+				mainController.setRightOperand(cbRightOperand.getItemAt(0));
+			}
+		} else {
+			cbRightOperand = new JComboBox<String>(new String [] {rightOperand});
+		}
+		
 		cbRightOperand.setEnabled(enableRightOperand);
 		cbRightOperand.addActionListener(new ActionListener(){
 			@Override
@@ -92,7 +118,8 @@ public class PDFProdDialog extends JDialog {
 		btnConfirm.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mainController.quitPDFProdDialog();			
+				mainController.quitPDFProdDialog();	
+				dispose();
 			}
 		});
 		

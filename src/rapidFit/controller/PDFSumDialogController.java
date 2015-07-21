@@ -1,49 +1,101 @@
 package rapidFit.controller;
 
+import java.awt.Window;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.JComponent;
-
+import rapidFit.controller.command.Command;
 import rapidFit.data.PDFType;
 import rapidFit.data.PhysicsParameterType;
-import rapidFit.data.SumPDFType;
-import rapidFit.model.dataModel.IDataModel;
+import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.view.PDFSumDialog;
 
-public class PDFSumDialogController implements Controller {
+public class PDFSumDialogController extends UIController {
 	
-	private IDataModel<PhysicsParameterType> physicsParams;	
-	private UIController mainController;
-	private PDFType leftOperand;
-	private PDFType rightOperand;
+	private PDFBuilderController mainController;
+	private Object leftOperand;
+	private Object rightOperand;
+	private String leftOperandName;
+	private String rightOperandName;
 	private String fractionName;
-	private PDFSumDialog panel;
+	private boolean canEditLeftOperand;
+	private boolean canEditRightOperand;
+	private PDFSumDialog dialog;
+	private HashMap<PDFType, String> nameMap;
 	
-	public PDFSumDialogController(UIController mainController){
+	public PDFSumDialogController(PDFBuilderController mainController,
+			ITagNameDataModel<PDFType> pdfModel,
+			List<PhysicsParameterType> physicsParams, 
+			Object leftOperand, Object rightOperand, 
+			String leftOperandName, String rightOperandName,
+			String fractionName){
 		this.mainController = mainController;
 		
+		this.leftOperand = leftOperand;
+		this.leftOperandName = leftOperandName;
+		this.rightOperand = rightOperand;
+		this.rightOperandName = rightOperandName;
+		this.fractionName = fractionName;
+		this.nameMap = pdfModel.getNameMap();
+		
+		if (leftOperand == null || leftOperand instanceof PDFType){
+			canEditLeftOperand = true;
+		}
+		if (rightOperand == null || rightOperand instanceof PDFType){
+			canEditRightOperand = true;
+		}
+		
+		List<String> pdfNames = new ArrayList<String>();
+		pdfNames.addAll(pdfModel.getNameMap().values());
+		
+		List<String> paramNames = new ArrayList<String>();
+		for (PhysicsParameterType param : physicsParams){
+			paramNames.add(param.getName());
+		}
+		
 		//create view
-		//panel = new PDFSumDialog();
+		dialog = new PDFSumDialog(this, pdfNames, leftOperandName, rightOperandName, 
+				canEditLeftOperand, canEditRightOperand, paramNames, fractionName);
+		dialog.setVisible(true);
 	}
 	
-	public void setLeftOperandValue(PDFType pdf){
-		
+	public void setLeftOperand(String pdf){
+		if (canEditLeftOperand){
+			leftOperandName = pdf;			
+		}
 	}
 	
-	public void setRightOperandValue(PDFType pdf){
-		
+	public void setRightOperand(String pdf){
+		if (canEditRightOperand){
+			rightOperandName = pdf;
+		}
 	}
 	
 	public void setFractionName(String name){
-		
+		fractionName = name;
 	}
-
-	@Override
-	public void activateController() {}
-
-	@Override
-	public void deactivateController() {}
-
+	
+	public void quitPDFSumDialog(){
+		if (canEditLeftOperand){
+			leftOperand = findPDF(leftOperandName);
+		}
+		if (canEditRightOperand){
+			rightOperand = findPDF(rightOperandName);
+		}
+		mainController.editPDFSum(fractionName, leftOperand, rightOperand);
+		dialog.dispose();
+	}
+	
+	private PDFType findPDF(String pdfName){
+		for (PDFType pdf : nameMap.keySet()){
+			if (nameMap.get(pdf).equals(pdfName)){
+				return pdf;
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public Controller getParentController() {
 		return mainController;
@@ -54,13 +106,28 @@ public class PDFSumDialogController implements Controller {
 		return null;
 	}
 
+	/*
+	 * no undo and redo allowed in this dialog
+	 */
 	@Override
-	public JComponent getView() {
-		return null;
+	public void setCommand(Command cmd) {}
+	
+	@Override
+	public void undo() {}
+
+	@Override
+	public void redo() {}
+
+	@Override
+	public void setActiveController(Controller c) {}
+
+	@Override
+	public Controller getActiveController() {
+		return this;
 	}
 	
-	public void quitPDFSumDialog(){
-		
+	@Override
+	public Window getWindow() {
+		return dialog;
 	}
-
 }

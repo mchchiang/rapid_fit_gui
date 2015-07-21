@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
-import rapidFit.controller.command.SetTagNameCommand;
+import rapidFit.controller.command.EditDataModelTagNameCommand;
 import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
 import rapidFit.model.dataModel.EditTagNameEvent;
@@ -50,7 +50,7 @@ public class TagNamePanelController implements ITagNamePanelController, ListPane
 	public void setTagName(String tagName) {
 		if (listController.getSelectedIndex() != -1){
 			mainController.setCommand(
-					new SetTagNameCommand(model, listController.getSelectedIndex(),
+					new EditDataModelTagNameCommand(model, listController.getSelectedIndex(),
 							model.getTagName(listController.getSelectedIndex()), tagName));
 		}
 	}

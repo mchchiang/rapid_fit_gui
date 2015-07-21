@@ -8,18 +8,22 @@ import javax.swing.JComponent;
 
 import rapidFit.data.PDFExpressionType;
 import rapidFit.data.PDFType;
+import rapidFit.data.PhysicsParameterType;
 import rapidFit.data.ProdPDFType;
 import rapidFit.data.SumPDFType;
 import rapidFit.data.ToFitType;
 import rapidFit.model.dataModel.ClassModelAdapter;
+import rapidFit.model.dataModel.DataEvent;
+import rapidFit.model.dataModel.DataListener;
 import rapidFit.model.dataModel.IClassModel;
 import rapidFit.model.dataModel.ITagNameDataModel;
+import rapidFit.model.dataModel.RemoveElementEvent;
 import rapidFit.model.treeModel.ITreeModel;
 import rapidFit.model.treeModel.PDFManager;
 import rapidFit.view.PDFInspector;
 import rapidFit.view.bldblocks.PDFViewPanel;
 
-public class PDFViewController implements Controller, TreePanelListener {
+public class PDFViewController implements Controller, TreePanelListener, DataListener {
 
 	private UIController mainController;
 	private Controller parentController;
@@ -32,12 +36,16 @@ public class PDFViewController implements Controller, TreePanelListener {
 
 	private PDFViewPanel panel;
 	private PDFInspector inspector;
+	
+	private List<PhysicsParameterType> physicsParams;
 
 	public PDFViewController(UIController mainController, 
-			Controller parentController, PDFExpressionType root){
+			Controller parentController, PDFExpressionType root,
+			List<PhysicsParameterType> physicsParams){
 		this.mainController = mainController;
 		this.parentController = parentController;
-		this.pdfManager = new PDFManager(root, true);
+		this.physicsParams = physicsParams;
+		this.pdfManager = new PDFManager(root, true, true);
 		init();
 	}
 
@@ -45,18 +53,19 @@ public class PDFViewController implements Controller, TreePanelListener {
 			Controller parentController, ToFitType root){
 		this.mainController = mainController;
 		this.parentController = parentController;
-		this.pdfManager = new PDFManager(root, true);
+		this.pdfManager = new PDFManager(root, true, true);
 		init();
 	}
 
 	private void init(){
 		//create sub-controllers
-		pdfModelMap = new HashMap<PDFType, IClassModel<PDFType>>();
 		pdfTreeModel = pdfManager.getTreeModel();
 		pdfDataModel = pdfManager.getPDFs();
+		pdfDataModel.addDataListener(this);
 		pdfTreeController = new TreePanelController(
 				mainController, this, pdfTreeModel);
 		pdfTreeController.addTreePanelListener(this);
+		pdfModelMap = new HashMap<PDFType, IClassModel<PDFType>>();
 
 		//create view
 		inspector = new PDFInspector();
@@ -82,8 +91,13 @@ public class PDFViewController implements Controller, TreePanelListener {
 
 	@Override
 	public void changeSelectedPath(Object[] path) {
-		int lastIndex = path.length-1;
+		int lastIndex = -1;
+		if (path != null){
+			lastIndex = path.length-1;
+		}
 		if (lastIndex != -1){
+
+
 			Object node = path[lastIndex];
 			Object object = pdfTreeModel.getActualObject(node);
 			if (object instanceof SumPDFType){
@@ -114,6 +128,18 @@ public class PDFViewController implements Controller, TreePanelListener {
 	public void deactivateController() {}
 
 	public void editPDF(){
-		new PDFBuilderController(mainController, pdfManager);
+		new PDFBuilderController(mainController, pdfManager, physicsParams);
+	}
+
+	@Override
+	public void update(DataEvent e) {
+		if (e.getDataModel() == pdfDataModel &&
+				e instanceof RemoveElementEvent){
+			PDFType pdf = (PDFType) 
+					((RemoveElementEvent) e).getRemovedElement();
+			if (pdfModelMap.containsKey(pdf)){
+				pdfModelMap.remove(pdf);
+			}
+		}
 	}
 }

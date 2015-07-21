@@ -22,7 +22,7 @@ public class ListViewController<T> extends IListViewController<T> {
 	private IAttributeTableController<T> attributeTableController;
 	private IListPanelController<T> listPanelController;
 	private ITagNamePanelController tagNamePanelController;
-	private ITagNameDataModel<T> model;
+	//private ITagNameDataModel<T> model;
 	private HashMap<T, IClassModel<T>> modelMap;
 	
 	private JPanel displayPanel;
@@ -33,7 +33,7 @@ public class ListViewController<T> extends IListViewController<T> {
 	public ListViewController(UIController mainController, 
 			ITagNameDataModel<T> model, String listTitle, 
 			String attributeTableTitle) {
-		this.model = model;
+		//this.model = model;
 		this.mainController = mainController;
 		
 		listPanelController = new ListPanelController<T>(

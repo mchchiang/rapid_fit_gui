@@ -228,7 +228,8 @@ public class RapidFitEditor extends UIController implements CommandListener{
 								root.getOutput().getTwoDScan(), null), "2D_Scan");
 		
 		PDFViewController commonPDFController = new PDFViewController(
-				this, this, root.getCommonPDF());
+				this, this, root.getCommonPDF(), 
+				root.getParameterSet().getPhysicsParameter());
 		
 		controlViewPair.put(commonPDFController, commonPDFController.getView());
 		componentTitlePair.put(commonPDFController.getView(), "Common PDF");

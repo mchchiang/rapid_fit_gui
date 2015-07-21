@@ -36,6 +36,7 @@ public class CommandHandler {
 		if (hasUndoableCommand()){
 			UndoableCommand uc = commandHistory.pop();
 			uc.undo();
+			System.out.println(uc);
 			redoCommands.push(uc);
 			listener.undoOccurred(uc);
 		}
@@ -48,6 +49,7 @@ public class CommandHandler {
 		if (hasRedoableCommand()){
 			UndoableCommand uc = redoCommands.pop();
 			uc.execute();
+			System.out.println(uc);
 			commandHistory.push(uc);
 			listener.redoOccurred(uc);
 		}

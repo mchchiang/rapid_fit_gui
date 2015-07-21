@@ -3,14 +3,14 @@ package rapidFit.controller.command;
 import rapidFit.controller.exception.TagNameException;
 import rapidFit.model.dataModel.ITagNameDataModel;
 
-public class SetTagNameCommand implements UndoableCommand {
+public class EditDataModelTagNameCommand implements UndoableCommand {
 
 	private ITagNameDataModel<?> model;
 	private String oldTagName;
 	private String newTagName;
 	private int index;
 
-	public SetTagNameCommand (ITagNameDataModel<?> model,
+	public EditDataModelTagNameCommand (ITagNameDataModel<?> model,
 			int index, String oldTagName, String newTagName){
 		this.model = model;
 		this.index = index;
