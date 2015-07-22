@@ -2,6 +2,7 @@ package rapidFit.model.dataModel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class NullClassModel extends IClassModel {
 	public int getNumOfFields() {return 0;}
 
 	@Override
-	public List<String> getFieldNames() {return new ArrayList<String>();}
+	public AbstractList<String> getFieldNames() {return new ArrayList<String>();}
 
 	@Override
 	public Class<?> getFieldClass(String fieldName) {return null;}

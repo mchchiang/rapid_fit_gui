@@ -279,8 +279,9 @@ public class RapidFitEditor extends UIController implements CommandListener{
 
 	@Override
 	public void setActiveController(Controller controller) {
+		commandHandler.setActiveController(controller);
+		//for switching to the tab where the active controller is
 		if (commandHandler.getActiveController() != controller) {
-			commandHandler.setActiveController(controller);
 			Controller c = findParentController(controller);
 			JComponent cmp = controlViewPair.get(c);
 			if (cmp != null){

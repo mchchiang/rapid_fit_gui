@@ -113,6 +113,7 @@ public class DataTablePanel extends JPanel implements ActionListener {
 			
 		//for clicking the remove entry button
 		} else if (e.getSource() == btnRemove){
+			System.out.println(table.getSelectedRow());
 			if (table.getSelectedRows().length != 0){
 				controller.removeRows(table.getSelectedRows());
 			} else {
@@ -121,6 +122,7 @@ public class DataTablePanel extends JPanel implements ActionListener {
 			
 		//for clicking the copy button
 		} else if (e.getSource() == btnCopy){
+			System.out.println(table.getSelectedRow());
 			if (table.getSelectedRows().length != 0){
 				controller.copyRows(table.getSelectedRows());
 			} else {

@@ -39,7 +39,7 @@ public class ListViewController<T> extends IListViewController<T> {
 		listPanelController = new ListPanelController<T>(
 				mainController, this, model);
 		tagNamePanelController = new TagNamePanelController(
-				mainController, listPanelController, this, model);
+				mainController, listPanelController, this, model, -1);
 		attributeTableController = new AttributeTableController<T>(
 				mainController, this, new NullClassModel(), attributeTableTitle);
 		

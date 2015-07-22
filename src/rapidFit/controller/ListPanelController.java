@@ -234,6 +234,7 @@ public class ListPanelController<T> implements IListPanelController<T> {
 	@Override
 	public void activateController() {
 		dataList.setFocusable(true);
+		dataList.requestFocusInWindow();
 	}
 	
 	@Override

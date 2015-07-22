@@ -16,18 +16,21 @@ public class TagNamePanelController implements ITagNamePanelController, ListPane
 	
 	private ITagNameDataModel<?> model;
 	private UIController mainController;
-	private IListPanelController<?> listController;
 	private Controller parentController;
 	private TagNamePanel panel;
+	private int selectedIndex;
 	
 	public TagNamePanelController(UIController mainController, 
 			IListPanelController<?> listController, 
-			Controller parentController, ITagNameDataModel<?> model){
+			Controller parentController, ITagNameDataModel<?> model,
+			int index){
 		this.model = model;
 		this.mainController = mainController;
-		this.listController = listController;
 		this.parentController = parentController;
-		listController.addListPanelListener(this);
+		this.selectedIndex = index;
+		if (listController != null){
+			listController.addListPanelListener(this);
+		}
 		model.addDataListener(this);
 		
 		//create view
@@ -39,7 +42,7 @@ public class TagNamePanelController implements ITagNamePanelController, ListPane
 		if (e.getDataModel() == model.getActualModel() && 
 			e instanceof EditTagNameEvent){
 			EditTagNameEvent evt = (EditTagNameEvent) e;
-			if (evt.getIndex() == listController.getSelectedIndex()){
+			if (evt.getIndex() == selectedIndex){
 				panel.setTagName(evt.getNewTagName());
 				mainController.setActiveController(this);
 			}
@@ -48,23 +51,27 @@ public class TagNamePanelController implements ITagNamePanelController, ListPane
 
 	@Override
 	public void setTagName(String tagName) {
-		if (listController.getSelectedIndex() != -1){
+		if (selectedIndex != -1){
 			mainController.setCommand(
-					new EditDataModelTagNameCommand(model, listController.getSelectedIndex(),
-							model.getTagName(listController.getSelectedIndex()), tagName));
+					new EditDataModelTagNameCommand(model, selectedIndex,
+							model.getTagName(selectedIndex), tagName));
 		}
 	}
 
 	@Override
 	public String getTagName() {
-		return model.getTagName(listController.getSelectedIndex());
+		if (selectedIndex != -1){
+			return model.getTagName(selectedIndex);
+		} else {
+			return "";
+		}
 	}
 
 	@Override
 	public void changedSelectedElement(int index) {
-		if (listController.getSelectedIndex() != -1){
-			panel.setTagName(model.getTagName(
-					listController.getSelectedIndex()));
+		selectedIndex = index;
+		if (selectedIndex != -1){
+			panel.setTagName(model.getTagName(selectedIndex));
 		} else {
 			panel.setTagName("");
 		}

@@ -56,14 +56,17 @@ public class CommandHandler {
 	}
 
 	public synchronized void setActiveController(Controller controller) {
-		if (activeController != null){
-			activeController.deactivateController();
+		if (activeController != controller){
+			if (activeController != null){
+				activeController.deactivateController();
+			}
+			controller.activateController();
+			activeController = controller;
+			System.out.println(activeController.toString());
 		}
-		controller.activateController();
-		activeController = controller;
 	}
 
-	public Controller getActiveController() {
+	public synchronized Controller getActiveController() {
 		return activeController;
 	}
 	

@@ -2,7 +2,7 @@ package rapidFit.model.dataModel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.util.List;
+import java.util.AbstractList;
 
 /**
  * 
@@ -176,7 +176,7 @@ public interface IDataModel<T> {
 	 * an entry in the data set
 	 * 
 	 */
-	public List<String> getFieldNames();
+	public AbstractList<String> getFieldNames();
 	
 	/**
 	 * 

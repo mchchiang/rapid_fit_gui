@@ -12,6 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -38,6 +39,7 @@ public class PDFBuilderFrame extends JDialog {
 	private JButton btnReplaceWithProd;
 	private JButton btnEditProdPDF;
 	private JButton btnEditSumPDF;
+	private JButton btnEditPDF;
 
 	private JRadioButton rbInspectFromPDFTree;
 	private JRadioButton rbInspectFromPDFList;
@@ -56,7 +58,8 @@ public class PDFBuilderFrame extends JDialog {
 	
 	private JButton btnBuildPDF;
 	
-	private PDFBuilderMenuBar menuBar;
+	private JMenuBar menuBar;
+	private EditMenu editMenu;
 
 	public PDFBuilderFrame(UIController mainController, PDFBuilderController controller, 
 			IListPanelController<PDFType> listPanelController,
@@ -68,7 +71,10 @@ public class PDFBuilderFrame extends JDialog {
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setPreferredSize(new Dimension(width, height));
 		
-		menuBar = new PDFBuilderMenuBar(controller);
+		//create the menu bar
+		editMenu = new EditMenu(controller);
+		menuBar = new JMenuBar();
+		menuBar.add(editMenu);
 		setJMenuBar(menuBar);
 		
 		this.mainController = controller;
@@ -148,6 +154,15 @@ public class PDFBuilderFrame extends JDialog {
 				mainController.openPDFSumDialog(false);
 			}
 		});
+		
+		btnEditPDF = new JButton("Edit PDF");
+		btnEditPDF.setEnabled(true);
+		btnEditPDF.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainController.openPDFEditor();
+			}
+		});
 
 		pdfBuilderOptionPanel = new JPanel();
 		pdfBuilderOptionPanel.setLayout(new GridLayout(0,2));
@@ -156,6 +171,7 @@ public class PDFBuilderFrame extends JDialog {
 		pdfBuilderOptionPanel.add(btnReplaceWithProd);
 		pdfBuilderOptionPanel.add(btnEditSumPDF);
 		pdfBuilderOptionPanel.add(btnEditProdPDF);
+		pdfBuilderOptionPanel.add(btnEditPDF);
 
 		pdfBuilderPanel = new JPanel();
 		pdfBuilderPanel.setLayout(new BorderLayout());
@@ -226,8 +242,12 @@ public class PDFBuilderFrame extends JDialog {
 		content.add(btnBuildPDF, BorderLayout.SOUTH);
 	}
 	
-	public PDFBuilderMenuBar getMenuBar(){
-		return menuBar;
+	public void enableUndoButton(boolean b){
+		editMenu.enableUndoButton(b);
+	}
+	
+	public void enableRedoButton(boolean b){
+		editMenu.enableRedoButton(b);
 	}
 	
 	public void enableReplaceWithProdButton(boolean b){

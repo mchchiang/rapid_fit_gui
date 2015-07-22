@@ -2,6 +2,7 @@ package rapidFit.model.dataModel;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +82,7 @@ public class ClassAgent {
 	 * Return the names of the declared fields (excluding the
 	 * ones that are stated to be ignored in the constructor)
 	 */
-	public List<String> getFieldNames(){
+	public AbstractList<String> getFieldNames(){
 		ArrayList<String> fieldNames = new ArrayList<String>();
 		fieldNames.addAll(fields.keySet());
 		return fieldNames;

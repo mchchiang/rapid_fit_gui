@@ -3,6 +3,7 @@ package rapidFit.model.dataModel;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,7 +123,7 @@ public class DataModel<T> implements IDataModel<T> {
 	@Override
 	public void remove(int index) {
 		if (index >= 0 && index < data.size()){	
-			Object removedObject = data.remove(index);
+			T removedObject = data.remove(index);
 			notifyDataListener(new RemoveElementEvent(this, index, removedObject));
 		}
 	}
@@ -133,6 +134,7 @@ public class DataModel<T> implements IDataModel<T> {
 		if (index != -1){
 			remove(index);
 		}
+		notifyDataListener(new RemoveElementEvent(this, index, object));
 	}
 
 	@Override
@@ -162,7 +164,7 @@ public class DataModel<T> implements IDataModel<T> {
 	}
 
 	@Override
-	public List<String> getFieldNames() {
+	public AbstractList<String> getFieldNames() {
 		return classAgent.getFieldNames();
 	}
 	

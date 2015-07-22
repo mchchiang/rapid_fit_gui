@@ -20,7 +20,7 @@ public class TagNamePanel extends JPanel implements PropertyChangeListener {
 	public TagNamePanel(ITagNamePanelController controller){
 		this.controller = controller;
 		
-		this.tagName = "";
+		this.tagName = controller.getTagName();
 		
 		//initialise the tag name panel
 		lblTagName = new JLabel("<html><b>Tag Name: </b></html>");

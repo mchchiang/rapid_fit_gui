@@ -210,14 +210,14 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 
 	private void updateMenuBar(){
 		if (commandHandler.hasUndoableCommand()){
-			mainFrame.getMenuBar().getUndoButton().setEnabled(true);
+			mainFrame.enableUndoButton(true);
 		} else {
-			mainFrame.getMenuBar().getUndoButton().setEnabled(false);
+			mainFrame.enableUndoButton(false);
 		}
 		if (commandHandler.hasRedoableCommand()){
-			mainFrame.getMenuBar().getRedoButton().setEnabled(true);
+			mainFrame.enableRedoButton(true);
 		} else {
-			mainFrame.getMenuBar().getRedoButton().setEnabled(false);
+			mainFrame.enableRedoButton(false);
 		}
 	}
 
@@ -240,6 +240,7 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 		mainController.setCommand(new ReplaceTreeNodeCommand(
 				rootPDFManager.getTreeModel(), null, 0, 
 				pdfTreeModel.getRoot()));
+		commandHandler.getActiveController().deactivateController();
 		mainFrame.dispose();
 	}
 
@@ -417,7 +418,12 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 	}
 
 	public void openPDFEditor(){
-
+		int selectedIndex = pdfListController.getSelectedIndex();
+		if (selectedIndex != -1){
+			new PDFEditorController(this, 
+					pdfListController.get(selectedIndex), 
+					pdfListController.getTagName(selectedIndex));
+		}
 	}
 
 	public void listenToTreeSelection(){
