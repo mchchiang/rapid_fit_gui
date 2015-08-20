@@ -11,6 +11,7 @@ public interface TreeNode {
 	public TreeNode getChild(int index);
 	public int getIndexOfChild(TreeNode node);
 	
+	public void setActualObject(Object object);
 	public Object getActualObject();
 	
 	public void setChild(int index, TreeNode newNode);

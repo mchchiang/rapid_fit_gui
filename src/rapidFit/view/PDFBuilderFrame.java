@@ -106,6 +106,8 @@ public class PDFBuilderFrame extends JDialog {
 	
 	public void initView(){
 		pdfListPanel = pdfListController.getView();
+		pdfListPanel.setBorder(BorderFactory.createTitledBorder(
+					"<html><h3> Available PDFs </h3></html>"));
 		pdfTreePanel = pdfTreeController.getView();
 		
 		btnReplaceWithPDF = new JButton("Replace with Selected PDF");

@@ -11,19 +11,23 @@ import rapidFit.controller.command.CompoundUndoableCommand;
 import rapidFit.controller.command.EditFractionNameCommand;
 import rapidFit.controller.command.EditTreeModelTagNameCommand;
 import rapidFit.controller.command.ReplaceTreeNodeCommand;
+import rapidFit.controller.command.TagNameDataModelSetCommand;
 import rapidFit.controller.command.UndoableCommand;
 import rapidFit.data.PDFType;
 import rapidFit.data.PhysicsParameterType;
 import rapidFit.data.ProdPDFType;
 import rapidFit.data.SumPDFType;
+import rapidFit.model.PDFManager;
+import rapidFit.model.dataModel.AddElementEvent;
 import rapidFit.model.dataModel.ClassModelAdapter;
 import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
+import rapidFit.model.dataModel.EditTagNameEvent;
 import rapidFit.model.dataModel.IClassModel;
 import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.model.dataModel.RemoveElementEvent;
+import rapidFit.model.dataModel.SetElementEvent;
 import rapidFit.model.treeModel.ITreeModel;
-import rapidFit.model.treeModel.PDFManager;
 import rapidFit.model.treeModel.PDFNode;
 import rapidFit.view.PDFBuilderFrame;
 
@@ -46,7 +50,8 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 	private ITreeModel pdfTreeModel;
 	private ITagNameDataModel<PDFType> pdfDataModel;
 	private HashMap<PDFType, IClassModel<PDFType>> pdfModelMap;
-	
+	private Object displayPDF;
+
 	private List<PhysicsParameterType> physicsParams;
 
 	public PDFBuilderController(UIController mainController, PDFManager rootPDFManager,
@@ -61,6 +66,7 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 		pdfManager = new PDFManager(rootPDFManager, true, false);
 		pdfTreeModel = pdfManager.getTreeModel();
 		pdfDataModel = pdfManager.getPDFs();
+		pdfDataModel.addDataListener(this);
 		pdfModelMap = new HashMap<PDFType, IClassModel<PDFType>>();
 
 		//create sub-controllers
@@ -132,14 +138,14 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 			mainFrame.enableReplaceWithSumButton(true);
 			mainFrame.enableEditProdPDFButton(false);
 			mainFrame.enableEditSumPDFButton(false);
-			
+
 			Object pdf = pdfTreeModel.getActualObject(path[path.length-1]);
 			if (pdf instanceof ProdPDFType){
 				mainFrame.enableEditProdPDFButton(true);
 			} else if (pdf instanceof SumPDFType){
 				mainFrame.enableEditSumPDFButton(true);
 			}
-			
+
 		} else {
 			mainFrame.enableReplaceWithPDFButton(false);
 			mainFrame.enableReplaceWithProdButton(false);
@@ -147,7 +153,7 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 			mainFrame.enableEditProdPDFButton(false);
 			mainFrame.enableEditSumPDFButton(false);
 		}
-		
+
 		if (listenToPDFTree){
 			int lastIndex = -1;
 			if (path != null){
@@ -160,10 +166,12 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 					mainFrame.displaySumPDF(((SumPDFType) object).getFractionName(),
 							pdfTreeModel.getTagName(pdfTreeModel.getChild(node, 0)), 
 							pdfTreeModel.getTagName(pdfTreeModel.getChild(node, 1)));
+					displayPDF = object;
 				} else if (object instanceof ProdPDFType){
 					mainFrame.displayProdPDF(
 							pdfTreeModel.getTagName(pdfTreeModel.getChild(node, 0)), 
 							pdfTreeModel.getTagName(pdfTreeModel.getChild(node, 1)));
+					displayPDF = object;
 				} else if (object instanceof PDFType){
 					PDFType pdf = (PDFType) object;
 					if (!pdfModelMap.containsKey(pdf)){
@@ -171,9 +179,11 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 								pdfDataModel.indexOf(pdf)));
 					}
 					mainFrame.displayPDF(pdfModelMap.get(pdf), pdfDataModel.getTagName(pdf));
+					displayPDF = pdf;
 				}
 			} else {
 				mainFrame.displayNoPDF();
+				displayPDF = null;
 			}
 		}
 	}
@@ -187,23 +197,60 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 			mainFrame.enableReplaceWithPDFButton(false);
 		}
 		if (listenToPDFList){
-			PDFType pdf = pdfDataModel.get(index);
-			if (!pdfModelMap.containsKey(pdf)){
-				pdfModelMap.put(pdf, new ClassModelAdapter<PDFType>(pdfDataModel,
-						pdfDataModel.indexOf(pdf)));
+			if (index == -1){
+				mainFrame.displayNoPDF();
+				displayPDF = null;
+			} else {
+				PDFType pdf = pdfDataModel.get(index);
+				if (!pdfModelMap.containsKey(pdf)){
+					pdfModelMap.put(pdf, new ClassModelAdapter<PDFType>(pdfDataModel,
+							pdfDataModel.indexOf(pdf)));
+				}
+				mainFrame.displayPDF(pdfModelMap.get(pdf), pdfDataModel.getTagName(pdf));
+				displayPDF = pdf;
 			}
-			mainFrame.displayPDF(pdfModelMap.get(pdf), pdfDataModel.getTagName(pdf));
 		}
 	}
-	
+
 	@Override
 	public void update(DataEvent e) {
-		if (e.getDataModel() == pdfDataModel &&
-				e instanceof RemoveElementEvent){
-			PDFType pdf = (PDFType) 
-					((RemoveElementEvent) e).getRemovedElement();
-			if (pdfModelMap.containsKey(pdf)){
-				pdfModelMap.remove(pdf);
+		if (e.getDataModel() == pdfDataModel.getActualModel()){
+			if (e instanceof RemoveElementEvent){
+				PDFType pdf = (PDFType) 
+						((RemoveElementEvent) e).getRemovedElement();
+				if (pdfModelMap.containsKey(pdf)){
+					pdfModelMap.remove(pdf);
+				}
+				
+			} else if (e instanceof AddElementEvent){
+				PDFType pdf = pdfDataModel.get(e.getIndex());
+				pdfModelMap.put(pdf, new ClassModelAdapter<PDFType>(
+						pdfDataModel, e.getIndex()));
+
+			} else if (e instanceof SetElementEvent){
+				SetElementEvent evt = (SetElementEvent) e;
+				PDFType newPDF = (PDFType) evt.getNewElement();
+				PDFType oldPDF = (PDFType) evt.getOldElement();
+				pdfModelMap.put(newPDF, new ClassModelAdapter<PDFType>(
+						pdfDataModel, evt.getIndex()));
+				if (pdfModelMap.containsKey(oldPDF)){
+					pdfModelMap.remove(oldPDF);
+				}
+				if (displayPDF == oldPDF){
+					displayPDF = newPDF;
+				}
+				/*
+				 * update the inspector if the tag name of PDF that is
+				 * currently on display has changed
+				 */
+				mainFrame.displayPDF(
+						pdfModelMap.get(displayPDF), 
+						pdfDataModel.getTagName((PDFType) displayPDF));
+				
+			} else if (e instanceof EditTagNameEvent){
+				mainFrame.displayPDF(
+						pdfModelMap.get(displayPDF), 
+						pdfDataModel.getTagName((PDFType) displayPDF));
 			}
 		}
 	}
@@ -283,19 +330,21 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 		PDFNode node = pdfManager.createPDFNode(product);
 		setReplaceCommand(pdfTreeController.getSelectedPath(), node);
 	}
-	
+
 	private void setReplaceCommand(Object [] path, Object newNode){
-		if (path == null || path.length == 0){
-			setCommand(new ReplaceTreeNodeCommand(
-					pdfTreeModel, null, 0, newNode));
-		} else {
-			int lastIndex = path.length-1;
-			setCommand(new ReplaceTreeNodeCommand(pdfTreeModel,
-					path[lastIndex-1], pdfTreeModel.getIndexOfChild(
-							path[lastIndex-1], path[lastIndex]), newNode));
+		if (path != null && path.length > 0){
+			if (path.length == 1){
+				setCommand(new ReplaceTreeNodeCommand(
+						pdfTreeModel, null, 0, newNode));
+			} else {
+				int lastIndex = path.length-1;
+				setCommand(new ReplaceTreeNodeCommand(pdfTreeModel,
+						path[lastIndex-1], pdfTreeModel.getIndexOfChild(
+								path[lastIndex-1], path[lastIndex]), newNode));
+			}
 		}
 	}
-	
+
 	public void editPDFProduct(Object leftPDF, Object rightPDF){
 		if (leftPDF instanceof PDFType && rightPDF instanceof PDFType){
 			replaceWithPDFProduct((PDFType) leftPDF, (PDFType) rightPDF);
@@ -319,13 +368,13 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 	public void editPDFSum(String fractionName, Object leftPDF, Object rightPDF){
 		if (leftPDF instanceof PDFType && rightPDF instanceof PDFType){
 			replaceWithPDFSum(fractionName, (PDFType) leftPDF, (PDFType) rightPDF);
-			
+
 		} else {
 			Object [] path = pdfTreeController.getSelectedPath();
 			Object parentNode = path[path.length-1];
 			SumPDFType sumPDF = (SumPDFType) pdfTreeModel.getActualObject(parentNode);
 			ArrayList<UndoableCommand> commands = new ArrayList<UndoableCommand>();
-			
+
 			if (leftPDF instanceof PDFType || rightPDF instanceof PDFType){
 				int editNodeIndex;
 				PDFNode node;
@@ -340,20 +389,24 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 						parentNode, editNodeIndex, node));
 			} 
 			
-			if (!sumPDF.getFractionName().equals(fractionName)){
+			if (sumPDF.getFractionName() == null &&	fractionName != null ||
+					!sumPDF.getFractionName().equals(fractionName)){
 				commands.add(new EditFractionNameCommand(sumPDF, fractionName));
 				commands.add(new EditTreeModelTagNameCommand(pdfTreeModel, 
 						parentNode, "Sum PDF (" + fractionName + ")"));
 			}
-			
+
 			if (commands.size() > 0){
 				setCommand(new CompoundUndoableCommand(commands));
 			}
 		}
 	}
 
-	public void editPDF(){
-
+	public void editPDF(PDFType pdf, String tagName){
+		int selectedIndex = pdfListController.getSelectedIndex();
+		setCommand(new TagNameDataModelSetCommand<PDFType>(
+				pdfDataModel, selectedIndex,
+				pdfDataModel.get(selectedIndex), pdf, tagName));
 	}
 
 	public void openPDFProductDialog(boolean buildNewProdPDF){
@@ -419,10 +472,9 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 
 	public void openPDFEditor(){
 		int selectedIndex = pdfListController.getSelectedIndex();
+		System.out.println(selectedIndex);
 		if (selectedIndex != -1){
-			new PDFEditorController(this, 
-					pdfListController.get(selectedIndex), 
-					pdfListController.getTagName(selectedIndex));
+			new PDFEditorController(this, pdfDataModel, selectedIndex);
 		}
 	}
 

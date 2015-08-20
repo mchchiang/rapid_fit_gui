@@ -68,12 +68,13 @@ public abstract class IListViewController<T> implements Controller, ListPanelLis
 	
 	@Override
 	public void update(DataEvent e) {
-		if (e.getDataModel() == listPanelController.getModel().getActualModel() &&
-				e instanceof EditTagNameEvent){
-			EditTagNameEvent evt = (EditTagNameEvent) e;
-			if (evt.getIndex() == listPanelController.getSelectedIndex()) {
-				setDisplayTitle(evt.getNewTagName());
-			}
+		if (e.getDataModel() == listPanelController.getModel().getActualModel()){
+			if (e instanceof EditTagNameEvent){
+				EditTagNameEvent evt = (EditTagNameEvent) e;
+				if (evt.getIndex() == listPanelController.getSelectedIndex()) {
+					setDisplayTitle(evt.getNewTagName());
+				}
+			} 
 		}
 	}
 	

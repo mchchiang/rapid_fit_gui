@@ -94,7 +94,12 @@ public class PDFNode implements TreeNode {
 		}
 		return -1;
 	}
-
+	
+	@Override
+	public void setActualObject(Object object){
+		actualObject = object;
+	}
+	
 	@Override
 	public Object getActualObject() {
 		return actualObject;

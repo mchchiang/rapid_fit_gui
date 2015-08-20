@@ -29,6 +29,7 @@ public class TagNamePanel extends JPanel implements PropertyChangeListener {
 		txtTagName.setEditable(true);
 		txtTagName.setText(tagName);
 		txtTagName.addPropertyChangeListener(this);
+		txtTagName.setDragEnabled(false);
 		
 		setLayout(new BorderLayout());
 		add(lblTagName, BorderLayout.WEST);
@@ -51,6 +52,7 @@ public class TagNamePanel extends JPanel implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent e) {
 		if (e.getSource() == txtTagName && 
+				(tagName == null && txtTagName != null) ||
 				!tagName.equals(txtTagName.getText())){
 			tagName = txtTagName.getText();
 			controller.setTagName(tagName);

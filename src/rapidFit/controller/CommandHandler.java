@@ -18,7 +18,7 @@ public class CommandHandler {
 		redoCommands = new Stack<UndoableCommand>();
 	}
 	
-	public void setCommand(Command cmd) {
+	public synchronized void setCommand(Command cmd) {
 		if (cmd.execute()){
 			System.out.println(cmd);
 			if (cmd instanceof UndoableCommand){

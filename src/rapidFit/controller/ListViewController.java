@@ -5,39 +5,50 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 
 import rapidFit.model.dataModel.ClassModelAdapter;
+import rapidFit.model.dataModel.DataEvent;
+import rapidFit.model.dataModel.DataListener;
+import rapidFit.model.dataModel.EditElementEvent;
+import rapidFit.model.dataModel.EditTagNameEvent;
 import rapidFit.model.dataModel.IClassModel;
 import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.model.dataModel.NullClassModel;
+import rapidFit.model.dataModel.RemoveElementEvent;
+import rapidFit.view.NullPanel;
+import rapidFit.view.bldblocks.ListViewPanel;
 
-public class ListViewController<T> extends IListViewController<T> {
+public class ListViewController<T> implements Controller, DataListener, ListPanelListener {
+	
+	private ITagNameDataModel<T> model;
 	
 	private UIController mainController;
 	private IAttributeTableController<T> attributeTableController;
 	private IListPanelController<T> listPanelController;
 	private ITagNamePanelController tagNamePanelController;
-	//private ITagNameDataModel<T> model;
+	
 	private HashMap<T, IClassModel<T>> modelMap;
 	
 	private JPanel displayPanel;
-	
-	private JPanel nullPanel;
+	private NullPanel nullPanel;
+	private ListViewPanel listViewPanel;
+	private T displayElement;
 
 	@SuppressWarnings("unchecked")
 	public ListViewController(UIController mainController, 
 			ITagNameDataModel<T> model, String listTitle, 
 			String attributeTableTitle) {
-		//this.model = model;
+		
+		this.model = model;
+		this.model.addDataListener(this);
+		
 		this.mainController = mainController;
 		
 		listPanelController = new ListPanelController<T>(
 				mainController, this, model);
+		listPanelController.addListPanelListener(this);
 		tagNamePanelController = new TagNamePanelController(
 				mainController, listPanelController, this, model, -1);
 		attributeTableController = new AttributeTableController<T>(
@@ -53,52 +64,62 @@ public class ListViewController<T> extends IListViewController<T> {
 		displayPanel.add(attributeTableController.getView(), BorderLayout.CENTER);
 		
 		//create null panel
-		nullPanel = new JPanel();
-		nullPanel.setLayout(new BorderLayout());
+		nullPanel = new NullPanel();
 		
-		JTextPane txtNoData = new JTextPane();
-		txtNoData.setText("There is no entry selected.");
-		StyledDocument doc = txtNoData.getStyledDocument();
-		SimpleAttributeSet center = new SimpleAttributeSet();
-		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
-		doc.setParagraphAttributes(0, doc.getLength(), center, false);
-		txtNoData.setEditable(false);
-		txtNoData.setBackground(nullPanel.getBackground());
-		
-		nullPanel.add(txtNoData, BorderLayout.CENTER);
-		
-		setModel(model);
-		setListPanelController(listPanelController);
-		initView(listTitle, null);
+		//create the main panel
+		listViewPanel = new ListViewPanel(
+				listPanelController.getView(), nullPanel, 
+				listTitle, "");
 	}
 	
 	@Override
-	public JPanel getView(T object){
-		
-		if (object != null){
-			IClassModel<T> model;
-			if (!modelMap.containsKey(object)){
-				model = createModel(object);
-				modelMap.put(object, model);
-			} else {
-				model = modelMap.get(object);
+	public void update(DataEvent e){
+		if (e.getDataModel() == model.getActualModel()){
+			if (e instanceof RemoveElementEvent){
+				//RemoveElementEvent evt = (RemoveElementEvent) e;
+				//modelMap.remove(evt.getRemovedElement());
+				changeDisplayElement(null);
+				listPanelController.clearSelection();
+				
+			} else if (e instanceof EditElementEvent){
+				EditElementEvent evt = (EditElementEvent) e;
+				changeDisplayElement(model.get(evt.getIndex()));
+				listPanelController.setSelectedIndex(evt.getIndex());
+				
+			} else if (e instanceof EditTagNameEvent){
+				/*
+				 * for changing the display title when the tag name 
+				 * of the entry that is on display has been modified
+				 */
+				EditTagNameEvent evt = (EditTagNameEvent) e;
+				if (displayElement == model.get(evt.getIndex())){
+					listViewPanel.setDisplayTitle(evt.getNewTagName());
+				}
 			}
-			attributeTableController.setModel(model);
-			
-			//setDisplayTitle(this.model.getTagName(object));
-			return displayPanel;
-		
-		//create the display when no element is selected
-		} else {
-			//setDisplayTitle(null);
-			return nullPanel;
 		}
 	}
 	
-	private IClassModel<T> createModel(T object){
-		IClassModel<T> model = new ClassModelAdapter<T>(
-				listPanelController.getModel(), object);
-		return model;
+	@Override
+	public void changedSelectedElement(int index){
+		changeDisplayElement(listPanelController.get(index));
+	}
+	
+	private void changeDisplayElement(T newDisplayElement){
+		if (displayElement != newDisplayElement){
+			displayElement = newDisplayElement;
+			if (displayElement == null){
+				listViewPanel.updateDisplayPanel(nullPanel, null);
+			} else {
+				int index = model.indexOf(displayElement);
+				if (!modelMap.containsKey(displayElement)){
+					modelMap.put(displayElement, 
+							new ClassModelAdapter<T>(model, index));
+				}
+				attributeTableController.setModel(modelMap.get(displayElement));
+				listViewPanel.updateDisplayPanel(displayPanel, 
+						model.getTagName(index));
+			}
+		}
 	}
 
 	@Override
@@ -116,13 +137,13 @@ public class ListViewController<T> extends IListViewController<T> {
 	}
 	
 	@Override
-	public void activateController() {
-		mainController.setActiveController(this);
-	}
+	public void activateController() {}
 
 	@Override
-	public void deactivateController() {
-		// TODO Auto-generated method stub
-		
+	public void deactivateController() {}
+
+	@Override
+	public JComponent getView(){
+		return listViewPanel;
 	}
 }

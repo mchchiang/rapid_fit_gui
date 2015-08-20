@@ -1,4 +1,4 @@
-package rapidFit.model.treeModel;
+package rapidFit.model;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -17,7 +17,13 @@ import rapidFit.model.dataModel.DataListener;
 import rapidFit.model.dataModel.DataModel;
 import rapidFit.model.dataModel.EditTagNameEvent;
 import rapidFit.model.dataModel.ITagNameDataModel;
+import rapidFit.model.dataModel.SetElementEvent;
 import rapidFit.model.dataModel.TagNameDataModel;
+import rapidFit.model.treeModel.PDFNode;
+import rapidFit.model.treeModel.PDFTreeModel;
+import rapidFit.model.treeModel.SetTreeNodeEvent;
+import rapidFit.model.treeModel.TreeEvent;
+import rapidFit.model.treeModel.TreeListener;
 
 public class PDFManager implements DataListener, TreeListener {
 	
@@ -57,7 +63,7 @@ public class PDFManager implements DataListener, TreeListener {
 		ArrayList<PDFType> pdfs = new ArrayList<PDFType>();
 		pdfs.addAll(pdfTree.getPDFNodeMap().keySet());
 		pdfDataModel = new TagNameDataModel<PDFType>(
-				new DataModel<PDFType>(PDFType.class, pdfs, null),"");
+				new DataModel<PDFType>(PDFType.class, pdfs, null), "PDF");
 		//set the correct (not duplicated) tag names for the pdfs
 		for (PDFType pdf : pdfs){
 			try {
@@ -114,7 +120,8 @@ public class PDFManager implements DataListener, TreeListener {
 
 	@Override
 	public void update(DataEvent e) {
-		if (e.getDataModel() == pdfDataModel){
+		if (e.getDataModel() == pdfDataModel.getActualModel()){
+			
 			if (e instanceof EditTagNameEvent){
 				EditTagNameEvent evt = (EditTagNameEvent) e;
 				/*
@@ -126,6 +133,20 @@ public class PDFManager implements DataListener, TreeListener {
 					for (PDFNode node : pdfTree.getPDFNodeMap().get(pdf)){
 						pdfTree.setTagName(node, evt.getNewTagName());
 					}
+				}
+			} else if (e instanceof SetElementEvent){
+				
+				SetElementEvent evt = (SetElementEvent) e;
+				PDFType newPDF = (PDFType) evt.getNewElement();
+				PDFType oldPDF = (PDFType) evt.getOldElement();
+				
+				if (pdfTree.getPDFNodeMap().containsKey(oldPDF)){
+					for (PDFNode node : pdfTree.getPDFNodeMap().get(oldPDF)){
+						pdfTree.setActualObject(node, newPDF);
+					}
+					pdfTree.getPDFNodeMap().put(newPDF, 
+							pdfTree.getPDFNodeMap().get(oldPDF));
+					pdfTree.getPDFNodeMap().remove(oldPDF);
 				}
 			}
 		}

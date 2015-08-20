@@ -47,7 +47,7 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 		model = newModel;
 		model.addDataListener(this);
 		fieldNames = newModel.getFieldNames();
-		tableViewModel.fireTableDataChanged();
+		tableViewModel.fireTableStructureChanged();
 	}
 
 	@Override
@@ -81,7 +81,6 @@ public class AttributeTableController<T> implements IAttributeTableController<T>
 	public void setValueAt(Object value, int row, int col) {
 		if (col == 1){
 			try {
-
 				Object oldValue = model.get(fieldNames.get(row));
 
 				/*

@@ -25,8 +25,9 @@ public class DataModel<T> implements IDataModel<T> {
 	@Override
 	public void set(int index, T object) {
 		if (index >= 0 && index < data.size()){
+			T oldObject = data.get(index);
 			data.set(index, object);
-			notifyDataListener(new SetElementEvent(this, index));
+			notifyDataListener(new SetElementEvent(this, index, oldObject, object));
 		}
 	}
 	
@@ -102,21 +103,21 @@ public class DataModel<T> implements IDataModel<T> {
 	public void add(int index) throws InstantiationException, IllegalAccessException{
 		if (index >= 0 && index <= data.size()){
 			data.add(index, dataClass.newInstance());
-			notifyDataListener(new AddElementEvent(this, index));
+			notifyDataListener(new AddElementEvent(this, index, data.get(index)));
 		}
 	}
 	
 	@Override
 	public void add(T object) {
 		data.add(object);
-		notifyDataListener(new AddElementEvent(this, indexOf(object)));
+		notifyDataListener(new AddElementEvent(this, data.size()-1, object));
 	}
 	
 	@Override
 	public void add(int index, T object) {
 		if (index >= 0 && index <= data.size()){
 			data.add(index, object);
-			notifyDataListener(new AddElementEvent(this, index));
+			notifyDataListener(new AddElementEvent(this, index, object));
 		}
 	}
 	

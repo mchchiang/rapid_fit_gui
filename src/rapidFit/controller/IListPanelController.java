@@ -27,6 +27,8 @@ public interface IListPanelController<T> extends Controller, DataListener {
 	public void set(int row);
 	public void setTagName(int row, String tagName);
 	
+	public int indexOf(T object);
+	
 	public void addListPanelListener(ListPanelListener listener);
 	public void removeListPanelListener(ListPanelListener listener);
 	public void notifyListPanelListener();

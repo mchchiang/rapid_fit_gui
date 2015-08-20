@@ -18,20 +18,25 @@ import rapidFit.view.PDFEditorFrame;
 
 public class PDFEditorController extends UIController implements CommandListener {
 	
+	private ITagNameDataModel<PDFType> tagNamePDFModel;
 	private PDFType pdfCopy;
+	
 	private CommandHandler commandHandler;
 	private PDFBuilderController mainController;
 	private IAttributeTableController<PDFType> pdfDetailsTableController;
 	private IDataTableController<String> configParamTableController;
 	private IDataTableController<String> paramSubTableController;
 	private ITagNamePanelController tagNamePanelController;
+	
 	private PDFEditorFrame mainFrame;
 	
-	public PDFEditorController(PDFBuilderController controller, PDFType pdf, String tagName){
+	public PDFEditorController(PDFBuilderController controller, 
+			ITagNameDataModel<PDFType> pdfModel, int index){
+		
 		this.mainController = controller;
 		commandHandler = new CommandHandler(this);
 		
-		pdfCopy = (PDFType) Cloner.deepClone(pdf);
+		pdfCopy = (PDFType) Cloner.deepClone(pdfModel.get(index));
 		
 		ArrayList<String> ignoreAttr = new ArrayList<String>();
 		ignoreAttr.add("ConfigurationParameter");
@@ -43,10 +48,10 @@ public class PDFEditorController extends UIController implements CommandListener
 		pdfDetailsTableController = new AttributeTableController<PDFType>(
 				this, this, pdfDetails, "PDF Info");
 		
-		ITagNameDataModel<PDFType> tagNamePDFModel = 
+		tagNamePDFModel = 
 				new TagNameDataModel<PDFType>(pdfDetails,"");
 		try {
-			tagNamePDFModel.setTagName(0, tagName);
+			tagNamePDFModel.setTagName(0, pdfModel.getTagName(index));
 		} catch (TagNameException e) {
 			e.printStackTrace();
 		}
@@ -55,14 +60,14 @@ public class PDFEditorController extends UIController implements CommandListener
 		
 		IDataModel<String> configParamModel = 
 				new ListModel<String>(String.class, 
-						pdf.getConfigurationParameter(), "Configuration Parameter");
+						pdfCopy.getConfigurationParameter(), "Configuration Parameter");
 		configParamTableController = new DataTableController<String>(
 				this, this, configParamModel, 
 				"Add Config Param", "Remove Config Param", "Duplicate Config Param");
 		
 		IDataModel<String> paramSubModel = 
 				new ListModel<String>(String.class, 
-						pdf.getParameterSubstitution(), "Parameter Substitution");
+						pdfCopy.getParameterSubstitution(), "Parameter Substitution");
 		paramSubTableController = new DataTableController<String>(
 				this, this, paramSubModel, 
 				"Add Param Sub", "Remove Param Sub", "Duplicate Param Sub");
@@ -145,6 +150,7 @@ public class PDFEditorController extends UIController implements CommandListener
 	}
 	
 	public void quitPDFEditor(){
-		
+		mainController.editPDF(pdfCopy, tagNamePDFModel.getTagName(0));
+		mainFrame.dispose();
 	}
 }

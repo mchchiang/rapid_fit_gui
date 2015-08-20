@@ -15,8 +15,8 @@ public abstract class UIController implements Controller {
 	public abstract void setActiveController(Controller c);
 	public abstract Controller getActiveController();
 	
-	public void activateController() {}
-	public void deactivateController() {}
+	public final void activateController() {}
+	public final void deactivateController() {}
 	
 	public JComponent getView(){
 		return null;

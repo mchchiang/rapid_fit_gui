@@ -1,5 +1,6 @@
 package rapidFit.model.treeModel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -12,7 +13,7 @@ import rapidFit.data.SumPDFType;
 import rapidFit.data.ToFitType;
 
 public class PDFTreeModel implements ITreeModel {
-	
+
 	private ArrayList<TreeListener> listeners;
 	private PDFNode displayRoot;
 	private Object root;
@@ -138,13 +139,14 @@ public class PDFTreeModel implements ITreeModel {
 			PDFNode oldNode = displayRoot;
 			newNode.setParent(null);
 			displayRoot = newNode;
+
 			if (root instanceof PDFExpressionType){
 				PDFExpressionType expType = (PDFExpressionType) root;
 				Object pdf = newNode.getActualObject();
 				expType.setProdPDF(null);
 				expType.setNormalisedSumPDF(null);
 				expType.setPDF(null);
-				
+
 				if (pdf instanceof ProdPDFType){
 					expType.setProdPDF((ProdPDFType) pdf); 
 				} else if (pdf instanceof SumPDFType){
@@ -152,14 +154,14 @@ public class PDFTreeModel implements ITreeModel {
 				} else if (pdf instanceof PDFType){
 					expType.setPDF((PDFType) pdf);
 				}
-				
+
 			} else if (root instanceof ToFitType){
 				ToFitType tofit = (ToFitType) root;
 				Object pdf = newNode.getActualObject();
 				tofit.setProdPDF(null);
 				tofit.setNormalisedSumPDF(null);
 				tofit.setPDF(null);
-				
+
 				if (pdf instanceof ProdPDFType){
 					tofit.setProdPDF((ProdPDFType) pdf); 
 				} else if (pdf instanceof SumPDFType){
@@ -249,6 +251,29 @@ public class PDFTreeModel implements ITreeModel {
 	@Override
 	public String getTagName(Object entry) {
 		return ((PDFNode) entry).getTagName();
+	}
+
+	@Override
+	public void setActualObject(Object node, Object object){
+		if (object instanceof PDFType ||
+				object instanceof ProdPDFType ||
+				object instanceof SumPDFType){
+			PDFNode pdfNode = (PDFNode) node;
+			if (pdfNode.getParent() != null){
+				Object parent = pdfNode.getParent().getActualObject();
+				int childIndex = pdfNode.getParent().getIndexOfChild(pdfNode);
+				if (parent instanceof ProdPDFType){
+					((ProdPDFType) parent).getProdPDFOrNormalisedSumPDFOrPDF().
+					set(childIndex, (Serializable) object);
+				} else if (parent instanceof SumPDFType){
+					((SumPDFType) parent).getProdPDFOrNormalisedSumPDFOrPDF().
+					set(childIndex, (Serializable) object);
+				}
+			}
+			pdfNode.setActualObject(object);
+			notifyTreeListener(new SetTreeNodeEvent(
+					this, getPathToRoot(pdfNode), pdfNode, pdfNode));
+		}
 	}
 
 	@Override

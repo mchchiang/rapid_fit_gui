@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings("rawtypes")
 public class NullClassModel extends IClassModel {

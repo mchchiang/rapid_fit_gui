@@ -56,12 +56,14 @@ public class ListViewPanel extends JPanel {
 		}
 	}
 	
-	public void updateDisplayPanel(JComponent displayPanel, String displayTitle){
-		this.remove(this.displayPanel);
-		this.displayPanel = displayPanel;
-		this.setDisplayTitle(displayTitle);
-		this.add(this.displayPanel, BorderLayout.CENTER);
-		this.repaint();
-		this.validate();
+	public void updateDisplayPanel(JComponent newDisplayPanel, String newDisplayTitle){
+		if (displayPanel != newDisplayPanel){
+			remove(displayPanel);
+			displayPanel = newDisplayPanel;
+			add(displayPanel, BorderLayout.CENTER);
+		}
+		setDisplayTitle(newDisplayTitle);
+		repaint();
+		validate();
 	}	
 }

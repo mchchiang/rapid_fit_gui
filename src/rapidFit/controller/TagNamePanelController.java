@@ -72,6 +72,7 @@ public class TagNamePanelController implements ITagNamePanelController, ListPane
 		selectedIndex = index;
 		if (selectedIndex != -1){
 			panel.setTagName(model.getTagName(selectedIndex));
+			mainController.setActiveController(this);
 		} else {
 			panel.setTagName("");
 		}
@@ -94,11 +95,9 @@ public class TagNamePanelController implements ITagNamePanelController, ListPane
 	
 	@Override
 	public void activateController() {
-		panel.getTagNameTextField().setFocusable(true);
+		panel.getTagNameTextField().requestFocusInWindow();
 	}
 
 	@Override
-	public void deactivateController() {
-		panel.getTagNameTextField().setFocusable(false);
-	}
+	public void deactivateController() {}
 }

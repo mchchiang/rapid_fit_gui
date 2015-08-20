@@ -47,22 +47,21 @@ public class ListModel<T> implements IDataModel<T> {
 	}
 
 	@Override
-	public void add(int index) throws InstantiationException,
-			IllegalAccessException {
+	public void add(int index) {
 		list.add(index, null);
-		notifyDataListener(new AddElementEvent(this, index));		
+		notifyDataListener(new AddElementEvent(this, index, null));		
 	}
 
 	@Override
 	public void add(T object) {
 		list.add(object);
-		notifyDataListener(new AddElementEvent(this, list.size()-1));
+		notifyDataListener(new AddElementEvent(this, list.size()-1, object));
 	}
 
 	@Override
 	public void add(int index, T object) {
 		list.add(index, object);
-		notifyDataListener(new AddElementEvent(this, index));
+		notifyDataListener(new AddElementEvent(this, index, object));
 	}
 
 	@Override
@@ -87,8 +86,9 @@ public class ListModel<T> implements IDataModel<T> {
 
 	@Override
 	public void set(int index, T object) {
+		T oldElement = list.get(index);
 		list.set(index, object);
-		notifyDataListener(new SetElementEvent(this, index));
+		notifyDataListener(new SetElementEvent(this, index, oldElement, object));
 	}
 
 	@Override

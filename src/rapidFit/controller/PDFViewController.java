@@ -12,6 +12,7 @@ import rapidFit.data.PhysicsParameterType;
 import rapidFit.data.ProdPDFType;
 import rapidFit.data.SumPDFType;
 import rapidFit.data.ToFitType;
+import rapidFit.model.PDFManager;
 import rapidFit.model.dataModel.ClassModelAdapter;
 import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
@@ -19,7 +20,6 @@ import rapidFit.model.dataModel.IClassModel;
 import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.model.dataModel.RemoveElementEvent;
 import rapidFit.model.treeModel.ITreeModel;
-import rapidFit.model.treeModel.PDFManager;
 import rapidFit.view.PDFInspector;
 import rapidFit.view.bldblocks.PDFViewPanel;
 
@@ -36,7 +36,7 @@ public class PDFViewController implements Controller, TreePanelListener, DataLis
 
 	private PDFViewPanel panel;
 	private PDFInspector inspector;
-	
+
 	private List<PhysicsParameterType> physicsParams;
 
 	public PDFViewController(UIController mainController, 
@@ -50,23 +50,38 @@ public class PDFViewController implements Controller, TreePanelListener, DataLis
 	}
 
 	public PDFViewController(UIController mainController,
-			Controller parentController, ToFitType root){
+			Controller parentController, ToFitType root,
+			List<PhysicsParameterType> physicsParams){
 		this.mainController = mainController;
 		this.parentController = parentController;
+		this.physicsParams = physicsParams;
 		this.pdfManager = new PDFManager(root, true, true);
 		init();
 	}
 
+	public void setPDFManager(PDFManager manager){
+		pdfManager = manager;
+		pdfTreeModel = pdfManager.getTreeModel();
+		if (pdfDataModel != null){
+			pdfDataModel.removeDataListener(this);
+		}
+		pdfDataModel = pdfManager.getPDFs();
+		if (pdfDataModel != null){
+			pdfDataModel.addDataListener(this);
+		}
+		pdfTreeController.setModel(pdfTreeModel);
+		pdfModelMap = new HashMap<PDFType, IClassModel<PDFType>>();
+	}
+
 	private void init(){
-		//create sub-controllers
 		pdfTreeModel = pdfManager.getTreeModel();
 		pdfDataModel = pdfManager.getPDFs();
-		pdfDataModel.addDataListener(this);
+		pdfDataModel.addDataListener(this);	
 		pdfTreeController = new TreePanelController(
-				mainController, this, pdfTreeModel);
+				mainController, parentController, pdfTreeModel);
 		pdfTreeController.addTreePanelListener(this);
 		pdfModelMap = new HashMap<PDFType, IClassModel<PDFType>>();
-
+		
 		//create view
 		inspector = new PDFInspector();
 		panel = new PDFViewPanel(this, pdfTreeController, inspector);
@@ -91,13 +106,13 @@ public class PDFViewController implements Controller, TreePanelListener, DataLis
 
 	@Override
 	public void changeSelectedPath(Object[] path) {
+		System.out.println("Set selected path");
 		int lastIndex = -1;
 		if (path != null){
 			lastIndex = path.length-1;
 		}
 		if (lastIndex != -1){
-
-
+			
 			Object node = path[lastIndex];
 			Object object = pdfTreeModel.getActualObject(node);
 			if (object instanceof SumPDFType){

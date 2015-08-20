@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.AbstractList;
 import java.util.HashMap;
-import java.util.List;
 
 import rapidFit.controller.exception.TagNameException;;
 
@@ -70,6 +69,14 @@ public abstract class ITagNameDataModel<E> implements IDataModel<E> {
 				new EditTagNameEvent(this, index, getTagName(index)));
 	}
 	
+	public void set(int index, E object, String tagName){
+		removeEntry(model.get(index));
+		model.set(index, object);
+		addEntry(object, tagName);
+		model.notifyDataListener(
+				new EditTagNameEvent(this, index, getTagName(index)));
+	}
+	
 	@Override
 	public void addDataListener(DataListener lo){
 		model.addDataListener(lo);
@@ -98,10 +105,15 @@ public abstract class ITagNameDataModel<E> implements IDataModel<E> {
 	
 	@Override
 	public void set(int index, E object){
+		//remove old tag name
+		removeEntry(model.get(index));
+		model.set(index, object);
+		//set tag name for replaced entry
 		if (getTagName(object) == null){
 			addEntry(object);
+			model.notifyDataListener(
+					new EditTagNameEvent(this, index, getTagName(index)));
 		} 
-		model.set(index, object);
 	}
 	
 	@Override

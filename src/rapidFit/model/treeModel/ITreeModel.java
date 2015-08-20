@@ -9,6 +9,8 @@ public interface ITreeModel {
 	
 	public Object getRoot();
 	public Object getChild(Object parent, int index);
+	
+	public void setActualObject(Object node, Object object);
 	public Object getActualObject(Object node);
 	public int getChildCount(Object parent);
 	public boolean isLeaf(Object node);

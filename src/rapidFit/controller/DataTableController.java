@@ -87,7 +87,7 @@ public class DataTableController<T> implements IDataTableController<T> {
 		dataModel.addDataListener(this);
 		fieldNames = newModel.getFieldNames();
 		setListMap();
-		tableViewModel.fireTableDataChanged();
+		tableViewModel.fireTableStructureChanged();
 	}
 	
 	@Override

@@ -13,7 +13,6 @@ import rapidFit.controller.command.TagNameDataModelCopyCommand;
 import rapidFit.controller.command.TagNameDataModelRemoveCommand;
 import rapidFit.model.dataModel.AddElementEvent;
 import rapidFit.model.dataModel.DataEvent;
-import rapidFit.model.dataModel.EditElementEvent;
 import rapidFit.model.dataModel.EditTagNameEvent;
 import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.model.dataModel.RemoveElementEvent;
@@ -103,22 +102,28 @@ public class ListPanelController<T> implements IListPanelController<T> {
 	public String getTagName(int row) {
 		return dataModel.getTagName(row);
 	}
+	
+	@Override
+	public int indexOf(T object){
+		return dataModel.indexOf(object);
+	}
 
 	@Override
 	public void addRow() {
-		mainController.setCommand(new TagNameDataModelAddCommand<T>(dataModel, getListSize(),
-				"Added a new row"));
+		mainController.setCommand(new TagNameDataModelAddCommand<T>(
+				dataModel, getListSize(), "Added a new row"));
 	}
 
 	@Override
 	public void addRow(int row) {
-		mainController.setCommand(new TagNameDataModelAddCommand<T>(dataModel, row+1,
-				"Added a new row"));
+		mainController.setCommand(new TagNameDataModelAddCommand<T>(
+				dataModel, row+1, "Added a new row"));
 	}
 
 	@Override
 	public void removeRow(int row) {
-		mainController.setCommand(new TagNameDataModelRemoveCommand<T>(dataModel, row, row));
+		mainController.setCommand(new TagNameDataModelRemoveCommand<T>(
+				dataModel, row, row));
 
 	}
 
@@ -131,7 +136,8 @@ public class ListPanelController<T> implements IListPanelController<T> {
 		Arrays.sort(rows);
 
 		for (int i = 0; i < rows.length; i++){
-			commands.add(new TagNameDataModelRemoveCommand<T>(dataModel, rows[i], rows[i]-i));
+			commands.add(new TagNameDataModelRemoveCommand<T>(
+					dataModel, rows[i], rows[i]-i));
 		}		
 		mainController.setCommand(new CompoundUndoableCommand(commands));
 	}
@@ -181,20 +187,12 @@ public class ListPanelController<T> implements IListPanelController<T> {
 				viewModel.fireContentsChanged(0, getListSize());
 				mainController.setActiveController(this);
 				
-			} else if (e instanceof EditElementEvent){
-				EditElementEvent evt = (EditElementEvent) e;
-				viewModel.fireContentsChanged(evt.getIndex(), evt.getIndex());
-				setSelectedIndex(evt.getIndex());
-				viewModel.fireContentsChanged(0, getListSize());
-				mainController.setActiveController(this);
-				
 			} else if (e instanceof EditTagNameEvent){
 				EditTagNameEvent evt = (EditTagNameEvent) e;
 				viewModel.fireContentsChanged(evt.getIndex(), evt.getIndex());
 				viewModel.fireContentsChanged(0, getListSize());
 				mainController.setActiveController(this);
 			}
-			
 		}
 	}
 

@@ -142,6 +142,7 @@ public class TreePanelController implements ITreePanelController, TreeListener {
 
 	@Override
 	public void setSelectedPath(Object [] path) {
+		
 		//check if the new path is different from the old path
 		boolean isNewPath = false;
 		if (selectedPath != null && selectedPath.length == path.length){

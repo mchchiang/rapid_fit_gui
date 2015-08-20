@@ -127,15 +127,34 @@ public class RapidFitEditor extends UIController implements CommandListener{
 		controlViewPair.put(otherFitOptionsController, fitOptionsPanel);
 		componentTitlePair.put(fitOptionsPanel, "Fit Options");
 		
+		//common properties panel
+		//common phase space
 		IDataModel<ObservableType> observables = 
 				new DataModel<ObservableType>(ObservableType.class, 
 						root.getCommonPhaseSpace().getPhaseSpaceBoundary().getObservable(), null);
 		IDataTableController<ObservableType> observablesController = new 
 				DataTableController<ObservableType>(this, this, observables,
 						"Add Observable", "Remove Observable(s)", "Duplicate Observable(s)");
+		JComponent observablesTable = observablesController.getView();
+		observablesTable.setBorder(BorderFactory.createTitledBorder(
+				"<html><h3>Common Phase Space</h3></html>"));
 		
-		controlViewPair.put(observablesController, observablesController.getView());
-		componentTitlePair.put(observablesController.getView(), "Common Options");
+		//common PDF
+		PDFViewController commonPDFController = new PDFViewController(
+				this, this, root.getCommonPDF(), 
+				root.getParameterSet().getPhysicsParameter());
+		JComponent commonPDFViewer = commonPDFController.getView();
+		commonPDFViewer.setBorder(BorderFactory.createTitledBorder(
+				"<html><h3>Common PDF</h3></html>"));
+		
+		JPanel commonPropertiesPanel = new JPanel();
+		commonPropertiesPanel.setLayout(new GridLayout(0,1));
+		commonPropertiesPanel.add(observablesTable);
+		commonPropertiesPanel.add(commonPDFViewer);
+		
+		controlViewPair.put(observablesController, commonPropertiesPanel);
+		controlViewPair.put(commonPDFController, commonPropertiesPanel);
+		componentTitlePair.put(commonPropertiesPanel, "Common Options");
 		
 		//separate actual fit and fit constraints
 		IDataModel<ToFitType> fits = new DataModel<ToFitType>(
@@ -158,6 +177,11 @@ public class RapidFitEditor extends UIController implements CommandListener{
 				constraintFit = fit;
 			}
 		}
+		
+		DataSetPanelController dataSetPanelController = new DataSetPanelController(
+				this, actualFits, null);
+		controlViewPair.put(dataSetPanelController, dataSetPanelController.getView());
+		componentTitlePair.put(dataSetPanelController.getView(), "Data Set");
 		
 		//for displaying external constraints and external constraint matrices
 		IDataModel<ExternalConstraintType> constraints = new DataModel<ExternalConstraintType>(
@@ -204,7 +228,7 @@ public class RapidFitEditor extends UIController implements CommandListener{
 						new DataModel<ComponentProjectionType>(
 								ComponentProjectionType.class, 
 								root.getOutput().getComponentProjection(), null), "Comp_Proj");	
-		IListViewController<ComponentProjectionType> projectionsListController =
+		ListViewController<ComponentProjectionType> projectionsListController =
 				new ListViewController<ComponentProjectionType>(
 						this, projections, "Available Projections", "Projection Details");
 		controlViewPair.put(projectionsListController, projectionsListController.getView());
@@ -217,22 +241,16 @@ public class RapidFitEditor extends UIController implements CommandListener{
 						new DataModel<ScanParamType>(ScanParamType.class,
 								root.getOutput().getScan(), null), "Scan");
 		
-		IListViewController<ScanParamType> scansListController =
+		ListViewController<ScanParamType> scansListController =
 				new ListViewController<ScanParamType>(
 						this, scans, "Available Scans", "Scan Details");
 		
 		
-		ITagNameDataModel<TwoDScanType> twoDScans =
-				new TagNameDataModel<TwoDScanType>(
-						new DataModel<TwoDScanType>(TwoDScanType.class,
-								root.getOutput().getTwoDScan(), null), "2D_Scan");
+		TwoDScanPanelController twoDScanController =
+				new TwoDScanPanelController(this, this, root.getOutput().getTwoDScan());
+		controlViewPair.put(twoDScanController, twoDScanController.getView());
+		componentTitlePair.put(twoDScanController.getView(), "2D Scans");
 		
-		PDFViewController commonPDFController = new PDFViewController(
-				this, this, root.getCommonPDF(), 
-				root.getParameterSet().getPhysicsParameter());
-		
-		controlViewPair.put(commonPDFController, commonPDFController.getView());
-		componentTitlePair.put(commonPDFController.getView(), "Common PDF");
 		
 		mainFrame.createLoadedFileScene(componentTitlePair, fileName);
 	}
@@ -279,9 +297,9 @@ public class RapidFitEditor extends UIController implements CommandListener{
 
 	@Override
 	public void setActiveController(Controller controller) {
-		commandHandler.setActiveController(controller);
 		//for switching to the tab where the active controller is
 		if (commandHandler.getActiveController() != controller) {
+			commandHandler.setActiveController(controller);
 			Controller c = findParentController(controller);
 			JComponent cmp = controlViewPair.get(c);
 			if (cmp != null){
@@ -323,12 +341,6 @@ public class RapidFitEditor extends UIController implements CommandListener{
 	public JComponent getView() {
 		return null;
 	}
-	
-	@Override
-	public void activateController() {}
-	
-	@Override
-	public void deactivateController() {}
 
 	@Override
 	public Window getWindow() {
