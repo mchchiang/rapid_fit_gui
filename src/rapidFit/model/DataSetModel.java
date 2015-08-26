@@ -20,6 +20,17 @@ public class DataSetModel extends DataModel<ToFitType>{
 	public DataSetModel(List<ToFitType> data,
 			ArrayList<String> ignoreAttributes) {
 		super(ToFitType.class, data, ignoreAttributes);
+		
+		/*
+		 * check to ensure that fits using common pdf has a 
+		 * non-null pdf configurator
+		 */
+		for (int i = 0; i < size(); i++){
+			ToFitType fit = get(i);
+			if (fit.isCommonPDF() && fit.getPDFConfigurator() == null){
+				fit.setPDFConfigurator(new PDFConfiguratorType());
+			}
+		}
 	}
 
 	public void add(int index) {

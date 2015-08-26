@@ -175,6 +175,19 @@ public class DataSetPanelController implements Controller, DataListener, ListPan
 				int index = dataSetModel.indexOf(displayElement);
 				listViewPanel.updateDisplayPanel(dataSetPanel, 
 						tagNameDataSetModel.getTagName(index));
+				
+				//display the PDF Configurator panel if the fit uses common PDF
+				/*
+				 * pdf configurator is guaranteed to be non-null for fits that use
+				 * common PDF as this is checked during instantiation
+				 */
+				
+				if (toFit.isCommonPDF()){
+					
+				} else {
+					pdfViewController = new PDFViewController(
+							mainController, this, toFit, physicsParams);
+				}
 			}
 		}
 	}
@@ -183,16 +196,16 @@ public class DataSetPanelController implements Controller, DataListener, ListPan
 	public void update(DataEvent e){
 		if (e.getDataModel() == dataSetModel){
 			if (e instanceof RemoveElementEvent){
-				RemoveElementEvent evt = (RemoveElementEvent) e;
-				ToFitType toFit = (ToFitType) evt.getRemovedElement();
-				DataSetType dataSet = toFit.getDataSet();
+				//RemoveElementEvent evt = (RemoveElementEvent) e;
+				//ToFitType toFit = (ToFitType) evt.getRemovedElement();
+				//DataSetType dataSet = toFit.getDataSet();
 				//remove models related to the data set from the maps
-				if (dataSetModelMap.containsKey(dataSet)){
+				/*if (dataSetModelMap.containsKey(dataSet)){
 					dataSetModelMap.remove(dataSet);
 				}
 				if (observableModelMap.containsKey(dataSet)){
 					observableModelMap.remove(dataSet);
-				}
+				}*/
 				changeDisplayElement(null);
 				listPanelController.clearSelection();
 			} 
@@ -212,5 +225,4 @@ public class DataSetPanelController implements Controller, DataListener, ListPan
 	public JComponent getView(){
 		return listViewPanel;
 	}
-
 }
