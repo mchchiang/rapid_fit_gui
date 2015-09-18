@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.AbstractList;
 
+import rapidFit.model.dataModel.event.DataEvent;
+
 /**
  * 
  * An interface that models a data set with multiple entries and
@@ -32,7 +34,6 @@ public interface IDataModel<T> {
 	public void addDataListener(DataListener listener);
 	
 	/**
-	 * 
 	 * Remove a listener that listens to any data events related
 	 * to this data model.
 	 * 
@@ -44,8 +45,6 @@ public interface IDataModel<T> {
 	
 	/**
 	 * 
-	 * 
-	 * 
 	 * @param e The data event that has occurred in the data set
 	 * 
 	 */
@@ -53,14 +52,12 @@ public interface IDataModel<T> {
 	
 	
 	/**
-	 * 
 	 * Return the number of entries in the data set
 	 * 
 	 */
 	public int size();
 	
 	/**
-	 * 
 	 * Add a new empty entry at a particular index to the data set. 
 	 * 
 	 * @param index Index where the new entry should be inserted
@@ -72,7 +69,6 @@ public interface IDataModel<T> {
 			throws InstantiationException, IllegalAccessException;
 	
 	/**
-	 * 
 	 * Add an entry to the data set
 	 * 
 	 * @param object The entry to be added to the data set
@@ -81,7 +77,6 @@ public interface IDataModel<T> {
 	public void add(T object);
 	
 	/**
-	 * 
 	 * Insert an entry at a particular index to the data set
 	 * 
 	 * @param index Index where the entry should be inserted
@@ -91,7 +86,6 @@ public interface IDataModel<T> {
 	public void add(int index, T object);
 	
 	/**
-	 * 
 	 * Remove the entry at a particular index from the data set
 	 * 
 	 * @param index Index of the entry
@@ -100,7 +94,6 @@ public interface IDataModel<T> {
 	public void remove(int index);
 	
 	/**
-	 * 
 	 * Remove the first occurrence of the object from the data set
 	 * 
 	 * @param object Object to be removed
@@ -109,7 +102,6 @@ public interface IDataModel<T> {
 	public void remove(T object);
 	
 	/**
-	 * 
 	 * Return the index of the first occurring
 	 * 
 	 * @param object
@@ -171,7 +163,6 @@ public interface IDataModel<T> {
 	public int getNumOfFields();
 	
 	/**
-	 * 
 	 * Return the field names of all the editable fields of 
 	 * an entry in the data set
 	 * 
@@ -179,7 +170,6 @@ public interface IDataModel<T> {
 	public AbstractList<String> getFieldNames();
 	
 	/**
-	 * 
 	 * Return the Java class (<code>Class<?></code>) of the
 	 * specified field
 	 * 
@@ -189,7 +179,6 @@ public interface IDataModel<T> {
 	public Class<?>	getFieldClass(String field);
 	
 	/**
-	 * 
 	 * Return the Java <code>Type</code> of the specified field
 	 * 
 	 * @param field The name of the field
@@ -198,14 +187,12 @@ public interface IDataModel<T> {
 	public Type getFieldType(String field);
 	
 	/**
-	 * 
 	 * Return the Java class of the entries in the data set
 	 * 
 	 */
 	public Class<T> getDataClass();
 	
 	/**
-	 * 
 	 * Return the actual/root model of this data model. The root model is 
 	 * the data model that performs direct manipulations on the
 	 * data set (e.g. <code>DataModel</code> and <code>ClassModel</code>).

@@ -6,10 +6,10 @@ import java.util.List;
 import javax.swing.JComponent;
 
 import rapidFit.controller.command.EditDataModelTagNameCommand;
-import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
-import rapidFit.model.dataModel.EditTagNameEvent;
 import rapidFit.model.dataModel.ITagNameDataModel;
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.EditTagNameEvent;
 import rapidFit.view.bldblocks.TagNamePanel;
 
 public class TagNamePanelController implements ITagNamePanelController, ListPanelListener, DataListener {

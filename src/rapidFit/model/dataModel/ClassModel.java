@@ -7,6 +7,9 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.EditElementEvent;
+
 public class ClassModel<T> extends IClassModel<T>{
 	
 	private T data;

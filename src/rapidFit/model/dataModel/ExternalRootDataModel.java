@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.AbstractList;
 
+import rapidFit.model.dataModel.event.DataEvent;
+
 public class ExternalRootDataModel<T> implements IDataModel<T> {
 	
 	private IDataModel<T> model;

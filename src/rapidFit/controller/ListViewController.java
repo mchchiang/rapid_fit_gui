@@ -9,14 +9,14 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import rapidFit.model.dataModel.ClassModelAdapter;
-import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
-import rapidFit.model.dataModel.EditElementEvent;
-import rapidFit.model.dataModel.EditTagNameEvent;
 import rapidFit.model.dataModel.IClassModel;
 import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.model.dataModel.NullClassModel;
-import rapidFit.model.dataModel.RemoveElementEvent;
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.EditElementEvent;
+import rapidFit.model.dataModel.event.EditTagNameEvent;
+import rapidFit.model.dataModel.event.RemoveElementEvent;
 import rapidFit.view.NullPanel;
 import rapidFit.view.bldblocks.ListViewPanel;
 

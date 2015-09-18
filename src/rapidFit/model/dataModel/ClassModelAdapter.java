@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.AbstractList;
 
+import rapidFit.model.dataModel.event.DataEvent;
+
 /**
  * 
  * An adapter for converting a particular element in a data model
@@ -26,7 +28,6 @@ public class ClassModelAdapter<T> extends IClassModel<T> {
 	public ClassModelAdapter(IDataModel<T> model, T object){
 		this.model = model;
 		this.element = object;
-		
 	}
 
 	@Override

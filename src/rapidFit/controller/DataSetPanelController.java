@@ -15,7 +15,6 @@ import rapidFit.data.PhysicsParameterType;
 import rapidFit.data.ToFitType;
 import rapidFit.model.DataSetModel;
 import rapidFit.model.dataModel.ClassModel;
-import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
 import rapidFit.model.dataModel.DataModel;
 import rapidFit.model.dataModel.IClassModel;
@@ -23,8 +22,9 @@ import rapidFit.model.dataModel.IDataModel;
 import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.model.dataModel.NullClassModel;
 import rapidFit.model.dataModel.NullDataModel;
-import rapidFit.model.dataModel.RemoveElementEvent;
 import rapidFit.model.dataModel.TagNameDataModel;
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.RemoveElementEvent;
 import rapidFit.view.DataSetPanel;
 import rapidFit.view.NullPanel;
 import rapidFit.view.bldblocks.ListViewPanel;
@@ -65,16 +65,7 @@ public class DataSetPanelController implements Controller, DataListener, ListPan
 		//create models
 		dataSetModel = new DataSetModel(toFits, null);
 		tagNameDataSetModel = new TagNameDataModel<ToFitType>(dataSetModel, "Data_Set");
-		
-		List<DataSetType> dataSets = new ArrayList<DataSetType>();
-		for (int i = 0; i < dataSetModel.size(); i++){
-			try {
-				dataSets.add((DataSetType) dataSetModel.get(i, "DataSet")); 
-			} catch (Exception e){
-				e.printStackTrace();
-			}
-		}
-		
+			
 		ignoreAttributes = new ArrayList<String>();
 		ignoreAttributes.add("CommonPhaseSpace");
 		ignoreAttributes.add("PhaseSpaceBoundary");
@@ -172,10 +163,6 @@ public class DataSetPanelController implements Controller, DataListener, ListPan
 				}
 				observablesTableController.setModel(observableModelMap.get(dataSet));
 				
-				int index = dataSetModel.indexOf(displayElement);
-				listViewPanel.updateDisplayPanel(dataSetPanel, 
-						tagNameDataSetModel.getTagName(index));
-				
 				//display the PDF Configurator panel if the fit uses common PDF
 				/*
 				 * pdf configurator is guaranteed to be non-null for fits that use
@@ -188,6 +175,11 @@ public class DataSetPanelController implements Controller, DataListener, ListPan
 					pdfViewController = new PDFViewController(
 							mainController, this, toFit, physicsParams);
 				}
+				
+				//update the entire panel to display the new selected data set
+				int index = dataSetModel.indexOf(displayElement);
+				listViewPanel.updateDisplayPanel(dataSetPanel, 
+						tagNameDataSetModel.getTagName(index));
 			}
 		}
 	}
@@ -196,20 +188,11 @@ public class DataSetPanelController implements Controller, DataListener, ListPan
 	public void update(DataEvent e){
 		if (e.getDataModel() == dataSetModel){
 			if (e instanceof RemoveElementEvent){
-				//RemoveElementEvent evt = (RemoveElementEvent) e;
-				//ToFitType toFit = (ToFitType) evt.getRemovedElement();
-				//DataSetType dataSet = toFit.getDataSet();
-				//remove models related to the data set from the maps
-				/*if (dataSetModelMap.containsKey(dataSet)){
-					dataSetModelMap.remove(dataSet);
-				}
-				if (observableModelMap.containsKey(dataSet)){
-					observableModelMap.remove(dataSet);
-				}*/
 				changeDisplayElement(null);
 				listPanelController.clearSelection();
 			} 
 		} else if (dataSetModelMap.containsValue(e.getDataModel())){
+			
 			
 		} else if (observableModelMap.containsValue(e.getDataModel())){
 			

@@ -5,7 +5,9 @@ import java.lang.reflect.Type;
 import java.util.AbstractList;
 import java.util.HashMap;
 
-import rapidFit.controller.exception.TagNameException;;
+import rapidFit.controller.exception.TagNameException;
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.EditTagNameEvent;
 
 /**
  * 

@@ -2,7 +2,6 @@ package rapidFit.controller;
 
 import java.awt.GridLayout;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -14,15 +13,15 @@ import rapidFit.data.ScanParamType;
 import rapidFit.data.TwoDScanType;
 import rapidFit.model.TwoDScanModel;
 import rapidFit.model.dataModel.ClassModel;
-import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
-import rapidFit.model.dataModel.EditTagNameEvent;
 import rapidFit.model.dataModel.IClassModel;
 import rapidFit.model.dataModel.IDataModel;
 import rapidFit.model.dataModel.ITagNameDataModel;
 import rapidFit.model.dataModel.NullClassModel;
-import rapidFit.model.dataModel.RemoveElementEvent;
 import rapidFit.model.dataModel.TagNameDataModel;
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.EditTagNameEvent;
+import rapidFit.model.dataModel.event.RemoveElementEvent;
 import rapidFit.view.NullPanel;
 import rapidFit.view.bldblocks.ListViewPanel;
 
@@ -37,9 +36,7 @@ Controller, DataListener, ListPanelListener {
 	private IAttributeTableController<ScanParamType> yParamTableController;
 
 	private IListPanelController<TwoDScanType> listPanelController;
-
-	//private HashMap<TwoDScanType, IClassModel<ScanParamType>> xParamModelMap;
-	//private HashMap<TwoDScanType, IClassModel<ScanParamType>> yParamModelMap;
+	
 	private HashBiMap<TwoDScanType, IClassModel<ScanParamType>> xParamModelMap;
 	private HashBiMap<TwoDScanType, IClassModel<ScanParamType>> yParamModelMap;
 	
@@ -106,33 +103,25 @@ Controller, DataListener, ListPanelListener {
 
 	public void update(DataEvent e){
 		IDataModel<?> model = e.getDataModel();
-		System.out.println(e);
 		if (model == tagNameTwoDScanModel.getActualModel()){
 			if (e instanceof RemoveElementEvent){
-				//RemoveElementEvent evt = (RemoveElementEvent) e;
-				//TwoDScanType twoDScan = (TwoDScanType) evt.getRemovedElement();
-				/*if (xParamModelMap.containsKey(twoDScan)){
-					xParamModelMap.get(twoDScan).removeDataListener(this);
-					xParamModelMap.remove(twoDScan);
-				}
-				if (yParamModelMap.containsKey(twoDScan)){
-					yParamModelMap.get(twoDScan).removeDataListener(this);
-					yParamModelMap.remove(twoDScan);
-				}*/
 				changeDisplayElement(null);
 				listPanelController.clearSelection();
+				
 			} else if (e instanceof EditTagNameEvent){
 				EditTagNameEvent evt = (EditTagNameEvent) e;
 				if (displayScan == tagNameTwoDScanModel.get(evt.getIndex())){
 					listViewPanel.setDisplayTitle(evt.getNewTagName());
 				}
 			}
+			
 		} else if (xParamModelMap.containsValue(model)) {
 			TwoDScanType twoDScan = xParamModelMap.inverse().get(model);
 			System.out.println(twoDScan);
 			changeDisplayElement(twoDScan);
 			listPanelController.setSelectedIndex(
 					listPanelController.indexOf(twoDScan));
+			
 		} else if (yParamModelMap.containsValue(model)){
 			TwoDScanType twoDScan = yParamModelMap.inverse().get(model);
 			System.out.println(twoDScan);
@@ -144,12 +133,10 @@ Controller, DataListener, ListPanelListener {
 
 	@Override
 	public void changedSelectedElement(int index) {
-		System.out.println("Changed selected index: " + index);
 		changeDisplayElement(listPanelController.get(index));		
 	}
 
 	private void changeDisplayElement(TwoDScanType twoDScan){
-		System.out.println("Change display element: " + twoDScan);
 		if (displayScan != twoDScan){
 			displayScan = twoDScan;
 			if (displayScan == null){

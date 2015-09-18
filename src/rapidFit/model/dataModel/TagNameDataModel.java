@@ -3,6 +3,7 @@ package rapidFit.model.dataModel;
 import java.util.HashMap;
 
 import rapidFit.controller.exception.TagNameException;
+import rapidFit.model.dataModel.event.EditTagNameEvent;
 
 
 public class TagNameDataModel<T> extends ITagNameDataModel<T> {

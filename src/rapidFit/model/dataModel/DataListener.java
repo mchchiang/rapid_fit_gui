@@ -1,5 +1,7 @@
 package rapidFit.model.dataModel;
 
+import rapidFit.model.dataModel.event.DataEvent;
+
 /**
  * 
  * An interface that any objects wishing to listen to events occurring 
@@ -18,7 +20,7 @@ public interface DataListener {
 	 * duplicating an entry, editing a field of an entry, etc. 
 	 * 
 	 * @param e The event that has occurred in the data set
-	 * @see rapidFit.model.dataModel.DataEvent
+	 * @see rapidFit.model.dataModel.event.DataEvent
 	 * 
 	 */
 	public void update(DataEvent e);

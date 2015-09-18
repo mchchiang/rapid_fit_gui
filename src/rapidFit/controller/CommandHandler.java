@@ -18,6 +18,17 @@ public class CommandHandler {
 		redoCommands = new Stack<UndoableCommand>();
 	}
 	
+	
+	/**
+	 * Execute a command. If the command is executed successfully,
+	 * it is stored in the command history list for undo/redo purpose.
+	 * Notice once a new command is set, the list of redoable commands
+	 * is automatically cleared.
+	 * 
+	 * N.B. This is a thread-safe method.
+	 * 
+	 * @param cmd
+	 */
 	public synchronized void setCommand(Command cmd) {
 		if (cmd.execute()){
 			System.out.println(cmd);
@@ -29,6 +40,13 @@ public class CommandHandler {
 		}
 	}
 	
+	/**
+	 * Undo the last (undoable) command that was executed. If 
+	 * executed successfully, the command is stored in the list of
+	 * redoable commands.
+	 * 
+	 * N.B. This is a thread-safe method. 
+	 */
 	public synchronized void undo() {
 		if (activeController != null){
 			activeController.deactivateController();
@@ -41,7 +59,13 @@ public class CommandHandler {
 			listener.undoOccurred(uc);
 		}
 	}
-
+	
+	
+	/**
+	 * Redo the last command that was undone/unexecuted.
+	 * 
+	 * N.B. This is a thread-safe method.
+	 */
 	public synchronized void redo() {
 		if (activeController != null){
 			activeController.deactivateController();
@@ -70,14 +94,26 @@ public class CommandHandler {
 		return activeController;
 	}
 	
+	/**
+	 * Clear the list of redoable commands.
+	 */
 	public void clearRedoableCommand(){
 		redoCommands.clear();
 	}
 	
+	/**
+	 * Check if there are any undoable commands stored in 
+	 * the command history list.
+	 */
 	public boolean hasUndoableCommand(){
 		return !commandHistory.empty();
 	}
 	
+	/**
+	 * Check if there are any commands stored in
+	 * the redoable commands list.
+	 * @return
+	 */
 	public boolean hasRedoableCommand(){
 		return !redoCommands.empty();
 	}

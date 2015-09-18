@@ -5,9 +5,9 @@ import java.util.List;
 import javax.swing.JComponent;
 
 import rapidFit.controller.command.DataModelEditFieldCommand;
-import rapidFit.model.dataModel.DataEvent;
-import rapidFit.model.dataModel.EditElementEvent;
 import rapidFit.model.dataModel.IClassModel;
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.EditElementEvent;
 import rapidFit.view.bldblocks.AttributePanel;
 import rapidFit.view.bldblocks.AttributeTable;
 import rapidFit.view.bldblocks.AttributeTableViewModel;

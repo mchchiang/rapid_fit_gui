@@ -5,6 +5,8 @@ import java.lang.reflect.Type;
 import java.util.AbstractList;
 import java.util.ArrayList;
 
+import rapidFit.model.dataModel.event.DataEvent;
+
 @SuppressWarnings("rawtypes")
 public class NullClassModel extends IClassModel {
 	

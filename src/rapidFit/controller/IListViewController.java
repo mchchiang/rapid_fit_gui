@@ -3,10 +3,10 @@ package rapidFit.controller;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
-import rapidFit.model.dataModel.EditTagNameEvent;
 import rapidFit.model.dataModel.ITagNameDataModel;
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.EditTagNameEvent;
 import rapidFit.view.bldblocks.ListViewPanel;
 
 public abstract class IListViewController<T> implements Controller, ListPanelListener, DataListener {

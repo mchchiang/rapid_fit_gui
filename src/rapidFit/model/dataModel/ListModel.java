@@ -6,6 +6,11 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
+import rapidFit.model.dataModel.event.AddElementEvent;
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.RemoveElementEvent;
+import rapidFit.model.dataModel.event.SetElementEvent;
+
 public class ListModel<T> implements IDataModel<T> {
 	
 	private List<T> list;

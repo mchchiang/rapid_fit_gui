@@ -18,15 +18,15 @@ import rapidFit.data.PhysicsParameterType;
 import rapidFit.data.ProdPDFType;
 import rapidFit.data.SumPDFType;
 import rapidFit.model.PDFManager;
-import rapidFit.model.dataModel.AddElementEvent;
 import rapidFit.model.dataModel.ClassModelAdapter;
-import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.DataListener;
-import rapidFit.model.dataModel.EditTagNameEvent;
 import rapidFit.model.dataModel.IClassModel;
 import rapidFit.model.dataModel.ITagNameDataModel;
-import rapidFit.model.dataModel.RemoveElementEvent;
-import rapidFit.model.dataModel.SetElementEvent;
+import rapidFit.model.dataModel.event.AddElementEvent;
+import rapidFit.model.dataModel.event.DataEvent;
+import rapidFit.model.dataModel.event.EditTagNameEvent;
+import rapidFit.model.dataModel.event.RemoveElementEvent;
+import rapidFit.model.dataModel.event.SetElementEvent;
 import rapidFit.model.treeModel.ITreeModel;
 import rapidFit.model.treeModel.PDFNode;
 import rapidFit.view.PDFBuilderFrame;
@@ -472,7 +472,6 @@ CommandListener, ListPanelListener, TreePanelListener, DataListener {
 
 	public void openPDFEditor(){
 		int selectedIndex = pdfListController.getSelectedIndex();
-		System.out.println(selectedIndex);
 		if (selectedIndex != -1){
 			new PDFEditorController(this, pdfDataModel, selectedIndex);
 		}

@@ -1,7 +1,7 @@
 package rapidFit.model;
 
-import rapidFit.model.dataModel.DataEvent;
 import rapidFit.model.dataModel.IDataModel;
+import rapidFit.model.dataModel.event.DataEvent;
 
 public class SwitchToIndividualPDFEvent implements DataEvent {
 	
