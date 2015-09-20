@@ -68,13 +68,13 @@ public class RapidFitEditor extends JFrame {
 		}
 
 		//set font style for every element
-		Enumeration<Object> keys = UIManager.getDefaults().keys();
+		/*Enumeration<Object> keys = UIManager.getDefaults().keys();
 		while (keys.hasMoreElements()) {
 			Object key = keys.nextElement();
 			Object value = UIManager.get (key);
 			if (value != null && value instanceof javax.swing.plaf.FontUIResource)
 				UIManager.put (key, new FontUIResource("San_Serif",Font.PLAIN,18));
-		}
+		}*/
 
 		setJMenuBar(RapidFitEditorMenuBar.getInstance());
 	}
